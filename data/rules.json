@@ -1,4 +1,23 @@
 {
+  "acuity": [
+    { "acuity": 1, "patienceSeconds": 30, "points": 80 },
+    { "acuity": 2, "patienceSeconds": 45, "points": 60 },
+    { "acuity": 3, "patienceSeconds": 60, "points": 40 },
+    { "acuity": 4, "patienceSeconds": 75, "points": 30 },
+    { "acuity": 5, "patienceSeconds": 90, "points": 20 }
+  ],
+  "speedBonusMax": 0.5,
+  "outcomes": {
+    "leave": { "points": -10, "strikes": 1 },
+    "rescue": { "points": -20, "strikes": 2 },
+    "death": { "points": -40, "strikes": 3 }
+  },
+  "playerScaling": [
+    { "players": 1, "spawnInterval": 1.6, "census": -2, "stars": 1 },
+    { "players": 2, "spawnInterval": 1.25, "census": -1, "stars": 1.25 },
+    { "players": 3, "spawnInterval": 1, "census": 0, "stars": 1.5 },
+    { "players": 4, "spawnInterval": 0.85, "census": 1, "stars": 1.75 }
+  ],
   "codes": {
     "lostAfterSeconds": 45,
     "fix": {

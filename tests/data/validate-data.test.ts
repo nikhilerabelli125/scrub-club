@@ -5,6 +5,7 @@ import {
   type ConditionsFile,
   type LevelDef,
   type MapDef,
+  type RulesFile,
   type TasksFile,
 } from '../../src/data';
 import { loadDataDir } from '../../tools/load-data';
@@ -141,6 +142,14 @@ describe('validate-data', () => {
       if (clean) clean.after = ['task.stitches'];
     });
     expect(problems.join('\n')).toMatch(/can never start: task\.(clean-wound|stitches) → /);
+  });
+
+  it('requires one rules entry per acuity and per player count', () => {
+    const problems = problemsAfter((file) => {
+      const rules = file<RulesFile>('rules.json');
+      rules.acuity = rules.acuity.filter((entry) => entry.acuity !== 3);
+    });
+    expect(problems).toContain('rules.json acuity: needs exactly one entry for 3 (found 0)');
   });
 
   it('requires critical patients to escalate somewhere, since they never leave', () => {

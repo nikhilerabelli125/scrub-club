@@ -345,7 +345,29 @@ export const HazardDefSchema = z.strictObject({
 });
 export const HazardsFileSchema = z.strictObject({ hazards: z.array(HazardDefSchema) });
 
+const OutcomeRule = z.strictObject({
+  points: z.number().int(),
+  strikes: z.number().int().nonnegative(),
+});
+
 export const RulesFileSchema = z.strictObject({
+  acuity: z.array(
+    z.strictObject({
+      acuity: AcuitySchema,
+      patienceSeconds: z.number().positive(),
+      points: z.number().int().nonnegative(),
+    }),
+  ),
+  speedBonusMax: z.number().nonnegative(),
+  outcomes: z.strictObject({ leave: OutcomeRule, rescue: OutcomeRule, death: OutcomeRule }),
+  playerScaling: z.array(
+    z.strictObject({
+      players: z.literal([1, 2, 3, 4]),
+      spawnInterval: z.number().positive(),
+      census: z.number().int(),
+      stars: z.number().positive(),
+    }),
+  ),
   codes: z.strictObject({
     lostAfterSeconds: z.number().positive(),
     fix: z.strictObject({ flat: z.array(TaskId).min(1), zigzag: z.array(TaskId).min(1) }),
