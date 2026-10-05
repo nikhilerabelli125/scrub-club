@@ -11,19 +11,9 @@
   "strikeLimit": 6,
   "ticketMode": "assess",
   "disposition": "transport",
-  "gimmicks": [
-    "gimmick.swinging-doors"
-  ],
-  "hazards": [
-    "hazard.stretcher-lane"
-  ],
-  "introduces": [
-    "deterioration-alarms",
-    "code",
-    "cpr",
-    "shock",
-    "bed-spots"
-  ],
+  "gimmicks": ["gimmick.swinging-doors"],
+  "hazards": ["hazard.stretcher-lane"],
+  "introduces": ["deterioration-alarms", "code", "cpr", "shock", "bed-spots"],
   "briefing": {
     "title": "Code Blue",
     "body": "Code blue! When a monitor goes flat or zigzags, that heart has stopped. Start CPR and hit the beats. Grab the crash cart: zigzag means shock, flat means an adrenaline shot. It takes two of you to bring them back. Once they have a pulse, one person can stay with them.",
@@ -68,7 +58,8 @@
       "type": "spawn",
       "condition": "ed.collapsed",
       "jitter": 20,
-      "via": "ambulance"
+      "via": "ambulance",
+      "bed": "resus"
     },
     {
       "at": 225,
@@ -104,9 +95,5 @@
     }
   ],
   "starMode": "points",
-  "stars": [
-    260,
-    430,
-    600
-  ]
+  "stars": [260, 430, 600]
 }

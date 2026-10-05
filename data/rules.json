@@ -1,0 +1,9 @@
+{
+  "codes": {
+    "lostAfterSeconds": 45,
+    "fix": {
+      "flat": ["task.cpr", "task.adrenaline"],
+      "zigzag": ["task.cpr", "task.shock"]
+    }
+  }
+}

@@ -25,7 +25,7 @@ TypeScript (strict) + Vite, Three.js for rendering, Rapier (`@dimforge/rapier3d-
 
 ## Golden rules
 
-1. **The simulation never imports Three.js, the DOM, or Tone.js.** Everything in `src/sim/` is pure TypeScript that runs at a fixed 60 Hz tick and can be unit tested in Node. Rendering, UI, and audio read sim state; they never change it. This keeps online play possible later.
+1. **The simulation never imports Three.js, the DOM, or Tone.js.** Everything in `src/sim/` is pure TypeScript that runs at a fixed 60 Hz tick and can be unit tested in Node. Rendering, UI, and audio read sim state; they never change it. This keeps online play possible later. ESLint and `tsconfig.sim.json` enforce this for `src/sim/`, `src/minigames/`, and `src/data/`.
 2. **Content is data.** Patients, tasks, levels, maps, and roles live in `data/` as JSON validated by zod schemas in `src/data/schema.ts`. Never hard-code a patient, level, or task in TypeScript. If the schema can't express something, extend the schema and update `docs/07-architecture.md`.
 3. **Medical content comes from the docs only.** Do not invent conditions, treatments, or task orders. If a level needs a patient that isn't in `docs/04-settings-and-patients.md`, stop and ask the team. In-game text uses the simplified labels from the docs ("blood test," "shock," "EKG"), never jargon.
 4. **Use the seeded RNG** (`sim/rng.ts`) for anything random in the simulation. No `Math.random()` in `src/sim/`.
@@ -41,8 +41,9 @@ npm run dev            # Vite dev server
 npm run build          # production build
 npm run test           # Vitest (sim + data validation)
 npm run lint           # ESLint + Prettier check
-npm run typecheck      # tsc --noEmit
+npm run typecheck      # tsc -b: app, sim, and node projects (a bare `tsc` checks nothing)
 npm run validate-data  # validate every JSON file in data/ against the zod schemas
+npm run format         # Prettier --write
 ```
 
 Set these up in milestone M0 if they don't exist yet.
@@ -58,7 +59,7 @@ Set these up in milestone M0 if they don't exist yet.
 
 ## Git workflow
 
-- `main` is protected. Work on `feat/<lane>-<short-name>` or `fix/<short-name>` branches.
+- `main` is protected. Work on `feat/<lane>-<short-name>`, `fix/<short-name>`, or `content/<level-or-setting>` branches.
 - Small PRs (one system or one level at a time). CI must pass (lint, typecheck, test, build, validate-data).
 - Stay inside your lane's folders when possible (see `docs/08-milestones-and-team.md`). If you must touch another lane's folder, say so in the PR description.
 - If a design decision changes, update the relevant doc and add a line to `docs/09-decision-log.md` in the same PR.

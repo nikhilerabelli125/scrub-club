@@ -1,0 +1,30 @@
+{
+  "items": [
+    { "id": "item.adrenaline", "label": "Adrenaline", "sources": ["equipment.crash-cart"] },
+    { "id": "item.bandage", "label": "Bandage", "sources": ["station.supply"] },
+    { "id": "item.bandage-kit", "label": "Bandage kit", "sources": ["station.supply"] },
+    { "id": "item.bedpan", "label": "Bedpan", "sources": ["station.supply"] },
+    { "id": "item.blanket", "label": "Blanket", "sources": ["station.supply"] },
+    { "id": "item.blood-bag", "label": "Blood bag", "sources": ["station.blood-fridge"] },
+    { "id": "item.blood-tube", "label": "Blood tube", "sources": [] },
+    { "id": "item.cast", "label": "Cast", "sources": ["station.supply"] },
+    { "id": "item.collar", "label": "Neck collar", "sources": ["station.supply"] },
+    { "id": "item.drink", "label": "Drink", "sources": ["station.drinks"] },
+    { "id": "item.fluid-bag", "label": "IV fluid bag", "sources": ["station.supply"] },
+    { "id": "item.fluid-jar", "label": "Fluid jar", "sources": [] },
+    { "id": "item.ice", "label": "Ice pack", "sources": ["station.ice"] },
+    { "id": "item.ice-bag", "label": "Bag of ice", "sources": ["station.ice"] },
+    { "id": "item.inhaler", "label": "Inhaler", "sources": ["station.med-cabinet"] },
+    { "id": "item.med", "label": "Medicine", "sources": ["station.med-cabinet"] },
+    { "id": "item.mesh", "label": "Mesh", "sources": ["station.instrument-tray"] },
+    { "id": "item.mop", "label": "Mop", "sources": ["station.supply"] },
+    { "id": "item.scale", "label": "Scale", "sources": ["station.scale"] },
+    { "id": "item.specimen", "label": "Specimen", "sources": [] },
+    { "id": "item.splint", "label": "Splint", "sources": ["station.supply"] },
+    { "id": "item.supplies", "label": "Supplies", "sources": ["station.supply"] },
+    { "id": "item.swab", "label": "Swab", "sources": [] },
+    { "id": "item.tourniquet", "label": "Tourniquet", "sources": ["station.supply"] },
+    { "id": "item.vaccine", "label": "Vaccine", "sources": ["station.vaccine-fridge"] },
+    { "id": "item.wrap", "label": "Wrap", "sources": ["station.supply"] }
+  ]
+}

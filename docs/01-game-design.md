@@ -138,6 +138,8 @@ When a patient's heart stops, the monitor shows one of two lines:
 
 Teammates can help in quick bursts by throwing defib pads onto the patient or bringing the crash cart. Losing a code means death (see 12).
 
+**Code clock.** A code is lost if the heart isn't restarted within 45 seconds (draft). Some patients arrive already in a code (collapsed at home, collapsed at the finish line); the clock starts when they arrive. The clock and the fix for each line live in `data/rules.json`.
+
 ## 6. Signal language
 
 These cues mean the same thing everywhere. Briefings teach them; non-medical players learn the whole game from this table.

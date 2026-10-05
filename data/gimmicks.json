@@ -1,0 +1,125 @@
+{
+  "gimmicks": [
+    {
+      "id": "gimmick.back-doors",
+      "name": "Back doors swing open",
+      "chaos": 2,
+      "description": "Ambulance doors fly open on bumps; unsecured items slide onto the road"
+    },
+    {
+      "id": "gimmick.basement-flood",
+      "name": "Basement flood",
+      "chaos": 3,
+      "description": "Water rises on the lower floor; stations there go offline one by one"
+    },
+    {
+      "id": "gimmick.deck-tilt",
+      "name": "Deck tilt and pool slosh",
+      "chaos": 3,
+      "description": "The ship tilts on a rhythm; big tilts send pool water across the deck"
+    },
+    {
+      "id": "gimmick.earthquake-islands",
+      "name": "Earthquake islands",
+      "chaos": 3,
+      "description": "Cracks split the site into islands; plank bridges come and go"
+    },
+    {
+      "id": "gimmick.elevator-lab",
+      "name": "Elevator lab",
+      "chaos": 2,
+      "description": "The lab lives inside the elevator and moves between floors"
+    },
+    {
+      "id": "gimmick.fire-drill",
+      "name": "Fire drill",
+      "chaos": 3,
+      "description": "Sprinklers soak one wing; patients get wheeled to the other side"
+    },
+    {
+      "id": "gimmick.layout-flip",
+      "name": "Layout flip",
+      "chaos": 3,
+      "description": "At the halfway mark the map mirrors"
+    },
+    {
+      "id": "gimmick.lights-roulette",
+      "name": "Lights roulette",
+      "chaos": 2,
+      "description": "Lights go out room by room in sequence"
+    },
+    {
+      "id": "gimmick.moving-walkway",
+      "name": "Moving walkway",
+      "chaos": 2,
+      "description": "Hallway conveyor carries players and dropped items; fast one way, slow against it"
+    },
+    {
+      "id": "gimmick.pod-shuffle",
+      "name": "Pod shuffle",
+      "chaos": 3,
+      "description": "ICU rooms are modular pods that slide to new spots mid-level"
+    },
+    {
+      "id": "gimmick.revolving-door",
+      "name": "Revolving door",
+      "chaos": 1,
+      "description": "The main entrance spins, carrying players and wheelchairs around"
+    },
+    {
+      "id": "gimmick.robot-mop",
+      "name": "Robot mop",
+      "chaos": 1,
+      "description": "A cleaning robot roams, leaving slippery trails and bumping carts"
+    },
+    {
+      "id": "gimmick.rolling-beds",
+      "name": "Rolling beds",
+      "chaos": 2,
+      "description": "Unlocked beds drift down a sloped floor until someone locks them"
+    },
+    {
+      "id": "gimmick.sky-bridge",
+      "name": "Sky bridge",
+      "chaos": 2,
+      "description": "Two wings connected by a bridge that retracts and extends"
+    },
+    {
+      "id": "gimmick.spinning-station",
+      "name": "Spinning station",
+      "chaos": 2,
+      "description": "A desk or station on a turntable rotates every so often",
+      "params": { "intervalSeconds": 20 }
+    },
+    {
+      "id": "gimmick.stampede-lane",
+      "name": "Stampede lane",
+      "chaos": 2,
+      "description": "Runners, traffic, or crowds sweep across a lane, knocking items out of hands"
+    },
+    {
+      "id": "gimmick.swinging-doors",
+      "name": "Swinging doors",
+      "chaos": 1,
+      "description": "Doors fly open when stretchers rush through and bonk anyone nearby"
+    },
+    {
+      "id": "gimmick.tent-takeoff",
+      "name": "Tent takeoff",
+      "chaos": 3,
+      "description": "Wind lifts part of the tent; stations land somewhere new"
+    },
+    {
+      "id": "gimmick.tube-mixup",
+      "name": "Tube mixup",
+      "chaos": 2,
+      "description": "The pneumatic tube sometimes delivers samples to the wrong station"
+    },
+    {
+      "id": "gimmick.under-construction",
+      "name": "Under construction",
+      "chaos": 3,
+      "description": "Missing floor sections; a crane swings supplies across the map"
+    }
+  ]
+}

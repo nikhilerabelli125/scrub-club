@@ -30,7 +30,7 @@ Roles are soft perks only. Every player can do every task. Roles are picked per 
 | Med student | Base | Light purple `#B9A4E3` | Short white coat | Questions reveal one extra clue (can unmask hidden conditions); all tasks 20% slower; 5% fumble | Coffee Run |
 | Tech | Unlock | Charcoal `#454B55` | Scrub cap | Carries two items | Turbo Turnover or Supply Run |
 | Respiratory therapist | Unlock | Green `#2E8B57` | | Oxygen and airway setup 40% faster | Deep Breath or Vent Sweep |
-| Pharmacist | Unlock | Wine `#7A2E46` | | Their doses can never overdose; med cabinet 40% faster | Med Drop or Auto-Dose |
+| Pharmacist | Unlock | Wine `#7A2E46` | | Their doses can never overdose; giving meds 40% faster | Med Drop or Auto-Dose |
 
 All numbers are draft.
 
@@ -61,6 +61,8 @@ All numbers are draft.
 - Tech: after level 5
 - Respiratory therapist: after level 12 (first ICU level)
 - Pharmacist: after level 15
+
+In data, each unlock lives on the level that grants it (`unlocks` in the level file), so there's one place to change it.
 
 ## 4. Controls
 

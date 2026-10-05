@@ -1,0 +1,8 @@
+dist/
+coverage/
+package-lock.json
+
+# The spec is prose; reformatting would realign every table and bury real doc changes.
+docs/
+reference/
+*.md

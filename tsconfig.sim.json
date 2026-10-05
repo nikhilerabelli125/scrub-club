@@ -1,0 +1,11 @@
+{
+  // Pure code that must also run in Node (docs/07 §3): no DOM and no Node globals,
+  // so any use of window, document, performance, etc. here is a type error.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.sim.tsbuildinfo",
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/sim", "src/minigames", "src/data"]
+}

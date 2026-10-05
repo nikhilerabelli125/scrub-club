@@ -1,0 +1,11 @@
+{
+  "equipment": [
+    { "id": "equipment.bypass", "label": "Bypass machine" },
+    { "id": "equipment.c-arm", "label": "C-arm" },
+    { "id": "equipment.crash-cart", "label": "Crash cart", "provides": ["equipment.defib"] },
+    { "id": "equipment.defib", "label": "Defibrillator" },
+    { "id": "equipment.dialysis", "label": "Dialysis machine" },
+    { "id": "equipment.ekg", "label": "EKG machine" },
+    { "id": "equipment.ultrasound", "label": "Ultrasound cart" }
+  ]
+}

@@ -1,9 +1,6 @@
 {
   "setting": "cl",
-  "baseTasks": [
-    "task.ask-questions",
-    "task.check-vitals"
-  ],
+  "baseTasks": ["task.ask-questions", "task.check-vitals"],
   "conditions": [
     {
       "id": "cl.sore-throat",
@@ -19,9 +16,7 @@
         },
         {
           "task": "task.antibiotics",
-          "after": [
-            "task.throat-swab"
-          ]
+          "after": ["task.throat-swab"]
         }
       ],
       "escalation": [],
@@ -44,15 +39,11 @@
         },
         {
           "task": "task.vaccine",
-          "after": [
-            "task.check-vitals"
-          ]
+          "after": ["task.check-vitals"]
         },
         {
           "task": "task.observe",
-          "after": [
-            "task.vaccine"
-          ]
+          "after": ["task.vaccine"]
         }
       ],
       "escalation": [],
@@ -75,9 +66,7 @@
         },
         {
           "task": "task.prescription",
-          "after": [
-            "task.listen-lungs"
-          ]
+          "after": ["task.listen-lungs"]
         }
       ],
       "escalation": [],
@@ -92,9 +81,7 @@
       "label": "Twisted ankle",
       "realName": "Ankle sprain",
       "acuity": 4,
-      "arrivalCues": [
-        "pain"
-      ],
+      "arrivalCues": ["pain"],
       "baseTasks": true,
       "tasks": [
         {
@@ -102,9 +89,7 @@
         },
         {
           "task": "task.splint",
-          "after": [
-            "task.xray"
-          ]
+          "after": ["task.xray"]
         }
       ],
       "escalation": [],
@@ -119,9 +104,7 @@
       "label": "Cut finger",
       "realName": "Finger laceration",
       "acuity": 4,
-      "arrivalCues": [
-        "pain"
-      ],
+      "arrivalCues": ["pain"],
       "baseTasks": true,
       "tasks": [
         {
@@ -129,9 +112,7 @@
         },
         {
           "task": "task.stitches",
-          "after": [
-            "task.clean-wound"
-          ]
+          "after": ["task.clean-wound"]
         }
       ],
       "escalation": [],
@@ -154,9 +135,7 @@
         },
         {
           "task": "task.prescription",
-          "after": [
-            "task.blood-draw"
-          ]
+          "after": ["task.blood-draw"]
         }
       ],
       "escalation": [],
@@ -176,14 +155,9 @@
           "label": "Dizzy",
           "acuity": 4
         },
-        "revealedBy": [
-          "task.ask-questions",
-          "task.check-vitals"
-        ]
+        "revealedBy": ["task.ask-questions", "task.check-vitals"]
       },
-      "arrivalCues": [
-        "lowSugar"
-      ],
+      "arrivalCues": ["lowSugar"],
       "baseTasks": true,
       "tasks": [
         {
@@ -191,9 +165,7 @@
         },
         {
           "task": "task.give-drink",
-          "after": [
-            "task.sugar-check"
-          ],
+          "after": ["task.sugar-check"],
           "params": {
             "drink": "juice"
           }
@@ -202,19 +174,13 @@
       "escalation": [
         {
           "afterSeconds": 40,
-          "cues": [
-            "lowSugar"
-          ],
+          "cues": ["lowSugar"],
           "jitterSeconds": 8,
-          "slowedBy": [
-            "task.give-drink"
-          ]
+          "slowedBy": ["task.give-drink"]
         },
         {
           "afterSeconds": 20,
-          "cues": [
-            "lowSugar"
-          ],
+          "cues": ["lowSugar"],
           "badge": "Sugar too low",
           "addTasks": [
             {
@@ -222,9 +188,7 @@
             },
             {
               "task": "task.sugar-iv",
-              "after": [
-                "task.iv"
-              ]
+              "after": ["task.iv"]
             }
           ]
         }
@@ -245,10 +209,7 @@
           "label": "Indigestion",
           "acuity": 4
         },
-        "revealedBy": [
-          "task.ask-questions",
-          "task.check-vitals"
-        ]
+        "revealedBy": ["task.ask-questions", "task.check-vitals"]
       },
       "arrivalCues": [],
       "baseTasks": true,
@@ -258,37 +219,25 @@
         },
         {
           "task": "task.aspirin",
-          "after": [
-            "task.ekg"
-          ]
+          "after": ["task.ekg"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 35,
-          "cues": [
-            "heartAttack"
-          ],
+          "cues": ["heartAttack"],
           "jitterSeconds": 8,
-          "slowedBy": [
-            "task.aspirin"
-          ]
+          "slowedBy": ["task.aspirin"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "heartAttack"
-          ],
+          "cues": ["heartAttack"],
           "badge": "Heart attack",
-          "slowedBy": [
-            "task.aspirin"
-          ]
+          "slowedBy": ["task.aspirin"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "zigzag"
-          ],
+          "cues": ["zigzag"],
           "outcome": "code-zigzag"
         }
       ],
@@ -303,9 +252,7 @@
       "label": "Shot reaction",
       "realName": "Anaphylaxis after vaccination",
       "acuity": 2,
-      "arrivalCues": [
-        "allergy"
-      ],
+      "arrivalCues": ["allergy"],
       "baseTasks": false,
       "tasks": [
         {
@@ -313,27 +260,19 @@
         },
         {
           "task": "task.observe",
-          "after": [
-            "task.allergy-shot"
-          ]
+          "after": ["task.allergy-shot"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 20,
-          "cues": [
-            "allergy"
-          ],
+          "cues": ["allergy"],
           "badge": "Allergic reaction",
-          "slowedBy": [
-            "task.allergy-shot"
-          ]
+          "slowedBy": ["task.allergy-shot"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "addTasks": [
             {
