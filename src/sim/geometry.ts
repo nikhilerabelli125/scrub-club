@@ -33,7 +33,7 @@ export function bedBox(bed: MapDef['beds'][number]): Box {
 
 // Our maps use straight walls along the axes; a diagonal wall would block its whole
 // bounding box.
-function wallBox({ from, to }: MapDef['walls'][number]): Box {
+export function wallBox({ from, to }: MapDef['walls'][number]): Box {
   const half = WALL_THICKNESS / 2;
   return {
     x0: Math.min(from[0], to[0]) - half,

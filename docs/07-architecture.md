@@ -350,7 +350,8 @@ The same checks run in `npm run test`, and a test compiles the block above again
 
 - Three.js scene with a perspective camera (fov about 32°), hemisphere + directional light with soft shadows, matte standard materials.
 - Characters and patients are procedural (see `06-art-audio-ui.md`). Port the character and scrub-texture code from `reference/style-lab.html` as the starting point.
-- **Porting the style lab.** It loads three.js r128 from a CDN; the npm package is much newer. Multiply its light intensities by π (three switched to physical light units in r155), set canvas textures to `SRGBColorSpace`, and offset positions by half the map size, because the style lab centers its room while `MapDef` measures from the top-left corner. `src/render/empty-scene.ts` shows the light conversion and a fixed-camera fit that keeps every corner of the map on screen.
+- **Porting the style lab.** It loads three.js r128 from a CDN; the npm package is much newer. Multiply its light intensities by π (three switched to physical light units in r155), set canvas textures to `SRGBColorSpace`, and offset positions by half the map size, because the style lab centers its room while `MapDef` measures from the top-left corner. (The game itself renders in map coordinates and aims the camera at the map's center, so it needs no offset.) `src/render/index.ts` shows the light conversion, and `src/render/camera.ts` the fixed-camera fit that keeps every corner of the map on screen.
+- **M1 greybox:** `src/render/greybox.ts` builds walls, stations, beds, and equipment markers from the map file; walls along the camera-side edge stay low so they don't hide the floor. `src/render/actors.ts` draws players (neutral capsules with their ring always on top), patients (lying in bed or seated in the waiting room), and items (in hand or on the floor).
 - Map builder turns `MapDef` into greybox geometry (M1), later swaps in GLB props by station type (M5).
 - Instancing for repeated props (chairs, tiles). Reuse geometries and materials.
 - Quality toggle: shadows on/off, shadow map size, particle count, pixel ratio cap.
@@ -364,6 +365,14 @@ Rapier handles thrown items, items sliding on tilted floors (ambulance swerves, 
 - DOM elements absolutely positioned over the canvas, updated each frame from projected 3D positions (tags, badges, minigame panels, off-screen alerts).
 - Static UI (ticket rail, HUD, menus) is regular DOM.
 - No UI element may cover player rings or tags.
+- M1 overlay (`src/ui/`):
+  - the ticket rail: complaint, bed, task chips (can do now, later, done), and a patience bar
+  - the clock, and the HUD (score, stars so far, strikes)
+  - tags over players (P1, plus what they carry), patients (their complaint in its acuity color, over the head of the bed), and stations (their names)
+  - a progress panel over each working player, and a results card
+  
+  `model.ts` works out what to show and is unit tested; `overlay.ts` only draws it.
+- Until menus arrive (M4), `?level=<id>` picks a level and `?players=1` plays solo. Dev builds expose `window.scrubClub` (the running world and context) for poking at it from the browser console.
 
 ## 10. Audio
 

@@ -93,3 +93,6 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Use | Starts the first task doable at the nearest patient, preferring the carried item; at a station, its task for the longest-waiting patient | M1 |
 | Working | Players stay rooted while working; letting go of a hold pauses it with progress kept on the patient | M1 |
 | Stand-ins | Unbuilt minigames and interactions are 2 s holds until their milestones; equipment ignored until M2 | M1 |
+| Greybox labels | Patients show their complaint in their acuity color and stations their name, until cue visuals (M2) and art (M5) | M1 |
+| Tickets | Task chips show what can be done now, what comes later, and what's done | M1 |
+| Run options | `?level=` and `?players=1` pick a level or solo play until menus (M4) | M1 |
