@@ -189,6 +189,8 @@ Chores are the dish-washing of Scrub Club: they pile up and block work if ignore
 
 ### Points (draft)
 
+The live numbers for patience, points, strikes, and player-count scaling are in `data/rules.json`; tune them there.
+
 | Event | Points |
 |---|---|
 | Patient finished, acuity 5 / 4 / 3 / 2 / 1 | +20 / +30 / +40 / +60 / +80 |

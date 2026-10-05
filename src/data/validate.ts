@@ -52,6 +52,15 @@ export interface DataIssue {
 type Report = (file: string, at: string, message: string) => void;
 
 export function validateData(files: readonly DataFile[]): DataIssue[] {
+  return checkData(files).issues;
+}
+
+// Validates and, only when everything passes, also returns the parsed files, so the
+// game loads content through exactly the same checks as validate-data.
+export function checkData(files: readonly DataFile[]): {
+  data: ParsedData | undefined;
+  issues: DataIssue[];
+} {
   const issues: DataIssue[] = [];
   const report: Report = (file, at, message) => {
     issues.push({ file, at, message });
@@ -59,12 +68,13 @@ export function validateData(files: readonly DataFile[]): DataIssue[] {
   const parsed = parseAll(files, report);
   if (parsed) checkReferences(parsed, report);
   // Stable sort keeps each file's problems in the order they were found.
-  return issues.sort((a, b) => a.file.localeCompare(b.file));
+  issues.sort((a, b) => a.file.localeCompare(b.file));
+  return { data: issues.length === 0 ? parsed : undefined, issues };
 }
 
 // --- Parsing -------------------------------------------------------------------------
 
-interface Parsed {
+export interface ParsedData {
   tasks: TasksFile;
   roles: RolesFile;
   stations: StationsFile;
@@ -89,7 +99,7 @@ const REGISTRY_FILES = [
   'rules.json',
 ];
 
-function parseAll(files: readonly DataFile[], report: Report): Parsed | undefined {
+function parseAll(files: readonly DataFile[], report: Report): ParsedData | undefined {
   const parse = <S extends z.ZodType>(schema: S, file: DataFile): z.output<S> | undefined => {
     const result = schema.safeParse(file.json);
     if (result.success) return result.data;
@@ -99,9 +109,9 @@ function parseAll(files: readonly DataFile[], report: Report): Parsed | undefine
   };
 
   const registryFiles = new Map<string, DataFile>();
-  const conditionFiles: Parsed['conditionFiles'] = [];
-  const levels: Parsed['levels'] = [];
-  const maps: Parsed['maps'] = [];
+  const conditionFiles: ParsedData['conditionFiles'] = [];
+  const levels: ParsedData['levels'] = [];
+  const maps: ParsedData['maps'] = [];
 
   for (const file of files) {
     const parts = file.path.split('/');
@@ -185,7 +195,7 @@ interface Index {
 
 type Ids = ReadonlySet<string> | ReadonlyMap<string, unknown>;
 
-function checkReferences(p: Parsed, report: Report): void {
+function checkReferences(p: ParsedData, report: Report): void {
   const ix: Index = {
     tasks: new Map(p.tasks.tasks.map((t) => [t.id, t])),
     conditions: new Map(
@@ -227,7 +237,13 @@ function checkReferences(p: Parsed, report: Report): void {
 type Known = (kind: string, id: string, ids: Ids, file: string, at: string) => boolean;
 type Unique = (kind: string, id: string, file: string, at: string) => void;
 
-function checkRegistries(p: Parsed, ix: Index, report: Report, known: Known, unique: Unique): void {
+function checkRegistries(
+  p: ParsedData,
+  ix: Index,
+  report: Report,
+  known: Known,
+  unique: Unique,
+): void {
   const registryIds: [string, string, { id: string }[], string][] = [
     ['task', 'tasks.json', p.tasks.tasks, 'tasks'],
     ['station type', 'stations.json', p.stations.stations, 'stations'],
@@ -301,6 +317,24 @@ function checkRegistries(p: Parsed, ix: Index, report: Report, known: Known, uni
       known('task', task, ix.tasks, 'rules.json', `codes.fix.${rhythm}[${i}]`);
     });
   }
+  // The sim looks these tables up by acuity and player count, so each needs one entry.
+  const exactlyOnce = (list: string, values: readonly number[], expected: readonly number[]) => {
+    for (const value of expected) {
+      const found = values.filter((v) => v === value).length;
+      if (found !== 1)
+        report('rules.json', list, `needs exactly one entry for ${value} (found ${found})`);
+    }
+  };
+  exactlyOnce(
+    'acuity',
+    p.rules.acuity.map((a) => a.acuity),
+    [1, 2, 3, 4, 5],
+  );
+  exactlyOnce(
+    'playerScaling',
+    p.rules.playerScaling.map((s) => s.players),
+    [1, 2, 3, 4],
+  );
 
   p.roles.roles.forEach((role, i) => {
     role.abilities.forEach((ability, j) => {
@@ -379,7 +413,13 @@ function codeRhythms(c: ConditionDef): Set<'flat' | 'zigzag'> {
   return rhythms;
 }
 
-function checkConditions(p: Parsed, ix: Index, report: Report, known: Known, unique: Unique): void {
+function checkConditions(
+  p: ParsedData,
+  ix: Index,
+  report: Report,
+  known: Known,
+  unique: Unique,
+): void {
   for (const { file, data } of p.conditionFiles) {
     const expected = `conditions/${data.setting}.json`;
     if (file !== expected) {
@@ -535,7 +575,7 @@ function findCycle(refs: readonly TaskStepRef[]): string[] | undefined {
   return undefined;
 }
 
-function checkMaps(p: Parsed, ix: Index, report: Report, known: Known, unique: Unique): void {
+function checkMaps(p: ParsedData, ix: Index, report: Report, known: Known, unique: Unique): void {
   for (const { file, data: map } of p.maps) {
     unique('map', map.id, file, 'id');
     if (file !== `maps/${map.id}.json`)
@@ -582,7 +622,7 @@ function checkMaps(p: Parsed, ix: Index, report: Report, known: Known, unique: U
   }
 }
 
-function checkLevels(p: Parsed, ix: Index, report: Report, known: Known, unique: Unique): void {
+function checkLevels(p: ParsedData, ix: Index, report: Report, known: Known, unique: Unique): void {
   const unlockedBy = new Map<string, string>();
 
   for (const { file, data: level } of p.levels) {

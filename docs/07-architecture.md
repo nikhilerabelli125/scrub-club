@@ -69,10 +69,20 @@ scrub-club/
 1. `src/sim/` and `src/minigames/` never import Three.js, the DOM, or Tone.js. They must run in Node for tests.
 2. The sim advances in fixed 60 Hz ticks. Rendering runs at display rate and interpolates between the last two sim states.
 3. All randomness uses the seeded RNG. Each level run gets a seed (shown in the debug panel) so runs can be reproduced.
-4. The sim's only input is a per-tick list of player actions (see 5). Same actions + same seed = same result.
-5. Sim state is plain serializable data (no class instances with hidden state, no functions in state). This keeps save, replays, and future online play possible.
-6. Systems are functions: `(world, actions, dt) => void`, run in a fixed order each tick: input → abilities → movement → interactions → minigames → tasks → items → patients/escalation → codes → chores → gimmicks/events → spawn → scoring/strikes → end checks.
+4. The sim's only input is a per-tick list of player actions (see 5). Same actions + same seed = same result. Dev and test commands (spawn a condition, seat a patient, complete a task) travel in the same per-tick input, so the debug panel and tests can't break replays.
+5. Sim state is plain serializable data (no class instances with hidden state, no functions in state, no `undefined`). Timers count whole ticks. This keeps save, replays, and future online play possible.
+6. Systems are functions: `(world, ctx, input) => void` (`ctx` holds the read-only content, level, and map; `dt` is always one tick), run in a fixed order each tick: input → abilities → movement → interactions → minigames → tasks → items → patients/escalation → codes → chores → gimmicks/events → spawn → scoring/strikes → end checks.
 7. The sim emits events (`taskCompleted`, `patientEscalated`, `strike`, `codeStarted`, ...) that render, UI, and audio subscribe to.
+
+**Sim API.** Load data with `loadContent(files)` from `src/data` (the same checks as `validate-data`). For each level run: `createContext(content, levelId)`, then `createWorld(ctx, { seed, playerCount })`, then call `stepWorld(world, ctx, input)` once per tick, using `takeTicks` from `src/sim/clock.ts` to turn frame time into ticks. `input` is `{ players, commands? }`. After each tick, `world.events` lists what happened (`patientArrived`, `taskCompleted`, `patientFinished`, `patientLeft`, `scored`, `strike`, `levelEnded`, `commandRejected`); `world.result` is set when the level ends.
+
+**Rules the M1 core follows** (where the docs leave room):
+
+- Spawning: the first patient arrives at the start. `maxWaiting` caps active patients (tickets on the rail), and the spawn timer pauses at the cap. Scripted spawn events ignore the cap, so guaranteed patients always arrive.
+- Patience counts from arrival until the patient is finished. Acuity 3 to 5 patients leave when it runs out; acuity 1 to 2 never leave, and wait at zero until escalation arrives in M2.
+- Tasks: "first" tasks (`before: 'base'`) come before the setting's base tasks, the base tasks gate everything else, and `after` waits for every repeat of a counted task.
+- Finishing pays the acuity's points plus up to `speedBonusMax` of them for patience left. Every disposition mode behaves like `auto` until M2.
+- Star thresholds scale by player count in both points and time mode.
 
 ## 4. Data model
 
@@ -181,7 +191,7 @@ interface LevelDef {
     pool: { condition: string; weight: number }[];
     sequence?: string[];         // fixed order instead of weighted pool (tutorials)
     intervalSeconds: [number, number];
-    maxWaiting: number;
+    maxWaiting: number;          // cap on active patients (tickets on the rail); the spawn timer pauses at the cap
   };
   endAfterPatients?: number;     // untimed levels end after this many patients
   census?: { condition: string; bed: string }[];
@@ -284,9 +294,13 @@ interface HazardDef {
   params?: Record<string, number | boolean | string>;
 }
 
-// data/rules.json: game-wide rule numbers. More of 01's tuning tables move here as
-// their systems are built.
+// data/rules.json: game-wide rule numbers from 01 §4.2, §5, and §9. These are the live
+// values; tune them here. More tables move here as their systems are built.
 interface RulesFile {
+  acuity: { acuity: Acuity; patienceSeconds: number; points: number }[]; // one entry per acuity
+  speedBonusMax: number;         // 0.5 = up to +50% of a patient's points, by patience left
+  outcomes: Record<'leave' | 'rescue' | 'death', { points: number; strikes: number }>;
+  playerScaling: { players: 1 | 2 | 3 | 4; spawnInterval: number; census: number; stars: number }[];
   codes: {
     lostAfterSeconds: number;    // a code not fixed in time is lost (death)
     fix: { flat: string[]; zigzag: string[] }; // task ids for each rhythm (01 §5)

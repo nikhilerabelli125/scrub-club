@@ -83,3 +83,8 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Pharmacist | Passive speeds up giving meds; nothing in the game makes the med cabinet slow | M0 review |
 | ED-A | A guaranteed chest pain arrives by ambulance at 1:00, so every run has an orange patient to prioritize | M0 review |
 | ED-E | Chest pain deteriorates on its own escalation timer (about 1:40), not a scripted 2:30 event | M0 review |
+| Tuning | Patience, points, strikes, and player-count scaling live in `data/rules.json` | M1 |
+| Spawning | First patient at the start; `maxWaiting` caps active patients and pauses the spawn timer; scripted spawns ignore the cap | M1 |
+| Tasks | "First" tasks come before the base tasks, which gate the rest; `after` waits for every repeat | M1 |
+| Stars | Thresholds scale by player count in time mode too | M1 |
+| Debugging | Dev and test commands travel in the per-tick input, so replays stay exact | M1 |

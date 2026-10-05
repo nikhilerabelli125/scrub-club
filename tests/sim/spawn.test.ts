@@ -1,0 +1,73 @@
+import { describe, expect, it } from 'vitest';
+import { secondsToTicks, type SimCommand } from '../../src/sim';
+import { commands, eventsOf, IDLE, run, startLevel, treatEveryone } from './helpers';
+
+const walkIns = (log: Parameters<typeof eventsOf>[0]) =>
+  eventsOf(log, 'patientArrived').filter(({ event }) => event.entrance === 'walk-in');
+
+// Critical patients never leave (01 §4.5), so four of them hold every slot.
+const fillWaitingRoom: SimCommand[] = Array.from({ length: 4 }, () => ({
+  type: 'spawn',
+  condition: 'ed.chest-pain',
+}));
+
+describe('spawning: ED-A pool', () => {
+  it('admits the first patient at the start, then one per player-scaled interval', () => {
+    const { ctx, world } = startLevel('ed-a', { playerCount: 2, seed: 5 });
+    const arrivals = walkIns(run(world, ctx, secondsToTicks(300), treatEveryone));
+    expect(arrivals[0]?.tick).toBe(1);
+
+    // Two players stretch ED-A's 22 to 30 s interval by 1.25 (data/rules.json).
+    const gaps = arrivals.slice(1).map((entry, i) => entry.tick - (arrivals[i]?.tick ?? 0));
+    expect(gaps.length).toBeGreaterThan(5);
+    for (const gap of gaps) {
+      expect(gap).toBeGreaterThanOrEqual(secondsToTicks(22 * 1.25));
+      expect(gap).toBeLessThanOrEqual(secondsToTicks(30 * 1.25));
+    }
+    const pool = new Set(ctx.level.spawn?.pool.map((entry) => entry.condition));
+    for (const { event } of arrivals) expect(pool.has(event.condition)).toBe(true);
+  });
+
+  it('pauses the spawn timer while maxWaiting patients are active', () => {
+    const { ctx, world } = startLevel('ed-a');
+    const log = run(world, ctx, secondsToTicks(100), (w) =>
+      w.tick === 0 ? commands(...fillWaitingRoom) : IDLE,
+    );
+    // Patients 1 to 4 are the fillers; any later walk-in would be a pool spawn.
+    expect(walkIns(log).map(({ event }) => event.patient)).toEqual([1, 2, 3, 4]);
+  });
+
+  it('still delivers scripted patients when the waiting room is full', () => {
+    const { ctx, world } = startLevel('ed-a');
+    const log = run(world, ctx, secondsToTicks(100), (w) =>
+      w.tick === 0 ? commands(...fillWaitingRoom) : IDLE,
+    );
+    const ambulance = eventsOf(log, 'patientArrived').filter(
+      ({ event }) => event.entrance === 'ambulance',
+    );
+    expect(ambulance).toHaveLength(1);
+    expect(ambulance[0]?.event.condition).toBe('ed.chest-pain');
+    // Scheduled for 1:00 ±15 s in data/levels/02-ed-a.json.
+    expect(ambulance[0]?.tick).toBeGreaterThanOrEqual(secondsToTicks(45));
+    expect(ambulance[0]?.tick).toBeLessThanOrEqual(secondsToTicks(75));
+  });
+});
+
+describe('spawning: CL-A sequence', () => {
+  it('brings patients one at a time in the scripted order', () => {
+    const { ctx, world } = startLevel('cl-a', { playerCount: 1 });
+    let mostAtOnce = 0;
+    const log = run(world, ctx, secondsToTicks(600), (w) => {
+      mostAtOnce = Math.max(mostAtOnce, w.patients.length);
+      return treatEveryone(w);
+    });
+    expect(eventsOf(log, 'patientArrived').map(({ event }) => event.condition)).toEqual([
+      'cl.sore-throat',
+      'cl.cough',
+      'cl.twisted-ankle',
+      'cl.sore-throat',
+      'cl.bp-check',
+    ]);
+    expect(mostAtOnce).toBe(1);
+  });
+});
