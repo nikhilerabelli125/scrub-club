@@ -69,3 +69,10 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Solo | Overcooked-style character swap | Q45 |
 | Online | Later; architecture kept ready | Q46 |
 | Team | 3 to 4 devs, all via Claude Code | C12 |
+| Tooling | TypeScript 6.0 until typescript-eslint supports TypeScript 7 | M0 |
+| Data | Registries for stations, items, equipment, gimmicks, hazards, and code rules; validate-data checks every reference and each level against its own map | M0 |
+| Data | Repeated tasks use `count` (two IVs), so `after` is never ambiguous | M0 |
+| Equipment | The crash cart carries the defibrillator; standalone defibrillators (the marathon AED) are their own equipment | M0 |
+| Unlocks | Levels own unlocks (`unlocks` in level data); roles only say base or unlock | M0 |
+| Codes | Patients can arrive mid-code; a code not fixed within 45 s (draft) is lost | M0 |
+| Maps | Clinic gets a med cabinet, juice fridge, and EKG machine; ED gets a blood fridge and observation chairs, because their patients need them | M0 |

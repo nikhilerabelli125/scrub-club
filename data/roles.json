@@ -57,7 +57,6 @@
       "id": "role.tech",
       "name": "Tech",
       "start": "unlock",
-      "unlockAfterLevel": 5,
       "scrub": "#454B55",
       "accessory": "scrub-cap",
       "passive": {
@@ -70,7 +69,6 @@
       "id": "role.rt",
       "name": "Respiratory therapist",
       "start": "unlock",
-      "unlockAfterLevel": 12,
       "scrub": "#2E8B57",
       "passive": {
         "type": "speed",
@@ -83,7 +81,6 @@
       "id": "role.pharmacist",
       "name": "Pharmacist",
       "start": "unlock",
-      "unlockAfterLevel": 15,
       "scrub": "#7A2E46",
       "passive": {
         "type": "pharmacist",

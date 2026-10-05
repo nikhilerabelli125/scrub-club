@@ -1,0 +1,15 @@
+{
+  "hazards": [
+    {
+      "id": "hazard.stretcher-lane",
+      "name": "Stretcher lane",
+      "description": "Ambulance stretchers rush down the main hallway",
+      "params": { "minIntervalSeconds": 60, "maxIntervalSeconds": 75 }
+    },
+    {
+      "id": "hazard.waiting-overflow",
+      "name": "Waiting room overflow",
+      "description": "The waiting room crowd spills into the hallway"
+    }
+  ]
+}

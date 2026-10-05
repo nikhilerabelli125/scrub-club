@@ -62,6 +62,8 @@ All numbers are draft.
 - Respiratory therapist: after level 12 (first ICU level)
 - Pharmacist: after level 15
 
+In data, each unlock lives on the level that grants it (`unlocks` in the level file), so there's one place to change it.
+
 ## 4. Controls
 
 Every player uses movement plus four buttons. Minigames prompt with the same four buttons, so no player ever needs extra keys.

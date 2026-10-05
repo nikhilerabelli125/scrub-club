@@ -15,7 +15,9 @@
 | CI | GitHub Actions: lint, typecheck, test, validate-data, build |
 | Hosting | Vercel (static site, preview deploy per pull request) |
 
-Pin exact versions in `package.json` at setup.
+Pin exact versions in `package.json` at setup. TypeScript stays on 6.0 until typescript-eslint supports TypeScript 7 (see `09-decision-log.md`).
+
+TypeScript is split into three projects so the purity rules in §3 are compiler errors, not just conventions: `tsconfig.app.json` (browser code), `tsconfig.sim.json` (`src/sim`, `src/minigames`, `src/data`, with no DOM or Node globals), and `tsconfig.node.json` (tools, tests, config). `npm run typecheck` checks all three. ESLint also blocks Three.js, Tone.js, Rapier, and presentation-folder imports, plus `Math.random` and `Date.now`, in those pure folders.
 
 ## 2. Folder structure
 
@@ -26,12 +28,18 @@ scrub-club/
   data/
     tasks.json           task library
     roles.json           roles and abilities
+    stations.json        station types
+    items.json           carryable items and where they come from
+    equipment.json       scarce equipment
+    gimmicks.json        chaos gimmicks (05 §3)
+    hazards.json         setting hazards
+    rules.json           game-wide rule numbers (codes for now)
     conditions/          one file per setting (cl.json, ed.json, ...)
     levels/              one file per level (01-cl-a.json, ...)
     maps/                one file per map
   reference/style-lab.html
   public/                static assets (glb, textures, fonts)
-  tools/                 Blender batch script, data helpers
+  tools/                 validate-data and other data helpers; Blender batch script (M5)
   src/
     main.ts              boot
     app/                 scene flow: title, map, briefing, role select, level, results
@@ -82,7 +90,7 @@ type CueId = 'lowOxygen' | 'pale' | 'overheated' | 'heartAttack' | 'allergy'
 
 interface MechanicStep {
   type: MechanicType;
-  params: Record<string, number | boolean | string>;
+  params: Record<string, number | boolean | string>; // keys per type: 03 §2
 }
 
 interface TaskDef {
@@ -91,7 +99,7 @@ interface TaskDef {
   steps: MechanicStep[];         // one or more mechanic steps in order (empty for interactions)
   interaction?: 'carry' | 'escort' | 'push' | 'twoPersonCarry'; // non-minigame tasks
   spot: BedSpot;
-  station?: string;              // where it happens if not at the bed
+  station?: string;              // station type where it happens if not at the bed; for escorts, the destination
   needsItem?: string;            // item that must be carried in
   needsEquipment?: string;       // scarce equipment that must be at the bed
   producesItem?: string;         // e.g. 'item.blood-tube'
@@ -100,8 +108,12 @@ interface TaskDef {
   perkTags?: string[];           // e.g. ['assessment'] for attending speedup
 }
 
+// data/tasks.json
+interface TasksFile { tasks: TaskDef[] }
+
 interface TaskStepRef {
   task: string;                  // task id
+  count?: number;                // repeat it (2 or more); `after` waits for every repeat
   after?: string[];              // must follow these tasks
   optional?: boolean;
   before?: 'base';               // e.g. allergy shot given before base tasks
@@ -126,12 +138,13 @@ interface ConditionDef {
   acuity: Acuity;
   hidden?: { showsAs: { label: string; acuity: Acuity }; revealedBy: string[] };
   arrivalCues: CueId[];
+  arrivesInCode?: 'flat' | 'zigzag'; // arrives mid-code (no escalation stages)
   baseTasks: boolean;            // use the setting's base tasks
   tasks: TaskStepRef[];
   patienceSeconds?: number;      // override acuity default
   escalation: EscalationStage[]; // empty = only leaves
   wrongActions?: { task: string; severity: 'trivial' | 'harmful' | 'overdose'; effect?: string }[];
-  disposition: { exit: string; planned: boolean };
+  disposition: { exit: string; planned: boolean }; // exit names a map exit's `kind`
   recurring?: { task: string; everySeconds: number }[]; // wards/ICU scheduled care
   notes?: string;                // team notes, never shown
 }
@@ -142,6 +155,9 @@ interface ConditionsFile { setting: SettingId; baseTasks: string[]; conditions: 
 // Escalation timing: stage 1's afterSeconds counts from arrival; each later
 // stage counts from the previous one. Conditions with no stages simply leave
 // when patience runs out. A level's maxEscalation caps code outcomes at 'rescue'.
+// Codes: when a stage ends in a code, or the patient arrives in one, the fix tasks
+// for that rhythm come from rules.codes.fix, and a code that isn't fixed within
+// rules.codes.lostAfterSeconds is lost (death). Death is never a stage outcome.
 
 interface LevelDef {
   id: string;                    // 'ed-e'
@@ -172,12 +188,12 @@ interface LevelDef {
   events: LevelEvent[];
   starMode: 'points' | 'time';   // 'time': thresholds in seconds, 0 = just finish
   stars: [number, number, number]; // 1-player thresholds
-  unlocks?: string[];
+  unlocks?: string[];            // role ids; the only place unlocks are defined
 }
 
 type LevelEvent =
-  | { at: number; jitter?: number; type: 'spawn'; condition: string; via?: string }
-  | { at: number; jitter?: number; type: 'escalate'; target: string }
+  | { at: number; jitter?: number; type: 'spawn'; condition: string; via?: string; bed?: string }
+  | { at: number; jitter?: number; type: 'escalate'; target: string } // condition id or bed id: jump to the next stage now
   | { at: number; jitter?: number; type: 'falseAlarm'; bed: string; label: string }
   | { at: number; jitter?: number; type: 'outage'; durationSeconds: number }
   | { at: number; jitter?: number; type: 'surge'; count: number; overSeconds: number; pool?: string[] }
@@ -194,14 +210,103 @@ interface MapDef {
   equipmentHomes: { equipment: string; pos: [number, number] }[];
   spawns: [number, number][];    // 4 player spawns
   entrances: { id: string; pos: [number, number] }[]; // where patients arrive
-  exits: { id: string; pos: [number, number]; kind: string }[]; // home, heart-lab, or, icu, ambulance...
-  zones?: { id: string; kind: string; rect: [number, number, number, number] }[]; // hazards, gimmicks
+  exits: { id: string; pos: [number, number]; kind: string }[]; // kind: home, heart-lab, or, icu, ambulance...
+  zones?: { id: string; kind: string; rect: [number, number, number, number] }[];
+  // zone kind is a gimmick or hazard id; rect is [x, z, width, depth] from its top-left corner
+}
+
+// data/roles.json
+interface RolesFile {
+  roles: RoleDef[];
+  abilities: AbilityDef[];
+  playerColors: { P1: string; P2: string; P3: string; P4: string }; // ring + tag colors
+}
+
+interface RoleDef {
+  id: string;                    // 'role.nurse'
+  name: string;
+  start: 'base' | 'unlock';      // 'unlock' roles are granted by a level's `unlocks`
+  scrub: string;                 // hex color, locked to the role
+  accessory?: 'long-coat' | 'short-coat' | 'scrub-cap';
+  passive: RolePassive;
+  abilities: string[];           // ability ids; with two, the player picks one at role select
+}
+
+// `tags` match task perkTags; `multiplier` scales task time (0.6 = 40% faster).
+type RolePassive =
+  | { type: 'speed'; tags: string[]; multiplier: number; earlyWarningSeconds?: number }
+  | { type: 'student'; allTasksMultiplier: number; extraClue: boolean; fumbleChance: number }
+  | { type: 'carry'; slots: number }
+  | { type: 'pharmacist'; noOverdose: boolean; tags: string[]; multiplier: number };
+
+interface AbilityDef {
+  id: string;                    // 'ability.huddle'
+  name: string;
+  effect: string;
+  durationSeconds?: number;
+  cooldownSeconds: number;
+}
+
+// data/stations.json: every station type that maps, tasks, and items may name
+interface StationsFile { stations: StationTypeDef[] }
+interface StationTypeDef { id: string; label: string } // 'station.lab'
+
+// data/items.json: everything a player can carry
+interface ItemsFile { items: ItemDef[] }
+interface ItemDef {
+  id: string;                    // 'item.med'
+  label: string;
+  sources: string[];             // station types or equipment that hand it out; [] = only made by a task
+}
+
+// data/equipment.json: scarce wheeled equipment, at most one home per map
+interface EquipmentFile { equipment: EquipmentDef[] }
+interface EquipmentDef {
+  id: string;                    // 'equipment.crash-cart'
+  label: string;
+  provides?: string[];           // also counts as these (the crash cart carries the defibrillator)
+}
+
+// data/gimmicks.json (05 §3) and data/hazards.json
+interface GimmicksFile { gimmicks: GimmickDef[] }
+interface GimmickDef {
+  id: string;                    // 'gimmick.swinging-doors'
+  name: string;
+  chaos: 1 | 2 | 3;
+  description: string;
+  params?: Record<string, number | boolean | string>; // defaults for the gimmick system
+}
+interface HazardsFile { hazards: HazardDef[] }
+interface HazardDef {
+  id: string;                    // 'hazard.stretcher-lane'
+  name: string;
+  description: string;
+  params?: Record<string, number | boolean | string>;
+}
+
+// data/rules.json: game-wide rule numbers. More of 01's tuning tables move here as
+// their systems are built.
+interface RulesFile {
+  codes: {
+    lostAfterSeconds: number;    // a code not fixed in time is lost (death)
+    fix: { flat: string[]; zigzag: string[] }; // task ids for each rhythm (01 §5)
+  };
 }
 ```
 
-Starter files: `data/tasks.json` (full task library), `data/roles.json`, `data/conditions/cl.json`, `data/conditions/ed.json`, `data/levels/01-cl-a.json`, `data/levels/02-ed-a.json`, `data/levels/10-ed-e.json`, `data/maps/cl-a.json`, `data/maps/ed-main.json`. The rest are converted from the tables in `04-settings-and-patients.md` and `05-levels.md` during M4 and M6. Station `type` values like `station.lab` can have several map variants (an ED lab tube, a clinic lab window); tasks reference the type.
+Starter files: `data/tasks.json` (full task library), `data/roles.json`, the registries (`stations.json`, `items.json`, `equipment.json`, `gimmicks.json`, `hazards.json`, `rules.json`), `data/conditions/cl.json` and `ed.json`, `data/levels/01-cl-a.json`, `02-ed-a.json`, and `10-ed-e.json`, and `data/maps/cl-a.json` and `ed-main.json`. The rest are converted from the tables in `04-settings-and-patients.md` and `05-levels.md` during M4 and M6; add stations, items, and hazards to the registries as those settings need them. Station `type` values like `station.lab` can have several map variants (an ED lab tube, a clinic lab window); tasks and items reference the type.
 
-**Validation.** `npm run validate-data` parses every JSON file with zod and also checks references: every task, condition, map, station, and exit ID referenced must exist.
+**Validation.** `npm run validate-data` parses every JSON file with zod (unknown fields are errors, which catches typos) and then checks:
+
+- Every referenced ID exists (tasks, conditions, maps, stations, items, equipment, gimmicks, hazards, roles, abilities), with a "did you mean" hint for near misses.
+- IDs are unique, and file names match them: `conditions/<setting>.json`, `levels/<NN>-<id>.json`, `maps/<id>.json`.
+- Minigame parameters match their type (03 §2), and only dosing tasks overshoot.
+- Every task order can finish: `after` only names tasks the patient can get, with no loops.
+- Critical patients (acuity 1 to 2) escalate to a code or rescue transfer, since they never leave.
+- Each level against its own map: every station, piece of equipment, item source, entrance, bed, and exit its patients can need is on the map, including tasks added by escalation and, from level 10, code tasks. In `sign` mode, planned transfers are exempt from the exit check because NPC staff take them.
+- Levels 1 to 9 set `maxEscalation: 'rescue'` and spawn nobody who arrives in a code; untimed levels set `endAfterPatients`; star thresholds are in order; each role is unlocked by at most one level.
+
+The same checks run in `npm run test`, and a test compiles the block above against `src/data/schema.ts`, so the two can't drift apart.
 
 ## 5. Input
 
@@ -222,6 +327,7 @@ Starter files: `data/tasks.json` (full task library), `data/roles.json`, `data/c
 
 - Three.js scene with a perspective camera (fov about 32°), hemisphere + directional light with soft shadows, matte standard materials.
 - Characters and patients are procedural (see `06-art-audio-ui.md`). Port the character and scrub-texture code from `reference/style-lab.html` as the starting point.
+- **Porting the style lab.** It loads three.js r128 from a CDN; the npm package is much newer. Multiply its light intensities by π (three switched to physical light units in r155), set canvas textures to `SRGBColorSpace`, and offset positions by half the map size, because the style lab centers its room while `MapDef` measures from the top-left corner. `src/render/empty-scene.ts` shows the light conversion and a fixed-camera fit that keeps every corner of the map on screen.
 - Map builder turns `MapDef` into greybox geometry (M1), later swaps in GLB props by station type (M5).
 - Instancing for repeated props (chairs, tiles). Reuse geometries and materials.
 - Quality toggle: shadows on/off, shadow map size, particle count, pixel ratio cap.
@@ -264,6 +370,7 @@ Online play is out of scope until after the full campaign. To keep it possible: 
 ## 15. Testing
 
 - Unit tests for every sim system and minigame state machine (Vitest, Node).
-- Data validation test for every JSON file (references included).
+- Data validation test for every JSON file (references included), plus one deliberately broken case per check so the validator itself stays trustworthy.
+- A test that `src/data/schema.ts` matches the types in §4 exactly.
 - A headless "bot" test per level for M4+: scripted actions run a level for its full length without errors.
 - Manual playtest checklist per milestone (1, 2, and 4 players; keyboard + controller).

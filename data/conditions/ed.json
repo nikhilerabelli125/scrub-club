@@ -490,10 +490,8 @@
           "task": "task.intubate"
         },
         {
-          "task": "task.iv"
-        },
-        {
-          "task": "task.iv"
+          "task": "task.iv",
+          "count": 2
         },
         {
           "task": "task.transfusion",
@@ -531,32 +529,19 @@
       "realName": "Out-of-hospital cardiac arrest (VF)",
       "acuity": 1,
       "arrivalCues": ["zigzag"],
+      "arrivesInCode": "zigzag",
       "baseTasks": false,
       "tasks": [
-        {
-          "task": "task.cpr"
-        },
-        {
-          "task": "task.shock"
-        },
         {
           "task": "task.intubate",
           "after": ["task.shock"]
         }
       ],
-      "escalation": [
-        {
-          "afterSeconds": 45,
-          "cues": ["zigzag"],
-          "badge": "Zigzag: CPR + shock",
-          "outcome": "code-zigzag"
-        }
-      ],
+      "escalation": [],
       "disposition": {
         "exit": "icu",
         "planned": true
-      },
-      "notes": "Arrives already in a code; the escalation timer is the code clock."
+      }
     }
   ]
 }

@@ -1097,14 +1097,16 @@
       "label": "Isolate",
       "steps": [],
       "interaction": "escort",
-      "spot": "any"
+      "spot": "any",
+      "station": "station.isolation"
     },
     {
       "id": "task.walk-patient",
       "label": "Walk",
       "steps": [],
       "interaction": "escort",
-      "spot": "any"
+      "spot": "any",
+      "station": "station.walk-marker"
     },
     {
       "id": "task.lead-back",
@@ -1118,7 +1120,8 @@
       "label": "Dark room",
       "steps": [],
       "interaction": "escort",
-      "spot": "any"
+      "spot": "any",
+      "station": "station.dark-room"
     },
     {
       "id": "task.fetch",
@@ -1132,21 +1135,24 @@
       "label": "Watch",
       "steps": [],
       "interaction": "escort",
-      "spot": "any"
+      "spot": "any",
+      "station": "station.observation"
     },
     {
       "id": "task.bedpan",
       "label": "Bedpan",
       "steps": [],
       "interaction": "carry",
-      "spot": "any"
+      "spot": "any",
+      "needsItem": "item.bedpan"
     },
     {
       "id": "task.bandage-kit",
       "label": "Bandage kit",
       "steps": [],
       "interaction": "carry",
-      "spot": "any"
+      "spot": "any",
+      "needsItem": "item.bandage-kit"
     },
     {
       "id": "task.transport",

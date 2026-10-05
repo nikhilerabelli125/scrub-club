@@ -84,6 +84,12 @@
       "variant": "tube"
     },
     {
+      "id": "blood-fridge",
+      "type": "station.blood-fridge",
+      "pos": [4.9, 15.1],
+      "size": [1, 0.8]
+    },
+    {
       "id": "imaging",
       "type": "station.imaging",
       "pos": [11, 14.2],
@@ -106,6 +112,12 @@
       "type": "station.sink",
       "pos": [2.5, 14.5],
       "size": [2, 1]
+    },
+    {
+      "id": "observation",
+      "type": "station.observation",
+      "pos": [3.5, 11.5],
+      "size": [3, 1]
     }
   ],
   "beds": [
@@ -138,10 +150,6 @@
   "equipmentHomes": [
     {
       "equipment": "equipment.crash-cart",
-      "pos": [15, 8.5]
-    },
-    {
-      "equipment": "equipment.defib",
       "pos": [15, 8.5]
     },
     {
@@ -197,6 +205,11 @@
     }
   ],
   "zones": [
+    {
+      "id": "waiting-overflow",
+      "kind": "hazard.waiting-overflow",
+      "rect": [4.6, 4.4, 4, 2]
+    },
     {
       "id": "stretcher-lane",
       "kind": "hazard.stretcher-lane",

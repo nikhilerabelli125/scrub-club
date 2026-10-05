@@ -58,7 +58,8 @@
       "type": "spawn",
       "condition": "ed.collapsed",
       "jitter": 20,
-      "via": "ambulance"
+      "via": "ambulance",
+      "bed": "resus"
     },
     {
       "at": 225,

@@ -1,0 +1,33 @@
+{
+  "stations": [
+    { "id": "station.blood-fridge", "label": "Blood fridge" },
+    { "id": "station.check-in", "label": "Check-in desk" },
+    { "id": "station.computer", "label": "Computer" },
+    { "id": "station.dark-room", "label": "Dark room" },
+    { "id": "station.dirty-utility", "label": "Dirty utility room" },
+    { "id": "station.drinks", "label": "Drinks" },
+    { "id": "station.floodlight", "label": "Floodlight" },
+    { "id": "station.generator", "label": "Generator" },
+    { "id": "station.ice", "label": "Ice supply" },
+    { "id": "station.ice-bath", "label": "Ice bath" },
+    { "id": "station.imaging", "label": "X-ray and scan room" },
+    { "id": "station.instrument-tray", "label": "Instrument tray" },
+    { "id": "station.isolation", "label": "Isolation cabin" },
+    { "id": "station.lab", "label": "Lab" },
+    { "id": "station.med-cabinet", "label": "Med cabinet" },
+    { "id": "station.observation", "label": "Observation chairs" },
+    { "id": "station.outlet", "label": "Outlet" },
+    { "id": "station.phone", "label": "Phone" },
+    { "id": "station.radio", "label": "Radio" },
+    { "id": "station.salt-machine", "label": "Salt check machine" },
+    { "id": "station.scale", "label": "Scale" },
+    { "id": "station.scrub-sink", "label": "Scrub sink" },
+    { "id": "station.sink", "label": "Sink" },
+    { "id": "station.sterilizer", "label": "Sterilizer" },
+    { "id": "station.supply", "label": "Supply closet" },
+    { "id": "station.triage-desk", "label": "Triage desk" },
+    { "id": "station.vaccine-fridge", "label": "Vaccine fridge" },
+    { "id": "station.waiting-chairs", "label": "Waiting room" },
+    { "id": "station.walk-marker", "label": "Hallway marker" }
+  ]
+}

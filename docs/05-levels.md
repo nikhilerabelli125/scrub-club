@@ -87,6 +87,7 @@ Times marked ± shift every run (seeded jitter) so replays feel different.
 - **Events:** 1:00 ±15 s breakfast sugar checks due. 2:30 a new admission arrives by elevator once a discharged bed is turned over.
 - **Hazard:** the meal cart loops the hallway.
 - **Briefing:** "Everyone's already here. Keep them on schedule and get the ready ones home. Careful with the pain med meter: too much and they'll need a reversal shot."
+- **Unlocks:** tech.
 
 ### 6. ED-B Mystery Symptoms
 - **Tier 2, ED, inflow, 5:00.** Tickets switch to `assess`.

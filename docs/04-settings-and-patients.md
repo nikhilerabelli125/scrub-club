@@ -21,7 +21,7 @@ Starts calm and low stakes, teaching every basic action. Later clinic levels get
 
 - **Camera:** fixed
 - **Base tasks:** ask questions + check vitals
-- **Stations:** check-in desk, exam rooms, computer, supply cabinet, lab window, vaccine fridge, observation chairs, sink, phone
+- **Stations:** check-in desk, exam rooms, computer, supply cabinet, med cabinet, lab window, vaccine fridge, juice fridge, observation chairs, EKG machine (one), sink, phone
 - **Chores:** exam room turnover, restocking, answering the phone (missed calls make walk-ins grumpier)
 - **Hazards:** wet floor zones, printer jams, crowded lobby; tier 3+ gimmicks: revolving door, robot mop, under construction, fire drill
 
@@ -45,7 +45,7 @@ The signature setting: ticket rail, waiting room, ambulances, first codes.
 
 - **Camera:** fixed (follow on large ED maps like ED-R)
 - **Base tasks:** ask questions + check vitals
-- **Stations:** triage desk, waiting room, curtained bays, resus bay, computer, med cabinet, lab tube, X-ray/scan room, crash cart (one), EKG machine (one), ultrasound cart (one), supply closet, sink
+- **Stations:** triage desk, waiting room, curtained bays, resus bay, computer, med cabinet, lab tube, blood fridge, X-ray/scan room, crash cart with the defibrillator (one), EKG machine (one), ultrasound cart (one), supply closet, observation chairs, dark room, sink
 - **Chores:** bed turnover, recharging the defibrillator, restocking the crash cart, cleaning spills
 - **Hazards:** ambulance stretcher lane, hallway beds, power dips; tier 3+ gimmicks: swinging doors, moving walkway, spinning station, tube mixup, lights roulette, basement flood
 
