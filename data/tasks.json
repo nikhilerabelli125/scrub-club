@@ -12,9 +12,7 @@
         }
       ],
       "spot": "any",
-      "perkTags": [
-        "assessment"
-      ]
+      "perkTags": ["assessment"]
     },
     {
       "id": "task.check-vitals",
@@ -28,9 +26,7 @@
         }
       ],
       "spot": "arm",
-      "perkTags": [
-        "vitals"
-      ]
+      "perkTags": ["vitals"]
     },
     {
       "id": "task.quick-check",
@@ -44,9 +40,7 @@
         }
       ],
       "spot": "any",
-      "perkTags": [
-        "vitals"
-      ]
+      "perkTags": ["vitals"]
     },
     {
       "id": "task.scene-check",
@@ -60,9 +54,7 @@
         }
       ],
       "spot": "any",
-      "perkTags": [
-        "assessment"
-      ]
+      "perkTags": ["assessment"]
     },
     {
       "id": "task.listen-lungs",
@@ -76,9 +68,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "assessment"
-      ]
+      "perkTags": ["assessment"]
     },
     {
       "id": "task.blood-draw",
@@ -210,9 +200,7 @@
       ],
       "spot": "chest",
       "needsEquipment": "equipment.ultrasound",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.stroke-check",
@@ -227,9 +215,7 @@
         }
       ],
       "spot": "head",
-      "perkTags": [
-        "assessment"
-      ]
+      "perkTags": ["assessment"]
     },
     {
       "id": "task.neuro-check",
@@ -244,9 +230,7 @@
         }
       ],
       "spot": "head",
-      "perkTags": [
-        "assessment"
-      ]
+      "perkTags": ["assessment"]
     },
     {
       "id": "task.pre-op-check",
@@ -260,9 +244,7 @@
         }
       ],
       "spot": "any",
-      "perkTags": [
-        "assessment"
-      ]
+      "perkTags": ["assessment"]
     },
     {
       "id": "task.time-out",
@@ -304,9 +286,7 @@
         }
       ],
       "spot": "head",
-      "perkTags": [
-        "airway"
-      ]
+      "perkTags": ["airway"]
     },
     {
       "id": "task.breathing-treatment",
@@ -320,9 +300,7 @@
         }
       ],
       "spot": "head",
-      "perkTags": [
-        "airway"
-      ]
+      "perkTags": ["airway"]
     },
     {
       "id": "task.iv",
@@ -336,9 +314,7 @@
         }
       ],
       "spot": "arm",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.iv-fluids",
@@ -388,9 +364,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.antibiotics",
@@ -405,9 +379,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.allergy-shot",
@@ -422,9 +394,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.reversal-shot",
@@ -439,9 +409,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.water-pill",
@@ -456,9 +424,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.calcium-shot",
@@ -473,9 +439,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.blood-thinner",
@@ -490,9 +454,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.anti-rejection",
@@ -507,9 +469,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.seasick-pill",
@@ -524,9 +484,7 @@
       ],
       "spot": "any",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.headache-med",
@@ -541,9 +499,7 @@
       ],
       "spot": "any",
       "needsItem": "item.med",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.inhaler",
@@ -558,9 +514,7 @@
       ],
       "spot": "any",
       "needsItem": "item.inhaler",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.vaccine",
@@ -575,9 +529,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.vaccine",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.adrenaline",
@@ -592,9 +544,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.adrenaline",
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.pain-med",
@@ -613,9 +563,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.seizure-med",
@@ -634,9 +582,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.clot-buster",
@@ -655,9 +601,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.insulin",
@@ -676,9 +620,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.withdrawal-med",
@@ -697,9 +639,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.salty-iv",
@@ -718,9 +658,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.pressure-med",
@@ -739,9 +677,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.bp-med",
@@ -760,9 +696,7 @@
       "spot": "arm",
       "needsItem": "item.med",
       "dosing": true,
-      "perkTags": [
-        "med"
-      ]
+      "perkTags": ["med"]
     },
     {
       "id": "task.albumin",
@@ -819,9 +753,7 @@
       ],
       "spot": "any",
       "needsItem": "item.splint",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.cast",
@@ -836,9 +768,7 @@
       ],
       "spot": "any",
       "needsItem": "item.cast",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.wrap",
@@ -881,9 +811,7 @@
         }
       ],
       "spot": "any",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.bandage",
@@ -996,9 +924,7 @@
       ],
       "spot": "arm",
       "needsItem": "item.tourniquet",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.neck-collar",
@@ -1043,9 +969,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.burn-care",
@@ -1288,10 +1212,7 @@
         }
       ],
       "spot": "head",
-      "perkTags": [
-        "airway",
-        "procedure"
-      ]
+      "perkTags": ["airway", "procedure"]
     },
     {
       "id": "task.bag",
@@ -1307,9 +1228,7 @@
         }
       ],
       "spot": "head",
-      "perkTags": [
-        "airway"
-      ]
+      "perkTags": ["airway"]
     },
     {
       "id": "task.central-line",
@@ -1333,9 +1252,7 @@
       ],
       "spot": "head",
       "needsEquipment": "equipment.ultrasound",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.lung-drain",
@@ -1366,9 +1283,7 @@
       "spot": "side",
       "needsEquipment": "equipment.ultrasound",
       "producesItem": "item.fluid-jar",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.belly-drain",
@@ -1392,9 +1307,7 @@
       ],
       "spot": "side",
       "needsEquipment": "equipment.ultrasound",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.chest-tube",
@@ -1417,9 +1330,7 @@
         }
       ],
       "spot": "side",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.heart-drain",
@@ -1443,9 +1354,7 @@
       ],
       "spot": "chest",
       "needsEquipment": "equipment.ultrasound",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.cardioversion",
@@ -1469,9 +1378,7 @@
       ],
       "spot": "side",
       "needsEquipment": "equipment.defib",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.dialysis-hookup",
@@ -1500,9 +1407,7 @@
         }
       ],
       "spot": "head",
-      "perkTags": [
-        "airway"
-      ]
+      "perkTags": ["airway"]
     },
     {
       "id": "task.pump-check",
@@ -1531,9 +1436,7 @@
         }
       ],
       "spot": "side",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.drain-check",
@@ -1576,9 +1479,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.find",
@@ -1593,9 +1494,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.clip",
@@ -1611,9 +1510,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.lift-out",
@@ -1671,9 +1568,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.camera-steer",
@@ -1689,9 +1584,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.clip-cut",
@@ -1706,9 +1599,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.wipe-camera",
@@ -1737,9 +1628,7 @@
         }
       ],
       "spot": "side",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.screws",
@@ -1755,9 +1644,7 @@
         }
       ],
       "spot": "side",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.c-arm-check",
@@ -1799,9 +1686,7 @@
         }
       ],
       "spot": "side",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.clamp",
@@ -1817,9 +1702,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.disconnect",
@@ -1834,9 +1717,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.connect",
@@ -1851,9 +1732,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.bypass-connect",
@@ -1869,9 +1748,7 @@
       ],
       "spot": "chest",
       "needsEquipment": "equipment.bypass",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.sew-vessel",
@@ -1887,9 +1764,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.bypass-watch",
@@ -1935,9 +1810,7 @@
         }
       ],
       "spot": "chest",
-      "perkTags": [
-        "procedure"
-      ]
+      "perkTags": ["procedure"]
     },
     {
       "id": "task.bed-turnover",

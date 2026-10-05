@@ -1,104 +1,47 @@
 {
   "id": "ed-main",
-  "size": [
-    24,
-    16
-  ],
+  "size": [24, 16],
   "floorColor": "#CBD6D3",
   "walls": [
     {
-      "from": [
-        0,
-        0
-      ],
-      "to": [
-        24,
-        0
-      ]
+      "from": [0, 0],
+      "to": [24, 0]
     },
     {
-      "from": [
-        0,
-        0
-      ],
-      "to": [
-        0,
-        16
-      ]
+      "from": [0, 0],
+      "to": [0, 16]
     },
     {
-      "from": [
-        24,
-        0
-      ],
-      "to": [
-        24,
-        16
-      ]
+      "from": [24, 0],
+      "to": [24, 16]
     },
     {
-      "from": [
-        0,
-        16
-      ],
-      "to": [
-        24,
-        16
-      ]
+      "from": [0, 16],
+      "to": [24, 16]
     },
     {
-      "from": [
-        8.75,
-        0
-      ],
-      "to": [
-        8.75,
-        4.2
-      ],
+      "from": [8.75, 0],
+      "to": [8.75, 4.2],
       "height": 1.8
     },
     {
-      "from": [
-        12.25,
-        0
-      ],
-      "to": [
-        12.25,
-        4.2
-      ],
+      "from": [12.25, 0],
+      "to": [12.25, 4.2],
       "height": 1.8
     },
     {
-      "from": [
-        15.75,
-        0
-      ],
-      "to": [
-        15.75,
-        4.2
-      ],
+      "from": [15.75, 0],
+      "to": [15.75, 4.2],
       "height": 1.8
     },
     {
-      "from": [
-        19.25,
-        0
-      ],
-      "to": [
-        19.25,
-        4.2
-      ],
+      "from": [19.25, 0],
+      "to": [19.25, 4.2],
       "height": 1.8
     },
     {
-      "from": [
-        19.25,
-        6.8
-      ],
-      "to": [
-        24,
-        6.8
-      ],
+      "from": [19.25, 6.8],
+      "to": [24, 6.8],
       "height": 1.8
     }
   ],
@@ -106,270 +49,150 @@
     {
       "id": "triage-desk",
       "type": "station.triage-desk",
-      "pos": [
-        2.5,
-        8.5
-      ],
-      "size": [
-        3,
-        1
-      ]
+      "pos": [2.5, 8.5],
+      "size": [3, 1]
     },
     {
       "id": "waiting",
       "type": "station.waiting-chairs",
-      "pos": [
-        2.5,
-        3
-      ],
-      "size": [
-        4,
-        4
-      ]
+      "pos": [2.5, 3],
+      "size": [4, 4]
     },
     {
       "id": "med-cabinet",
       "type": "station.med-cabinet",
-      "pos": [
-        7,
-        8.5
-      ],
-      "size": [
-        1.5,
-        1
-      ]
+      "pos": [7, 8.5],
+      "size": [1.5, 1]
     },
     {
       "id": "computer-1",
       "type": "station.computer",
-      "pos": [
-        11,
-        8.5
-      ],
-      "size": [
-        3,
-        1
-      ]
+      "pos": [11, 8.5],
+      "size": [3, 1]
     },
     {
       "id": "outlet",
       "type": "station.outlet",
-      "pos": [
-        14,
-        10.5
-      ],
-      "size": [
-        1,
-        0.5
-      ]
+      "pos": [14, 10.5],
+      "size": [1, 0.5]
     },
     {
       "id": "lab-tube",
       "type": "station.lab",
-      "pos": [
-        7,
-        14.6
-      ],
-      "size": [
-        1.5,
-        1
-      ],
+      "pos": [7, 14.6],
+      "size": [1.5, 1],
       "variant": "tube"
     },
     {
       "id": "imaging",
       "type": "station.imaging",
-      "pos": [
-        11,
-        14.2
-      ],
-      "size": [
-        4,
-        2.5
-      ]
+      "pos": [11, 14.2],
+      "size": [4, 2.5]
     },
     {
       "id": "supply",
       "type": "station.supply",
-      "pos": [
-        15.5,
-        14.6
-      ],
-      "size": [
-        2,
-        1
-      ]
+      "pos": [15.5, 14.6],
+      "size": [2, 1]
     },
     {
       "id": "dark-room",
       "type": "station.dark-room",
-      "pos": [
-        19,
-        14.2
-      ],
-      "size": [
-        2.5,
-        2.5
-      ]
+      "pos": [19, 14.2],
+      "size": [2.5, 2.5]
     },
     {
       "id": "sink",
       "type": "station.sink",
-      "pos": [
-        2.5,
-        14.5
-      ],
-      "size": [
-        2,
-        1
-      ]
+      "pos": [2.5, 14.5],
+      "size": [2, 1]
     }
   ],
   "beds": [
     {
       "id": "bay-1",
-      "pos": [
-        7,
-        2.4
-      ],
+      "pos": [7, 2.4],
       "rot": 0
     },
     {
       "id": "bay-2",
-      "pos": [
-        10.5,
-        2.4
-      ],
+      "pos": [10.5, 2.4],
       "rot": 0
     },
     {
       "id": "bay-3",
-      "pos": [
-        14,
-        2.4
-      ],
+      "pos": [14, 2.4],
       "rot": 0
     },
     {
       "id": "bay-4",
-      "pos": [
-        17.5,
-        2.4
-      ],
+      "pos": [17.5, 2.4],
       "rot": 0
     },
     {
       "id": "resus",
-      "pos": [
-        21.6,
-        3.4
-      ],
+      "pos": [21.6, 3.4],
       "rot": 0
     }
   ],
   "equipmentHomes": [
     {
       "equipment": "equipment.crash-cart",
-      "pos": [
-        15,
-        8.5
-      ]
+      "pos": [15, 8.5]
     },
     {
       "equipment": "equipment.defib",
-      "pos": [
-        15,
-        8.5
-      ]
+      "pos": [15, 8.5]
     },
     {
       "equipment": "equipment.ekg",
-      "pos": [
-        16.6,
-        8.5
-      ]
+      "pos": [16.6, 8.5]
     },
     {
       "equipment": "equipment.ultrasound",
-      "pos": [
-        18.2,
-        8.5
-      ]
+      "pos": [18.2, 8.5]
     }
   ],
   "spawns": [
-    [
-      10,
-      11.5
-    ],
-    [
-      11,
-      11.5
-    ],
-    [
-      12,
-      11.5
-    ],
-    [
-      13,
-      11.5
-    ]
+    [10, 11.5],
+    [11, 11.5],
+    [12, 11.5],
+    [13, 11.5]
   ],
   "entrances": [
     {
       "id": "walk-in",
-      "pos": [
-        0.6,
-        7
-      ]
+      "pos": [0.6, 7]
     },
     {
       "id": "ambulance",
-      "pos": [
-        23.4,
-        9.5
-      ]
+      "pos": [23.4, 9.5]
     }
   ],
   "exits": [
     {
       "id": "home",
-      "pos": [
-        0.6,
-        11
-      ],
+      "pos": [0.6, 11],
       "kind": "home"
     },
     {
       "id": "heart-lab",
-      "pos": [
-        23.4,
-        12
-      ],
+      "pos": [23.4, 12],
       "kind": "heart-lab"
     },
     {
       "id": "or",
-      "pos": [
-        23.4,
-        13
-      ],
+      "pos": [23.4, 13],
       "kind": "or"
     },
     {
       "id": "icu",
-      "pos": [
-        23.4,
-        14
-      ],
+      "pos": [23.4, 14],
       "kind": "icu"
     },
     {
       "id": "wards",
-      "pos": [
-        23.4,
-        15
-      ],
+      "pos": [23.4, 15],
       "kind": "wards"
     }
   ],
@@ -377,22 +200,12 @@
     {
       "id": "stretcher-lane",
       "kind": "hazard.stretcher-lane",
-      "rect": [
-        4.5,
-        5.2,
-        19.5,
-        1.2
-      ]
+      "rect": [4.5, 5.2, 19.5, 1.2]
     },
     {
       "id": "bay-doors",
       "kind": "gimmick.swinging-doors",
-      "rect": [
-        19.3,
-        5.0,
-        0.6,
-        1.8
-      ]
+      "rect": [19.3, 5.0, 0.6, 1.8]
     }
   ]
 }

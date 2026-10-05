@@ -8,15 +8,10 @@
       "accessory": "long-coat",
       "passive": {
         "type": "speed",
-        "tags": [
-          "assessment"
-        ],
+        "tags": ["assessment"],
         "multiplier": 0.6
       },
-      "abilities": [
-        "ability.huddle",
-        "ability.second-look"
-      ]
+      "abilities": ["ability.huddle", "ability.second-look"]
     },
     {
       "id": "role.resident",
@@ -25,15 +20,10 @@
       "scrub": "#1F2E5A",
       "passive": {
         "type": "speed",
-        "tags": [
-          "procedure"
-        ],
+        "tags": ["procedure"],
         "multiplier": 0.75
       },
-      "abilities": [
-        "ability.hustle",
-        "ability.stat-results"
-      ]
+      "abilities": ["ability.hustle", "ability.stat-results"]
     },
     {
       "id": "role.nurse",
@@ -43,16 +33,11 @@
       "accessory": "scrub-cap",
       "passive": {
         "type": "speed",
-        "tags": [
-          "vitals"
-        ],
+        "tags": ["vitals"],
         "multiplier": 0.5,
         "earlyWarningSeconds": 3
       },
-      "abilities": [
-        "ability.rounds",
-        "ability.quick-stick"
-      ]
+      "abilities": ["ability.rounds", "ability.quick-stick"]
     },
     {
       "id": "role.med-student",
@@ -66,9 +51,7 @@
         "extraClue": true,
         "fumbleChance": 0.05
       },
-      "abilities": [
-        "ability.coffee-run"
-      ]
+      "abilities": ["ability.coffee-run"]
     },
     {
       "id": "role.tech",
@@ -81,10 +64,7 @@
         "type": "carry",
         "slots": 2
       },
-      "abilities": [
-        "ability.turbo-turnover",
-        "ability.supply-run"
-      ]
+      "abilities": ["ability.turbo-turnover", "ability.supply-run"]
     },
     {
       "id": "role.rt",
@@ -94,15 +74,10 @@
       "scrub": "#2E8B57",
       "passive": {
         "type": "speed",
-        "tags": [
-          "airway"
-        ],
+        "tags": ["airway"],
         "multiplier": 0.6
       },
-      "abilities": [
-        "ability.deep-breath",
-        "ability.vent-sweep"
-      ]
+      "abilities": ["ability.deep-breath", "ability.vent-sweep"]
     },
     {
       "id": "role.pharmacist",
@@ -113,15 +88,10 @@
       "passive": {
         "type": "pharmacist",
         "noOverdose": true,
-        "tags": [
-          "med"
-        ],
+        "tags": ["med"],
         "multiplier": 0.6
       },
-      "abilities": [
-        "ability.med-drop",
-        "ability.auto-dose"
-      ]
+      "abilities": ["ability.med-drop", "ability.auto-dose"]
     }
   ],
   "abilities": [

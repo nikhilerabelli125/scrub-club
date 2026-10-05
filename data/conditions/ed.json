@@ -1,9 +1,6 @@
 {
   "setting": "ed",
-  "baseTasks": [
-    "task.ask-questions",
-    "task.check-vitals"
-  ],
+  "baseTasks": ["task.ask-questions", "task.check-vitals"],
   "conditions": [
     {
       "id": "ed.chest-pain",
@@ -11,9 +8,7 @@
       "label": "Chest pain",
       "realName": "Myocardial infarction",
       "acuity": 2,
-      "arrivalCues": [
-        "heartAttack"
-      ],
+      "arrivalCues": ["heartAttack"],
       "baseTasks": true,
       "tasks": [
         {
@@ -21,37 +16,25 @@
         },
         {
           "task": "task.aspirin",
-          "after": [
-            "task.ekg"
-          ]
+          "after": ["task.ekg"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 30,
-          "cues": [
-            "heartAttack"
-          ],
+          "cues": ["heartAttack"],
           "jitterSeconds": 8,
-          "slowedBy": [
-            "task.aspirin"
-          ]
+          "slowedBy": ["task.aspirin"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "heartAttack"
-          ],
+          "cues": ["heartAttack"],
           "badge": "Heart attack",
-          "slowedBy": [
-            "task.aspirin"
-          ]
+          "slowedBy": ["task.aspirin"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "zigzag"
-          ],
+          "cues": ["zigzag"],
           "outcome": "code-zigzag"
         }
       ],
@@ -66,9 +49,7 @@
       "label": "Broken arm",
       "realName": "Forearm fracture",
       "acuity": 4,
-      "arrivalCues": [
-        "pain"
-      ],
+      "arrivalCues": ["pain"],
       "baseTasks": true,
       "tasks": [
         {
@@ -76,15 +57,11 @@
         },
         {
           "task": "task.pain-med",
-          "after": [
-            "task.xray"
-          ]
+          "after": ["task.xray"]
         },
         {
           "task": "task.cast",
-          "after": [
-            "task.xray"
-          ]
+          "after": ["task.xray"]
         }
       ],
       "escalation": [],
@@ -99,9 +76,7 @@
       "label": "Bad cut",
       "realName": "Laceration",
       "acuity": 4,
-      "arrivalCues": [
-        "pain"
-      ],
+      "arrivalCues": ["pain"],
       "baseTasks": true,
       "tasks": [
         {
@@ -109,9 +84,7 @@
         },
         {
           "task": "task.stitches",
-          "after": [
-            "task.clean-wound"
-          ]
+          "after": ["task.clean-wound"]
         }
       ],
       "escalation": [],
@@ -139,23 +112,15 @@
       "escalation": [
         {
           "afterSeconds": 40,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "jitterSeconds": 8,
-          "slowedBy": [
-            "task.oxygen"
-          ]
+          "slowedBy": ["task.oxygen"]
         },
         {
           "afterSeconds": 20,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
-          "slowedBy": [
-            "task.oxygen"
-          ],
+          "slowedBy": ["task.oxygen"],
           "addTasks": [
             {
               "task": "task.intubate"
@@ -164,9 +129,7 @@
         },
         {
           "afterSeconds": 20,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "outcome": "rescue"
         }
       ],
@@ -181,9 +144,7 @@
       "label": "Allergic reaction",
       "realName": "Anaphylaxis",
       "acuity": 2,
-      "arrivalCues": [
-        "allergy"
-      ],
+      "arrivalCues": ["allergy"],
       "baseTasks": true,
       "tasks": [
         {
@@ -192,33 +153,23 @@
         },
         {
           "task": "task.iv-fluids",
-          "after": [
-            "task.allergy-shot"
-          ]
+          "after": ["task.allergy-shot"]
         },
         {
           "task": "task.observe",
-          "after": [
-            "task.iv-fluids"
-          ]
+          "after": ["task.iv-fluids"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 20,
-          "cues": [
-            "allergy"
-          ],
+          "cues": ["allergy"],
           "badge": "Allergic reaction",
-          "slowedBy": [
-            "task.allergy-shot"
-          ]
+          "slowedBy": ["task.allergy-shot"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "addTasks": [
             {
@@ -228,9 +179,7 @@
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "outcome": "rescue"
         }
       ],
@@ -245,9 +194,7 @@
       "label": "Face drooping",
       "realName": "Ischemic stroke",
       "acuity": 2,
-      "arrivalCues": [
-        "stroke"
-      ],
+      "arrivalCues": ["stroke"],
       "baseTasks": true,
       "tasks": [
         {
@@ -255,31 +202,23 @@
         },
         {
           "task": "task.clot-buster",
-          "after": [
-            "task.brain-scan"
-          ]
+          "after": ["task.brain-scan"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 30,
-          "cues": [
-            "stroke"
-          ],
+          "cues": ["stroke"],
           "jitterSeconds": 8
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "stroke"
-          ],
+          "cues": ["stroke"],
           "badge": "Stroke"
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "stroke"
-          ],
+          "cues": ["stroke"],
           "outcome": "rescue"
         }
       ],
@@ -294,9 +233,7 @@
       "label": "Belly pain",
       "realName": "Appendicitis",
       "acuity": 3,
-      "arrivalCues": [
-        "pain"
-      ],
+      "arrivalCues": ["pain"],
       "baseTasks": true,
       "tasks": [
         {
@@ -312,23 +249,17 @@
       "escalation": [
         {
           "afterSeconds": 45,
-          "cues": [
-            "pain"
-          ],
+          "cues": ["pain"],
           "jitterSeconds": 10
         },
         {
           "afterSeconds": 20,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "badge": "Getting worse"
         },
         {
           "afterSeconds": 20,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "outcome": "rescue"
         }
       ],
@@ -343,9 +274,7 @@
       "label": "Fever and confused",
       "realName": "Sepsis",
       "acuity": 2,
-      "arrivalCues": [
-        "overheated"
-      ],
+      "arrivalCues": ["overheated"],
       "baseTasks": true,
       "tasks": [
         {
@@ -353,43 +282,29 @@
         },
         {
           "task": "task.iv-fluids",
-          "after": [
-            "task.blood-draw"
-          ]
+          "after": ["task.blood-draw"]
         },
         {
           "task": "task.antibiotics",
-          "after": [
-            "task.blood-draw"
-          ]
+          "after": ["task.blood-draw"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 30,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "jitterSeconds": 8,
-          "slowedBy": [
-            "task.iv-fluids"
-          ]
+          "slowedBy": ["task.iv-fluids"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "badge": "Getting worse",
-          "slowedBy": [
-            "task.iv-fluids"
-          ]
+          "slowedBy": ["task.iv-fluids"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "outcome": "rescue"
         }
       ],
@@ -404,9 +319,7 @@
       "label": "Headache",
       "realName": "Migraine",
       "acuity": 4,
-      "arrivalCues": [
-        "pain"
-      ],
+      "arrivalCues": ["pain"],
       "baseTasks": true,
       "tasks": [
         {
@@ -414,9 +327,7 @@
         },
         {
           "task": "task.dark-room",
-          "after": [
-            "task.headache-med"
-          ]
+          "after": ["task.headache-med"]
         }
       ],
       "escalation": [],
@@ -436,14 +347,9 @@
           "label": "Dizzy",
           "acuity": 4
         },
-        "revealedBy": [
-          "task.ask-questions",
-          "task.check-vitals"
-        ]
+        "revealedBy": ["task.ask-questions", "task.check-vitals"]
       },
-      "arrivalCues": [
-        "pale"
-      ],
+      "arrivalCues": ["pale"],
       "baseTasks": true,
       "tasks": [
         {
@@ -454,37 +360,25 @@
         },
         {
           "task": "task.transfusion",
-          "after": [
-            "task.iv"
-          ]
+          "after": ["task.iv"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 35,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "jitterSeconds": 8,
-          "slowedBy": [
-            "task.transfusion"
-          ]
+          "slowedBy": ["task.transfusion"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "badge": "Losing blood",
-          "slowedBy": [
-            "task.transfusion"
-          ]
+          "slowedBy": ["task.transfusion"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "flatLine"
-          ],
+          "cues": ["flatLine"],
           "outcome": "code-flat"
         }
       ],
@@ -499,9 +393,7 @@
       "label": "Seizure",
       "realName": "Prolonged seizure",
       "acuity": 2,
-      "arrivalCues": [
-        "seizure"
-      ],
+      "arrivalCues": ["seizure"],
       "baseTasks": true,
       "tasks": [
         {
@@ -510,26 +402,18 @@
         },
         {
           "task": "task.brain-scan",
-          "after": [
-            "task.seizure-med"
-          ]
+          "after": ["task.seizure-med"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 25,
-          "cues": [
-            "seizure"
-          ],
-          "slowedBy": [
-            "task.seizure-med"
-          ]
+          "cues": ["seizure"],
+          "slowedBy": ["task.seizure-med"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "addTasks": [
             {
@@ -539,9 +423,7 @@
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "outcome": "rescue"
         }
       ],
@@ -556,9 +438,7 @@
       "label": "Very sleepy",
       "realName": "Opioid overdose",
       "acuity": 2,
-      "arrivalCues": [
-        "tooMuchMed"
-      ],
+      "arrivalCues": ["tooMuchMed"],
       "baseTasks": true,
       "tasks": [
         {
@@ -567,43 +447,28 @@
         },
         {
           "task": "task.oxygen",
-          "after": [
-            "task.reversal-shot"
-          ]
+          "after": ["task.reversal-shot"]
         },
         {
           "task": "task.observe",
-          "after": [
-            "task.oxygen"
-          ]
+          "after": ["task.oxygen"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 20,
-          "cues": [
-            "tooMuchMed"
-          ],
-          "slowedBy": [
-            "task.oxygen",
-            "task.bag"
-          ]
+          "cues": ["tooMuchMed"],
+          "slowedBy": ["task.oxygen", "task.bag"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "lowOxygen"
-          ],
+          "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
-          "slowedBy": [
-            "task.bag"
-          ]
+          "slowedBy": ["task.bag"]
         },
         {
           "afterSeconds": 15,
-          "cues": [
-            "flatLine"
-          ],
+          "cues": ["flatLine"],
           "outcome": "code-flat"
         }
       ],
@@ -618,10 +483,7 @@
       "label": "Car crash",
       "realName": "Multiple trauma",
       "acuity": 1,
-      "arrivalCues": [
-        "pale",
-        "pain"
-      ],
+      "arrivalCues": ["pale", "pain"],
       "baseTasks": false,
       "tasks": [
         {
@@ -635,9 +497,7 @@
         },
         {
           "task": "task.transfusion",
-          "after": [
-            "task.iv"
-          ]
+          "after": ["task.iv"]
         },
         {
           "task": "task.xray"
@@ -649,19 +509,13 @@
       "escalation": [
         {
           "afterSeconds": 25,
-          "cues": [
-            "pale"
-          ],
+          "cues": ["pale"],
           "badge": "Losing blood",
-          "slowedBy": [
-            "task.transfusion"
-          ]
+          "slowedBy": ["task.transfusion"]
         },
         {
           "afterSeconds": 20,
-          "cues": [
-            "flatLine"
-          ],
+          "cues": ["flatLine"],
           "outcome": "code-flat"
         }
       ],
@@ -676,9 +530,7 @@
       "label": "Collapsed at home",
       "realName": "Out-of-hospital cardiac arrest (VF)",
       "acuity": 1,
-      "arrivalCues": [
-        "zigzag"
-      ],
+      "arrivalCues": ["zigzag"],
       "baseTasks": false,
       "tasks": [
         {
@@ -689,17 +541,13 @@
         },
         {
           "task": "task.intubate",
-          "after": [
-            "task.shock"
-          ]
+          "after": ["task.shock"]
         }
       ],
       "escalation": [
         {
           "afterSeconds": 45,
-          "cues": [
-            "zigzag"
-          ],
+          "cues": ["zigzag"],
           "badge": "Zigzag: CPR + shock",
           "outcome": "code-zigzag"
         }

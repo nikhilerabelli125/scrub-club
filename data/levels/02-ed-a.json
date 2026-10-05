@@ -13,14 +13,8 @@
   "disposition": "auto",
   "maxEscalation": "rescue",
   "gimmicks": [],
-  "hazards": [
-    "hazard.waiting-overflow"
-  ],
-  "introduces": [
-    "ticket-rail",
-    "acuity-colors",
-    "prioritizing"
-  ],
+  "hazards": ["hazard.waiting-overflow"],
+  "introduces": ["ticket-rail", "acuity-colors", "prioritizing"],
   "briefing": {
     "title": "Triage Time",
     "body": "Colors show who's sickest. Red and orange first; green and blue can wait a bit."
@@ -44,10 +38,7 @@
         "weight": 2
       }
     ],
-    "intervalSeconds": [
-      22,
-      30
-    ],
+    "intervalSeconds": [22, 30],
     "maxWaiting": 4
   },
   "events": [
@@ -60,9 +51,5 @@
     }
   ],
   "starMode": "points",
-  "stars": [
-    150,
-    250,
-    350
-  ]
+  "stars": [150, 250, 350]
 }

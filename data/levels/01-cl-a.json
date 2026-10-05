@@ -29,25 +29,12 @@
   },
   "spawn": {
     "pool": [],
-    "sequence": [
-      "cl.sore-throat",
-      "cl.cough",
-      "cl.twisted-ankle",
-      "cl.sore-throat",
-      "cl.bp-check"
-    ],
-    "intervalSeconds": [
-      3,
-      3
-    ],
+    "sequence": ["cl.sore-throat", "cl.cough", "cl.twisted-ankle", "cl.sore-throat", "cl.bp-check"],
+    "intervalSeconds": [3, 3],
     "maxWaiting": 1
   },
   "endAfterPatients": 5,
   "events": [],
   "starMode": "time",
-  "stars": [
-    0,
-    180,
-    135
-  ]
+  "stars": [0, 180, 135]
 }
