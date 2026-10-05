@@ -54,6 +54,8 @@ function buildTasks(condition: ConditionDef, baseTasks: readonly string[]): Pati
         phase: 'base',
         optional: false,
         params: {},
+        stepIndex: 0,
+        step: null,
       }))
     : [];
   const rest = condition.tasks.map((ref): PatientTask => ({
@@ -63,17 +65,20 @@ function buildTasks(condition: ConditionDef, baseTasks: readonly string[]): Pati
     phase: ref.before === 'base' ? 'first' : 'main',
     optional: ref.optional ?? false,
     params: { ...ref.params },
+    stepIndex: 0,
+    step: null,
   }));
   return [...base, ...rest];
 }
 
-// Moves a patient into a free bed (lane B's escort interaction will call this).
+// Moves a patient into a free bed (the escort interaction will call this in M2).
 // Returns why it was refused, or null when it worked.
 export function seatPatient(world: World, patientId: number, bedId: string): string | null {
   const patient = world.patients.find((p) => p.id === patientId);
   if (!patient) return `no patient ${patientId}`;
   const bed = world.beds.find((b) => b.id === bedId);
   if (!bed) return `no bed "${bedId}"`;
+  if (bed.patient === patient.id) return null;
   if (bed.patient !== null) return `bed "${bedId}" is taken`;
   for (const other of world.beds) if (other.patient === patient.id) other.patient = null;
   bed.patient = patient.id;
