@@ -1,0 +1,314 @@
+/* Overlay styles, ported from reference/style-lab.html (docs/06 §6). */
+:root {
+  --scene: #dce5e2;
+  --panel: #ffffff;
+  --ink: #1d2b2f;
+  --muted: #5e6f72;
+  --teal: #1f6f78;
+  --line: #d3dedb;
+  --alert: #d9433b;
+  --board: #8a6a45;
+  --paper: #ffffff;
+  color: var(--ink);
+  font-family:
+    'Atkinson Hyperlegible',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* Floating tags over the 3D scene */
+.labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: Fredoka, sans-serif;
+  font-weight: 600;
+  white-space: nowrap;
+  will-change: transform;
+}
+.tag[hidden] {
+  display: none;
+}
+.tag.player span,
+.tag.patient span {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+}
+.tag.station {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--muted);
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tag.activity {
+  min-width: 110px;
+  padding: 4px 8px 6px;
+  border-radius: 10px;
+  background: var(--panel);
+  font-size: 12px;
+  text-align: center;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+.tag.activity .bar {
+  height: 6px;
+  margin-top: 4px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e3e8e7;
+}
+.tag.activity .bar b {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+}
+.tag.activity em {
+  color: var(--teal);
+  font-size: 11px;
+  font-style: normal;
+}
+
+/* Ticket rail: clipboards across the top */
+.rail {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  left: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.tickets {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 5px 0 4px;
+  scrollbar-width: none;
+}
+.ticket {
+  position: relative;
+  flex: 0 0 158px;
+  padding: 14px 6px 6px;
+  border-radius: 10px;
+  background: var(--board);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+}
+.ticket::before {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 46px;
+  height: 14px;
+  margin-left: -23px;
+  border-radius: 5px;
+  background: linear-gradient(#c9d0d4, #9aa4aa);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  content: '';
+}
+.paper {
+  position: relative;
+  overflow: hidden;
+  padding: 7px 8px 8px;
+  border-radius: 5px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.paper::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+  background: var(--acuity);
+  content: '';
+}
+.t-name {
+  margin: 0 0 2px 4px;
+  font-family: Fredoka, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.t-bed {
+  margin: 0 0 5px 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.t-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin: 0 0 6px 4px;
+  padding: 0;
+  list-style: none;
+}
+.t-steps li {
+  padding: 4px 6px;
+  border-radius: 20px;
+  background: #edf1f0;
+  color: #33454a;
+  font-size: 11px;
+  line-height: 1;
+}
+.t-steps li.ready {
+  background: #dcefee;
+  color: #135c63;
+  font-weight: 700;
+}
+.t-steps li.later {
+  opacity: 0.55;
+}
+.t-steps li.done {
+  background: #d5eedd;
+  color: #1f6b3a;
+  text-decoration: line-through;
+}
+.t-bar {
+  height: 6px;
+  margin-left: 4px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e3e8e7;
+}
+.t-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+}
+
+/* Clock and HUD */
+.clock {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--panel);
+  font-family: Fredoka, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+.hud {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+  padding: 8px 14px 10px;
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+.hud .k {
+  color: var(--muted);
+  font-size: 12px;
+}
+.hud .v {
+  font-family: Fredoka, sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+}
+.stars {
+  color: #e8a317;
+  font-size: 20px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+.stars .off {
+  color: var(--line);
+}
+.strikes {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.strikes span {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--alert);
+  border-radius: 50%;
+}
+.strikes span.on {
+  background: var(--alert);
+}
+.strikes span.none {
+  width: auto;
+  height: auto;
+  border: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Controls reminder */
+.help {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+}
+.help p {
+  margin: 2px 0;
+}
+
+/* Results and error cards */
+.results {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(29, 43, 47, 0.35);
+}
+.results[hidden] {
+  display: none;
+}
+.card {
+  min-width: 260px;
+  padding: 22px 30px;
+  border-radius: 18px;
+  background: var(--panel);
+  text-align: center;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+}
+.card h2 {
+  margin: 0 0 8px;
+  font-family: Fredoka, sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+}
+.card .hint {
+  color: var(--muted);
+  font-size: 13px;
+}
+.stars.big {
+  font-size: 40px;
+  letter-spacing: 6px;
+}
+.card.errors {
+  max-width: 720px;
+  text-align: left;
+}
+.card.errors li {
+  margin: 4px 0;
+  font-size: 13px;
+}

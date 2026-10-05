@@ -16,6 +16,15 @@ npm ci        # install the exact pinned dependencies
 npm run dev   # then open http://localhost:5173
 ```
 
+It starts ED-A (level 2) for two players on one keyboard:
+
+| Player | Move | Pick up / put down | Use (hold for tasks) |
+|---|---|---|---|
+| 1 | W A S D | F | G |
+| 2 | Arrow keys | K | L |
+
+Add `?players=1` to the address to play solo, or `?level=cl-a` for level 1. Press Enter on the results card to play again.
+
 Before opening a PR, run the same checks CI runs:
 
 ```bash

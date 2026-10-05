@@ -10,6 +10,7 @@ export {
   distanceToBox,
   resolveCircle,
   stationBox,
+  wallBox,
   type Box,
   type Point,
 } from './geometry';
