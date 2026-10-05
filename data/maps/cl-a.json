@@ -1,0 +1,256 @@
+{
+  "id": "cl-a",
+  "size": [
+    18,
+    12
+  ],
+  "floorColor": "#D3DED6",
+  "walls": [
+    {
+      "from": [
+        0,
+        0
+      ],
+      "to": [
+        18,
+        0
+      ]
+    },
+    {
+      "from": [
+        0,
+        0
+      ],
+      "to": [
+        0,
+        12
+      ]
+    },
+    {
+      "from": [
+        18,
+        0
+      ],
+      "to": [
+        18,
+        12
+      ]
+    },
+    {
+      "from": [
+        0,
+        12
+      ],
+      "to": [
+        18,
+        12
+      ]
+    },
+    {
+      "from": [
+        9,
+        0
+      ],
+      "to": [
+        9,
+        4.5
+      ],
+      "height": 2.2
+    },
+    {
+      "from": [
+        13,
+        0
+      ],
+      "to": [
+        13,
+        4.5
+      ],
+      "height": 2.2
+    }
+  ],
+  "stations": [
+    {
+      "id": "check-in",
+      "type": "station.check-in",
+      "pos": [
+        3,
+        8.8
+      ],
+      "size": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "phone",
+      "type": "station.phone",
+      "pos": [
+        1.8,
+        8.8
+      ],
+      "size": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "waiting",
+      "type": "station.waiting-chairs",
+      "pos": [
+        2.5,
+        3
+      ],
+      "size": [
+        4,
+        4
+      ]
+    },
+    {
+      "id": "computer-1",
+      "type": "station.computer",
+      "pos": [
+        11,
+        7
+      ],
+      "size": [
+        2.5,
+        1
+      ]
+    },
+    {
+      "id": "supply",
+      "type": "station.supply",
+      "pos": [
+        16.8,
+        8
+      ],
+      "size": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "lab-window",
+      "type": "station.lab",
+      "pos": [
+        7,
+        11.3
+      ],
+      "size": [
+        2,
+        0.8
+      ],
+      "variant": "window"
+    },
+    {
+      "id": "vaccine-fridge",
+      "type": "station.vaccine-fridge",
+      "pos": [
+        9.5,
+        11.3
+      ],
+      "size": [
+        1,
+        0.8
+      ]
+    },
+    {
+      "id": "observation",
+      "type": "station.observation",
+      "pos": [
+        13,
+        10.6
+      ],
+      "size": [
+        3,
+        1.6
+      ]
+    },
+    {
+      "id": "sink",
+      "type": "station.sink",
+      "pos": [
+        16.5,
+        11.2
+      ],
+      "size": [
+        1.5,
+        0.8
+      ]
+    }
+  ],
+  "beds": [
+    {
+      "id": "exam-1",
+      "pos": [
+        7,
+        2.4
+      ],
+      "rot": 0
+    },
+    {
+      "id": "exam-2",
+      "pos": [
+        11,
+        2.4
+      ],
+      "rot": 0
+    },
+    {
+      "id": "exam-3",
+      "pos": [
+        15.5,
+        2.4
+      ],
+      "rot": 0
+    }
+  ],
+  "equipmentHomes": [],
+  "spawns": [
+    [
+      9,
+      8.5
+    ],
+    [
+      10,
+      8.5
+    ],
+    [
+      9,
+      9.5
+    ],
+    [
+      10,
+      9.5
+    ]
+  ],
+  "entrances": [
+    {
+      "id": "walk-in",
+      "pos": [
+        0.6,
+        10.5
+      ]
+    }
+  ],
+  "exits": [
+    {
+      "id": "home",
+      "pos": [
+        0.6,
+        11.4
+      ],
+      "kind": "home"
+    },
+    {
+      "id": "ambulance",
+      "pos": [
+        17.4,
+        5.5
+      ],
+      "kind": "ambulance"
+    }
+  ],
+  "zones": []
+}

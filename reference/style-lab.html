@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scrub Club style lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --scene:#DCE5E2; --panel:#FFFFFF; --ink:#1D2B2F; --muted:#5E6F72; --teal:#1F6F78; --teal-ink:#FFFFFF;
+  --line:#D3DEDB; --alert:#D9433B; --board:#8A6A45; --paper:#FFFFFF; --chip:#EEF3F2;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --scene:#1E2628; --panel:#162022; --ink:#E6EEEC; --muted:#9FB1B0; --teal:#5CC2C9; --teal-ink:#0F1A1C;
+    --line:#2C3A3C; --alert:#FF6B61; --board:#6E5538; --paper:#F7F8F4; --chip:#203033;
+  }
+}
+:root[data-theme="dark"]{
+  --scene:#1E2628; --panel:#162022; --ink:#E6EEEC; --muted:#9FB1B0; --teal:#5CC2C9; --teal-ink:#0F1A1C;
+  --line:#2C3A3C; --alert:#FF6B61; --board:#6E5538; --paper:#F7F8F4; --chip:#203033;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;overflow:hidden;background:var(--scene);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
+#app{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 340px}
+#stage{position:relative;min-width:0;height:100%;overflow:hidden}
+#c{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+
+/* ---------- in-game UI mock ---------- */
+.rail{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:flex-start;pointer-events:none}
+.tickets{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;pointer-events:auto}
+.tickets::-webkit-scrollbar{display:none}
+.ticket{flex:0 0 148px;position:relative;background:var(--board);border-radius:10px;padding:14px 6px 6px;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.ticket::before{content:"";position:absolute;top:-5px;left:50%;width:46px;height:14px;margin-left:-23px;border-radius:5px;
+  background:linear-gradient(#C9D0D4,#9AA4AA);box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+.paper{background:var(--paper);color:#1D2B2F;border-radius:5px;padding:7px 8px 8px;position:relative;overflow:hidden}
+.paper::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--acuity)}
+.t-name{font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin:0 0 4px 4px;line-height:1.15}
+.t-steps{display:flex;flex-wrap:wrap;gap:3px;margin:0 0 6px 4px;padding:0;list-style:none}
+.t-steps li{font-size:11px;line-height:1;padding:4px 6px;border-radius:20px;background:#EDF1F0;color:#33454A}
+.t-steps li.done{background:#D5EEDD;color:#1F6B3A;text-decoration:line-through}
+.t-steps li.hidden{background:#F1EDF7;color:#6A5A86}
+.t-bar{height:6px;border-radius:6px;background:#E3E8E7;margin-left:4px;overflow:hidden}
+.t-bar i{display:block;height:100%;border-radius:6px;background:#3BB273}
+.clock{margin-left:auto;flex:0 0 auto;background:var(--panel);color:var(--ink);border-radius:12px;padding:6px 12px;
+  font-family:Fredoka,sans-serif;font-weight:600;font-size:22px;box-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:auto}
+.hud{position:absolute;left:12px;bottom:12px;background:var(--panel);border-radius:14px;padding:8px 14px 10px;
+  box-shadow:0 2px 0 rgba(0,0,0,.12);display:flex;gap:18px;align-items:flex-end}
+.hud .k{font-size:12px;color:var(--muted)}
+.hud .v{font-family:Fredoka,sans-serif;font-weight:600;font-size:24px;line-height:1}
+.stars{color:#E8A317;font-size:20px;letter-spacing:2px;line-height:1}
+.stars .off{color:var(--line)}
+.strikes{display:flex;gap:4px;margin-top:6px}
+.strikes span{width:10px;height:10px;border-radius:50%;border:2px solid var(--alert)}
+.strikes span.on{background:var(--alert)}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:var(--panel);color:var(--muted);
+  border-radius:20px;padding:6px 14px;font-size:13px;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.1)}
+
+/* ---------- floating labels ---------- */
+.tag{position:absolute;left:0;top:0;will-change:transform;font-family:Fredoka,sans-serif;font-weight:600;white-space:nowrap}
+.tag.player{font-size:12px;color:#fff;padding:2px 8px;border-radius:10px;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.tag.cue{font-size:13px;padding:5px 10px;border-radius:12px;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.tag.cue::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:inherit}
+.tag.role{font-size:13px;text-align:center;color:var(--ink);background:var(--panel);padding:4px 9px;border-radius:10px;line-height:1.2;
+  box-shadow:0 2px 0 rgba(0,0,0,.1)}
+.tag.role small{display:block;font-family:"Atkinson Hyperlegible",sans-serif;font-weight:400;font-size:11px;color:var(--muted)}
+
+/* ---------- control panel ---------- */
+#panel{background:var(--panel);border-left:1px solid var(--line);height:100%;overflow-y:auto;padding:22px 20px 28px}
+#panel h1{font-family:Fredoka,sans-serif;font-weight:700;font-size:28px;line-height:1.05;margin:0 0 6px;color:var(--teal)}
+#panel .lede{margin:0 0 18px;color:var(--muted);font-size:14px;max-width:34ch}
+.group{margin:0 0 18px}
+.group h2{font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin:0 0 8px}
+.group p{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:inherit;font-size:13.5px;border:1.5px solid var(--line);background:var(--chip);color:var(--ink);
+  border-radius:999px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--teal-ink)}
+.seg button:focus-visible{outline:3px solid #E8A317;outline-offset:2px}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(0,0,0,.25)}
+.mine{font-size:11px;opacity:.85}
+.edge{position:absolute;left:0;top:0;display:flex;align-items:center;gap:8px;pointer-events:none;will-change:transform}
+.edge[hidden]{display:none}
+.edge.text-left{flex-direction:row-reverse}
+.edge-dot{position:relative;width:46px;height:46px;border-radius:50%;background:var(--cue,#D9433B);box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.edge-dot::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:3px solid var(--cue,#D9433B);opacity:.6;animation:ping 1.1s ease-out infinite}
+.edge-arrow{position:absolute;inset:0;display:block}
+.edge-arrow::after{content:"";position:absolute;top:50%;left:50%;margin:-9px 0 0 -4px;border:9px solid transparent;border-left:14px solid #fff;border-right:0}
+.edge-text{background:var(--panel);color:var(--ink);font:600 13px Fredoka,sans-serif;padding:5px 10px;border-radius:10px;box-shadow:0 2px 0 rgba(0,0,0,.12);white-space:nowrap}
+@keyframes ping{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.35);opacity:0}}
+@media (prefers-reduced-motion: reduce){ .edge-dot::before{animation:none} }
+#sheetToggle{display:none}
+#err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+#err[hidden]{display:none}
+
+@media (max-width:760px){
+  #app{display:block}
+  #stage{height:100%}
+  #panel{position:fixed;left:0;right:0;bottom:0;height:auto;max-height:56%;border-left:0;border-top:1px solid var(--line);
+    border-radius:18px 18px 0 0;padding:0 16px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(calc(100% - 52px - env(safe-area-inset-bottom,0px)));
+    transition:transform .25s ease;box-shadow:0 -6px 20px rgba(0,0,0,.15)}
+  #panel.open{transform:none}
+  #sheetToggle{display:flex;position:sticky;top:0;width:100%;justify-content:center;align-items:center;gap:8px;height:52px;margin:0 -16px 6px;
+    width:calc(100% + 32px);background:var(--panel);border:0;color:var(--ink);font:600 16px Fredoka,sans-serif;cursor:pointer;z-index:1}
+  #sheetToggle:focus-visible{outline:3px solid #E8A317;outline-offset:-3px}
+  #panel h1{font-size:22px}
+  .ticket{flex-basis:128px}
+  .t-name{font-size:13.5px}
+  .clock{font-size:18px}
+  .hud{bottom:64px;padding:6px 10px 8px;gap:12px}
+  .hud .v{font-size:19px}
+  .hint{display:none}
+}
+@media (prefers-reduced-motion: reduce){ #panel{transition:none} }
+</style>
+</head>
+<body>
+<div id="app">
+  <main id="stage" aria-label="3D style preview">
+    <canvas id="c"></canvas>
+    <div id="labels"></div>
+    <div id="edge" class="edge" hidden role="status" aria-live="polite"><div class="edge-dot"><span class="edge-arrow"></span></div><div class="edge-text"></div></div>
+    <div class="rail" id="rail">
+      <div class="tickets" id="tickets" aria-label="Example patient tickets"></div>
+      <div class="clock" id="clock" aria-label="Level timer">5:59</div>
+    </div>
+    <div class="hud" id="hud" aria-label="Example score display">
+      <div><div class="k">Score</div><div class="v" id="score">340</div></div>
+      <div><div class="stars" aria-label="2 of 3 stars">★★<span class="off">★</span></div>
+        <div class="strikes" aria-label="2 of 6 strikes"><span class="on"></span><span class="on"></span><span></span><span></span><span></span><span></span></div></div>
+    </div>
+    <div class="hint" id="hint">Walk the attending with WASD or the arrow keys, or click the floor</div>
+    <div id="err" hidden>The 3D engine didn't load. Check your connection and reload the page.</div>
+  </main>
+
+  <aside id="panel" aria-label="Style controls">
+    <button id="sheetToggle" aria-expanded="false" aria-controls="panel">Style controls <span aria-hidden="true">▴</span></button>
+    <h1>Scrub Club style lab</h1>
+    <p class="lede">One ED bay built from your art picks. Switch the look, poke the patient, and check the role colors.</p>
+
+    <section class="group">
+      <h2>Look</h2>
+      <div class="seg" data-group="look">
+        <button data-value="soft" aria-pressed="true">Soft toy <span class="mine">your pick</span></button>
+        <button data-value="toon" aria-pressed="false">Toon + outlines</button>
+        <button data-value="flat" aria-pressed="false">Flat pastel</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>View</h2>
+      <div class="seg" data-group="view">
+        <button data-value="bay" aria-pressed="true">ED bay</button>
+        <button data-value="lineup" aria-pressed="false">Role lineup</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Camera</h2>
+      <div class="seg" data-group="cam">
+        <button data-value="fixed" aria-pressed="true">Fixed (small maps)</button>
+        <button data-value="follow" aria-pressed="false">Follow (big maps)</button>
+      </div>
+      <p>Follow pans and zooms to keep every player in frame. In this demo your teammates stick close to you, so pick a patient problem below, switch to Follow, and walk to a far corner. An arrow on the screen edge points back to the patient.</p>
+    </section>
+
+    <section class="group">
+      <h2>Patient</h2>
+      <div class="seg" data-group="patient">
+        <button data-value="normal" aria-pressed="true"><span class="dot" style="background:#E3B58E"></span>Stable</button>
+        <button data-value="blue" aria-pressed="false"><span class="dot" style="background:#86A9D6"></span>Not enough oxygen</button>
+        <button data-value="pale" aria-pressed="false"><span class="dot" style="background:#EDEFEA"></span>Losing blood</button>
+        <button data-value="hot" aria-pressed="false"><span class="dot" style="background:#E87358"></span>Overheated</button>
+        <button data-value="chest" aria-pressed="false"><span class="dot" style="background:#D9433B"></span>Heart attack</button>
+        <button data-value="allergy" aria-pressed="false"><span class="dot" style="background:#F0A58A"></span>Allergic reaction</button>
+        <button data-value="flat" aria-pressed="false"><span class="dot" style="background:#3A3F47"></span>Flat line</button>
+        <button data-value="zigzag" aria-pressed="false"><span class="dot" style="background:#FF5A5A"></span>Zigzag line</button>
+        <button data-value="death" aria-pressed="false"><span class="dot" style="background:#C9C2B8"></span>Cartoon death</button>
+      </div>
+    </section>
+
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+if (!window.THREE){ document.getElementById('err').hidden = false; return; }
+var V3 = THREE.Vector3;
+var $ = function(s){ return document.querySelector(s); };
+var stage = $('#stage'), canvas = $('#c'), labelLayer = $('#labels');
+var state = { look:'soft', cam:'fixed', view:'bay', patient:'normal', student:'#B9A4E3', tech:'#454B55' };
+
+/* ---------- renderer, scene, camera ---------- */
+var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(32, 1, 0.1, 300);
+
+function readSceneBg(){
+  var v = getComputedStyle(document.documentElement).getPropertyValue('--scene').trim() || '#DCE5E2';
+  scene.background = new THREE.Color(v);
+}
+readSceneBg();
+try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readSceneBg); } catch(e){}
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8f9c99, 0.62));
+var sun = new THREE.DirectionalLight(0xffffff, 0.74);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -16; sun.shadow.camera.right = 16; sun.shadow.camera.top = 16; sun.shadow.camera.bottom = -16;
+sun.shadow.camera.near = 1; sun.shadow.camera.far = 60;
+sun.shadow.bias = -0.0008;
+scene.add(sun); scene.add(sun.target);
+
+/* ---------- materials ---------- */
+var WHITE = new THREE.Color('#ffffff');
+var gradient = (function(){
+  var d = new Uint8Array([70,70,70,255, 165,165,165,255, 255,255,255,255]);
+  var t = new THREE.DataTexture(d, 3, 1, THREE.RGBAFormat);
+  t.minFilter = THREE.NearestFilter; t.magFilter = THREE.NearestFilter; t.generateMipmaps = false; t.needsUpdate = true;
+  return t;
+})();
+var outlineMat = new THREE.MeshBasicMaterial({ color: 0x1c2330, side: THREE.BackSide });
+
+function makeMat(look, hex, o){
+  var color = new THREE.Color(hex);
+  if (look === 'flat') color.lerp(WHITE, 0.3);
+  var p = { color: color };
+  if (o.map) p.map = o.map;
+  var m;
+  if (look === 'toon'){ p.gradientMap = gradient; m = new THREE.MeshToonMaterial(p); }
+  else if (look === 'soft'){ p.roughness = 0.8; p.metalness = 0; m = new THREE.MeshStandardMaterial(p); }
+  else { p.flatShading = true; p.shininess = 0; p.specular = new THREE.Color(0x000000); m = new THREE.MeshPhongMaterial(p); }
+  if (o.side) m.side = o.side;
+  return m;
+}
+
+var paint = [];
+function P(geo, hex, o){
+  o = o || {};
+  var mesh = new THREE.Mesh(geo, makeMat(state.look, hex, o));
+  mesh.castShadow = o.cast !== false;
+  mesh.receiveShadow = o.receive !== false;
+  var entry = { mesh: mesh, color: hex, opts: o, outline: null };
+  if (o.outline !== false){
+    var ol = new THREE.Mesh(geo, outlineMat);
+    ol.scale.setScalar(1 + (o.ow || 0.06));
+    ol.castShadow = false; ol.receiveShadow = false;
+    ol.visible = state.look === 'toon';
+    mesh.add(ol); entry.outline = ol;
+  }
+  mesh.userData.entry = entry;
+  paint.push(entry);
+  return mesh;
+}
+function setColor(entry, hex){
+  entry.color = hex;
+  var c = new THREE.Color(hex);
+  if (state.look === 'flat') c.lerp(WHITE, 0.3);
+  entry.mesh.material.color.copy(c);
+}
+function applyLook(){
+  paint.forEach(function(e){
+    var old = e.mesh.material;
+    e.mesh.material = makeMat(state.look, e.color, e.opts);
+    old.dispose();
+    if (e.outline) e.outline.visible = state.look === 'toon';
+  });
+  if (state.patient === 'death') setGroupOpacity(bed.group, currentFade, true);
+}
+function basic(hex, extra){ var m = new THREE.MeshBasicMaterial({ color: hex }); if (extra) Object.assign(m, extra); return m; }
+
+var G = {
+  sphere: function(r, w, h){ return new THREE.SphereGeometry(r, w || 24, h || 16); },
+  box: function(x, y, z){ return new THREE.BoxGeometry(x, y, z); },
+  cyl: function(rt, rb, h, s){ return new THREE.CylinderGeometry(rt, rb, h, s || 20); }
+};
+function put(parent, mesh, x, y, z){ mesh.position.set(x || 0, y || 0, z || 0); parent.add(mesh); return mesh; }
+
+/* ---------- collision blocks ---------- */
+var blocks = [];
+function block(cx, cz, w, d){ blocks.push({ x0: cx - w/2, x1: cx + w/2, z0: cz - d/2, z1: cz + d/2 }); }
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+function collide(p, r){
+  r = r || 0.42;
+  for (var i = 0; i < blocks.length; i++){
+    var b = blocks[i];
+    var cx = clamp(p.x, b.x0, b.x1), cz = clamp(p.z, b.z0, b.z1);
+    var dx = p.x - cx, dz = p.z - cz, d2 = dx*dx + dz*dz;
+    if (d2 < r*r){
+      if (d2 > 1e-6){ var d = Math.sqrt(d2); p.x = cx + dx/d*r; p.z = cz + dz/d*r; }
+      else {
+        var l = p.x - b.x0, rr = b.x1 - p.x, t = p.z - b.z0, bt = b.z1 - p.z, m = Math.min(l, rr, t, bt);
+        if (m === l) p.x = b.x0 - r; else if (m === rr) p.x = b.x1 + r; else if (m === t) p.z = b.z0 - r; else p.z = b.z1 + r;
+      }
+    }
+  }
+}
+function insideBlock(x, z, pad){
+  pad = pad || 0.6;
+  return blocks.some(function(b){ return x > b.x0 - pad && x < b.x1 + pad && z > b.z0 - pad && z < b.z1 + pad; });
+}
+
+/* ---------- textures ---------- */
+function floorTex(rx, ry){
+  var c = document.createElement('canvas'); c.width = c.height = 128;
+  var g = c.getContext('2d');
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, 128, 128);
+  g.strokeStyle = 'rgba(40,60,60,0.10)'; g.lineWidth = 3; g.strokeRect(0, 0, 128, 128);
+  var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry);
+  return t;
+}
+
+/* ---------- faces ---------- */
+var DARK = '#1F242C';
+function makeFace(head, r){
+  var f = { eyes: [], xEyes: [], blot: [] };
+  [-1, 1].forEach(function(s){
+    var e = new THREE.Mesh(G.sphere(0.13*r, 14, 10), basic(DARK));
+    e.position.set(0.33*r*s, 0.1*r, 0.9*r); e.scale.set(1, 1.15, 0.6);
+    head.add(e); f.eyes.push(e);
+    var xg = new THREE.Group(); xg.position.set(0.33*r*s, 0.1*r, 0.97*r); xg.visible = false;
+    [-1, 1].forEach(function(k){
+      var bar = new THREE.Mesh(G.box(0.3*r, 0.06*r, 0.04*r), basic(DARK));
+      bar.rotation.z = k * Math.PI/4; xg.add(bar);
+    });
+    head.add(xg); f.xEyes.push(xg);
+  });
+  f.smile = new THREE.Mesh(new THREE.TorusGeometry(0.16*r, 0.035*r, 8, 18, Math.PI), basic(DARK));
+  f.smile.position.set(0, -0.22*r, 0.95*r); f.smile.rotation.z = Math.PI; head.add(f.smile);
+  f.frown = new THREE.Mesh(new THREE.TorusGeometry(0.13*r, 0.035*r, 8, 18, Math.PI), basic(DARK));
+  f.frown.position.set(0, -0.38*r, 0.93*r); head.add(f.frown); f.frown.visible = false;
+  f.oh = new THREE.Mesh(G.sphere(0.1*r, 12, 10), basic(DARK));
+  f.oh.position.set(0, -0.3*r, 0.93*r); f.oh.scale.set(1, 1.25, 0.5); head.add(f.oh); f.oh.visible = false;
+  f.tongue = new THREE.Mesh(G.sphere(0.1*r, 12, 10), basic('#E97A93'));
+  f.tongue.position.set(0.06*r, -0.44*r, 0.92*r); f.tongue.scale.set(1, 1.3, 0.5); head.add(f.tongue); f.tongue.visible = false;
+  var spots = [[-0.45,0.35],[0.5,0.25],[-0.2,-0.1],[0.25,-0.05],[0.0,0.5],[-0.55,-0.15],[0.6,-0.2]];
+  spots.forEach(function(s){
+    var b = new THREE.Mesh(G.sphere(0.06*r, 10, 8), basic('#D4434F'));
+    var x = s[0]*r, y = s[1]*r, z = Math.sqrt(Math.max(0.01, r*r - x*x - y*y)) * 0.99;
+    b.position.set(x, y, z); b.scale.set(1, 1, 0.4); b.visible = false; head.add(b); f.blot.push(b);
+  });
+  f.mouth = function(kind){ f.smile.visible = kind === 'smile'; f.frown.visible = kind === 'frown'; f.oh.visible = kind === 'oh'; };
+  f.blinkT = 2 + Math.random()*3;
+  return f;
+}
+
+/* ---------- scrub texture (V-neck, pocket, hem) ---------- */
+var scrubCache = {};
+function shade(hex, k){ var c = new THREE.Color(hex); c.multiplyScalar(k); return '#' + c.getHexString(); }
+function scrubTex(scrub, skin){
+  var key = scrub + skin; if (scrubCache[key]) return scrubCache[key];
+  var W = 512, H = 256, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  var g = cv.getContext('2d');
+  g.fillStyle = scrub; g.fillRect(0, 0, W, H);
+  g.fillStyle = shade(scrub, 0.86); g.fillRect(0, H*0.63, W, H*0.37);           // pants
+  g.fillStyle = shade(scrub, 0.72); g.fillRect(0, H*0.612, W, H*0.026);         // top hem
+  var cx = W*0.25, top = H*0.1, apex = H*0.44, half = W*0.078;                  // V-neck (front of body is u = 0.25)
+  g.fillStyle = skin; g.beginPath(); g.moveTo(cx - half, top); g.lineTo(cx + half, top); g.lineTo(cx, apex); g.closePath(); g.fill();
+  g.strokeStyle = shade(scrub, 0.68); g.lineWidth = 9; g.lineJoin = 'round'; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(cx - half, top); g.lineTo(cx, apex); g.lineTo(cx + half, top); g.stroke();
+  var px = W*0.335, py = H*0.3, pw = W*0.05, ph = H*0.085;                      // chest pocket (wearer's left)
+  g.fillStyle = shade(scrub, 0.8); g.fillRect(px - pw/2, py, pw, ph);
+  g.fillStyle = shade(scrub, 0.66); g.fillRect(px - pw/2, py, pw, H*0.014);
+  var t = new THREE.CanvasTexture(cv); t.anisotropy = 4; scrubCache[key] = t;
+  return t;
+}
+
+/* ---------- characters ---------- */
+var SKINS = ['#F2C9A5','#E0A97E','#C68863','#8D5A3B','#5C3A26','#F5D7BE','#B87A55'];
+var HAIRS = ['#2B1E16','#5A3A22','#C9A15A','#1C1C1C','#8A8F96','#7A2E1E','#3B2A20'];
+function makeChar(scrub, o){
+  o = o || {};
+  var c = { group: new THREE.Group(), inner: new THREE.Group(), pos: new V3(), facing: 0, phase: Math.random()*6, moving: false };
+  c.group.add(c.inner);
+  var skin0 = o.skin || SKINS[0];
+  var body = P(G.sphere(0.5, 40, 24), '#ffffff', { ow: 0.07, map: scrubTex(scrub, skin0) });
+  body.scale.set(0.92, 1.0, 0.78); put(c.inner, body, 0, 0.62, 0);
+  c.scrubEntry = body.userData.entry;
+  [-1, 1].forEach(function(s){
+    var shoe = P(G.sphere(0.16, 16, 10), '#2B3036', { ow: 0.12 });
+    shoe.scale.set(1, 0.55, 1.4); put(c.inner, shoe, 0.2*s, 0.07, 0.06);
+  });
+  if (o.coat){
+    var long = o.coat === 'long';
+    var coat = P(new THREE.CylinderGeometry(long ? 0.40 : 0.38, long ? 0.62 : 0.52, long ? 0.92 : 0.5, 28, 1, true, 0.5, Math.PI*2 - 1.0), '#FFFFFF',
+      { outline: false, side: THREE.DoubleSide });
+    coat.scale.set(1, 1, 0.9); put(c.inner, coat, 0, long ? 0.58 : 0.82, 0);
+  }
+  c.head = new THREE.Group(); put(c.inner, c.head, 0, 1.42, 0);
+  var skin = o.skin || SKINS[0];
+  var skull = P(G.sphere(0.5, 32, 22), skin, { ow: 0.08 });
+  c.head.add(skull);
+  if (o.cap){
+    var cap = P(new THREE.SphereGeometry(0.535, 28, 12, 0, Math.PI*2, 0, Math.PI*0.36), scrub, { outline: false });
+    cap.rotation.x = -0.28; c.head.add(cap); c.capEntry = cap.userData.entry;
+  } else {
+    var hair = P(new THREE.SphereGeometry(0.535, 28, 12, 0, Math.PI*2, 0, Math.PI*0.42), o.hair || HAIRS[0], { outline: false });
+    hair.rotation.x = -0.32; c.head.add(hair);
+  }
+  c.face = makeFace(c.head, 0.5);
+  c.hands = [-1, 1].map(function(s){
+    var h = P(G.sphere(0.13, 16, 12), skin, { ow: 0.12 });
+    put(c.inner, h, 0.6*s, 0.66, 0.12); h.userData.side = s; return h;
+  });
+  if (o.ring){
+    var ring = new THREE.Mesh(new THREE.RingGeometry(0.62, 0.78, 40), new THREE.MeshBasicMaterial({ color: o.ring, transparent: true, opacity: 0.95 }));
+    ring.rotation.x = -Math.PI/2; ring.position.y = 0.02; c.group.add(ring);
+  }
+  scene.add(c.group);
+  return c;
+}
+function lerpAngle(a, b, t){ var d = ((b - a + Math.PI*3) % (Math.PI*2)) - Math.PI; return a + d*t; }
+function animateChar(c, dt){
+  c.group.position.set(c.pos.x, 0, c.pos.z);
+  c.group.rotation.y = lerpAngle(c.group.rotation.y, c.facing, 1 - Math.exp(-12*dt));
+  c.phase += dt * (c.moving ? 11 : 2.2);
+  c.inner.position.y = c.moving ? Math.abs(Math.sin(c.phase))*0.09 : Math.sin(c.phase)*0.012;
+  c.inner.rotation.z = c.moving ? Math.sin(c.phase)*0.09 : 0;
+  c.hands.forEach(function(h){
+    var s = h.userData.side;
+    h.position.z = 0.12 + (c.moving ? Math.sin(c.phase)*0.2*s : 0);
+    h.position.y = 0.66 + (c.moving ? 0.03 : Math.sin(c.phase + s)*0.02);
+  });
+  blink(c.face, dt);
+}
+function blink(f, dt){
+  if (f.locked) return;
+  f.blinkT -= dt;
+  var closed = f.blinkT < 0.12 && f.blinkT > 0;
+  f.eyes.forEach(function(e){ e.scale.y = closed ? 0.15 : 1.15; });
+  if (f.blinkT <= 0) f.blinkT = 2.5 + Math.random()*3;
+}
+
+/* ---------- ED bay ---------- */
+var floor = P(new THREE.PlaneGeometry(24, 16), '#CBD6D3', { outline: false, cast: false, map: floorTex(12, 8) });
+floor.rotation.x = -Math.PI/2; scene.add(floor);
+var stripeA = P(new THREE.PlaneGeometry(22, 0.16), '#3E8C8F', { outline: false, cast: false });
+stripeA.rotation.x = -Math.PI/2; put(scene, stripeA, 0, 0.006, -1.6);
+var stripeB = P(new THREE.PlaneGeometry(22, 0.16), '#D9605A', { outline: false, cast: false });
+stripeB.rotation.x = -Math.PI/2; put(scene, stripeB, 0, 0.006, -1.3);
+
+function wall(cx, cz, w, d, h){
+  var m = P(G.box(w, h, d), '#E3E9E7', { ow: 0.02 }); put(scene, m, cx, h/2, cz);
+  var trim = P(G.box(w + 0.02, 0.12, d + 0.04), '#3E8C8F', { outline: false }); put(scene, trim, cx, h + 0.06, cz);
+  block(cx, cz, w, d);
+}
+wall(0, -8.15, 24.3, 0.3, 1.3);
+wall(-12.15, 0, 0.3, 16.3, 1.3);
+wall(12.15, 0, 0.3, 16.3, 1.3);
+[-3.5, 3.5].forEach(function(x){
+  var cur = P(G.box(0.12, 1.75, 5.4), '#A9CFCA', { ow: 0.02 }); put(scene, cur, x, 0.875, -5.3);
+  for (var i = 0; i < 6; i++){
+    var fold = P(G.cyl(0.07, 0.07, 1.75, 10), '#97C3BE', { outline: false }); put(scene, fold, x, 0.875, -7.6 + i*0.92);
+  }
+  var rail = P(G.box(0.08, 0.06, 5.6), '#8FA3AA', { outline: false }); put(scene, rail, x, 1.82, -5.3);
+  block(x, -5.3, 0.2, 5.4);
+});
+
+function makeBed(x, z){
+  var b = { group: new THREE.Group() };
+  var g = b.group;
+  put(g, P(G.box(2.3, 0.22, 1.06), '#B7C2C6', { ow: 0.03 }), 0, 0.56, 0);
+  put(g, P(G.box(2.2, 0.2, 1.0), '#F2F5F6', { ow: 0.03 }), 0, 0.77, 0);
+  put(g, P(G.box(0.5, 0.14, 0.76), '#FFFFFF', { ow: 0.05 }), -0.8, 0.93, 0);
+  put(g, P(G.box(0.08, 0.66, 1.06), '#7F959C', { ow: 0.05 }), -1.16, 0.86, 0);
+  put(g, P(G.box(0.08, 0.42, 1.06), '#7F959C', { ow: 0.05 }), 1.16, 0.74, 0);
+  [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(function(k){
+    put(g, P(G.cyl(0.04, 0.04, 0.42, 8), '#59666B', { outline: false }), 1.0*k[0], 0.27, 0.44*k[1]);
+    put(g, P(G.sphere(0.075, 10, 8), '#2E3539', { outline: false }), 1.0*k[0], 0.075, 0.44*k[1]);
+  });
+  g.rotation.y = -Math.PI/2;
+  g.position.set(x, 0, z);
+  scene.add(g);
+  block(x, z, 1.15, 2.4);
+  return b;
+}
+function addPatient(b, skin, opts){
+  opts = opts || {};
+  var g = b.group;
+  var blanket = P(G.sphere(0.5, 24, 14), opts.blanket || '#8EBDC1', { ow: 0.05 });
+  blanket.scale.set(2.5, 0.5, 1.02); put(g, blanket, 0.3, 0.92, 0);
+  var head = new THREE.Group(); put(g, head, -0.78, 1.18, 0);
+  var zA = new V3(0.45, 0.89, 0).normalize(), yA = new V3(-0.89, 0.45, 0).normalize(), xA = new V3().crossVectors(yA, zA);
+  head.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(xA, yA, zA));
+  var skull = P(G.sphere(0.42, 28, 20), skin, { ow: 0.08 }); head.add(skull);
+  var hair = P(new THREE.SphereGeometry(0.45, 24, 12, 0, Math.PI*2, 0, Math.PI*0.42), opts.hair || '#3B2A20', { outline: false });
+  hair.rotation.x = -0.32; head.add(hair);
+  var face = makeFace(head, 0.42);
+  var hands = [-1, 1].map(function(s){ var h = P(G.sphere(0.12, 14, 10), skin, { ow: 0.12 }); put(g, h, 0.1, 1.12, 0.36*s); return h; });
+  b.patient = { head: head, skull: skull.userData.entry, face: face, hands: hands, handEntries: hands.map(function(h){ return h.userData.entry; }) };
+  return b.patient;
+}
+var bedL = makeBed(-7, -5.6); addPatient(bedL, '#C68863', { hair: '#1C1C1C', blanket: '#B4C7E0' });
+bedL.patient.face.locked = true; bedL.patient.face.eyes.forEach(function(e){ e.scale.y = 0.15; });
+var bed = makeBed(0, -5.6);
+var PSKIN = '#E3B58E';
+var pt = addPatient(bed, PSKIN, { hair: '#5A3A22' });
+var bedR = makeBed(7, -5.6);
+var bedBase = bed.group.position.clone();
+
+// IV pole
+(function(){
+  var g = new THREE.Group(); g.position.set(-1.1, 0, -6.9); scene.add(g);
+  put(g, P(G.cyl(0.03, 0.03, 2.0, 8), '#9AA6AB', { outline: false }), 0, 1.0, 0);
+  put(g, P(G.cyl(0.28, 0.28, 0.05, 16), '#59666B', { outline: false }), 0, 0.04, 0);
+  put(g, P(G.box(0.24, 0.34, 0.08), '#CFE8F5', { ow: 0.08 }), 0.14, 1.8, 0);
+  block(-1.1, -6.9, 0.4, 0.4);
+})();
+
+// monitor with live ECG
+var ecgCanvas = document.createElement('canvas'); ecgCanvas.width = 256; ecgCanvas.height = 168;
+var eg = ecgCanvas.getContext('2d');
+var ecgTex = new THREE.CanvasTexture(ecgCanvas);
+var ecgBuf = new Float32Array(240), ecgI = 0, ecgT = 0;
+(function(){
+  var g = new THREE.Group(); g.position.set(1.15, 0, -7.25); scene.add(g);
+  put(g, P(G.cyl(0.04, 0.04, 1.6, 8), '#9AA6AB', { outline: false }), 0, 0.8, 0);
+  put(g, P(G.cyl(0.3, 0.3, 0.05, 16), '#59666B', { outline: false }), 0, 0.04, 0);
+  var head = new THREE.Group(); head.position.set(0, 1.9, 0); head.rotation.x = -0.38; g.add(head);
+  head.add(P(G.box(0.98, 0.7, 0.12), '#3A4248', { ow: 0.04 }));
+  var screen = new THREE.Mesh(new THREE.PlaneGeometry(0.86, 0.58), new THREE.MeshBasicMaterial({ map: ecgTex }));
+  screen.position.z = 0.065; head.add(screen);
+  block(1.15, -7.25, 0.5, 0.5);
+})();
+function beat(ph){
+  function g(c, w, a){ return a * Math.exp(-Math.pow((ph - c)/w, 2)); }
+  return g(0.16, 0.035, 0.12) + g(0.30, 0.01, -0.14) + g(0.325, 0.013, 1) + g(0.35, 0.011, -0.26) + g(0.58, 0.055, 0.26);
+}
+var RATES = { normal: 78, blue: 112, pale: 124, hot: 130, chest: 104, allergy: 118 };
+function ecgSample(t, m){
+  if (RATES[m]){ var per = 60 / RATES[m]; return beat((t % per)/per) + (Math.random() - 0.5)*0.015; }
+  if (m === 'zigzag') return 0.42*Math.sin(t*2*Math.PI*5.2 + 0.8*Math.sin(t*2.1)) * (0.65 + 0.35*Math.sin(t*1.7)) + (Math.random() - 0.5)*0.04;
+  return (Math.random() - 0.5)*0.012;
+}
+function drawECG(dt){
+  var m = state.patient;
+  var steps = Math.max(1, Math.round(dt*110));
+  for (var k = 0; k < steps; k++){ ecgT += 1/110; ecgBuf[ecgI] = ecgSample(ecgT, m); ecgI = (ecgI + 1) % ecgBuf.length; }
+  var W = 256, H = 168;
+  eg.fillStyle = '#0E1B1D'; eg.fillRect(0, 0, W, H);
+  eg.strokeStyle = 'rgba(90,210,170,0.10)'; eg.lineWidth = 1;
+  for (var x = 0; x < W; x += 16){ eg.beginPath(); eg.moveTo(x, 0); eg.lineTo(x, H); eg.stroke(); }
+  for (var y = 0; y < H; y += 16){ eg.beginPath(); eg.moveTo(0, y); eg.lineTo(W, y); eg.stroke(); }
+  var code = (m === 'flat' || m === 'zigzag' || m === 'death');
+  eg.strokeStyle = code ? '#FF5A5A' : '#4BE38A'; eg.lineWidth = 3; eg.lineJoin = 'round';
+  eg.beginPath();
+  for (var i = 0; i < ecgBuf.length; i++){
+    var v = ecgBuf[(ecgI + i) % ecgBuf.length];
+    var px = 8 + i * (W - 16) / ecgBuf.length, py = H*0.58 - v*H*0.42;
+    if (i === 0) eg.moveTo(px, py); else eg.lineTo(px, py);
+  }
+  eg.stroke();
+  eg.fillStyle = code ? '#FF5A5A' : '#4BE38A';
+  eg.font = 'bold 28px Arial, sans-serif'; eg.textAlign = 'right';
+  eg.fillText(RATES[m] ? String(RATES[m] + Math.round(Math.sin(ecgT*0.7)*2)) : '--', W - 10, 34);
+  eg.font = 'bold 13px Arial, sans-serif'; eg.fillText('HR', W - 10, 50);
+  ecgTex.needsUpdate = true;
+}
+
+// crash cart, station, cabinet, sink
+(function(){
+  var g = new THREE.Group(); g.position.set(2.3, 0, -4.4); scene.add(g);
+  put(g, P(G.box(0.85, 1.0, 0.6), '#D64545', { ow: 0.04 }), 0, 0.6, 0);
+  for (var i = 0; i < 4; i++) put(g, P(G.box(0.7, 0.03, 0.62), '#A93232', { outline: false }), 0, 0.3 + i*0.22, 0.005);
+  put(g, P(G.box(0.5, 0.18, 0.4), '#F2C14E', { ow: 0.06 }), 0, 1.2, 0);
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(function(k){ put(g, P(G.sphere(0.06, 8, 6), '#2E3539', { outline: false }), 0.33*k[0], 0.06, 0.22*k[1]); });
+  block(2.3, -4.4, 0.9, 0.65);
+})();
+(function(){
+  var g = new THREE.Group(); g.position.set(0, 0, 5.2); scene.add(g);
+  put(g, P(G.box(6, 1.0, 0.9), '#E7ECEA', { ow: 0.02 }), 0, 0.5, 0);
+  put(g, P(G.box(6.1, 0.08, 1.0), '#3E8C8F', { outline: false }), 0, 1.04, 0);
+  put(g, P(G.box(0.7, 0.45, 0.06), '#2F363C', { ow: 0.05 }), -1.6, 1.36, -0.15);
+  put(g, P(G.box(0.7, 0.45, 0.06), '#2F363C', { ow: 0.05 }), 1.2, 1.36, -0.15);
+  put(g, P(G.box(0.5, 0.1, 0.36), '#F7F2E6', { ow: 0.06 }), 0, 1.13, 0.1);
+  block(0, 5.2, 6, 0.9);
+})();
+(function(){
+  put(scene, P(G.box(0.9, 1.9, 2.2), '#CFDCD9', { ow: 0.02 }), -11.4, 0.95, 3);
+  block(-11.4, 3, 0.9, 2.2);
+  var sink = P(G.box(0.9, 0.95, 1.2), '#E3E9E7', { ow: 0.03 }); put(scene, sink, 11.4, 0.48, 3);
+  put(scene, P(G.box(0.7, 0.06, 0.9), '#BFD5E3', { outline: false }), 11.4, 0.98, 3);
+  block(11.4, 3, 0.9, 1.2);
+})();
+
+/* ---------- players ---------- */
+var ROLES = {
+  attending: { name: 'Attending', color: '#F2EBDD', cname: 'white/cream', coat: 'long' },
+  resident: { name: 'Resident', color: '#1F2E5A', cname: 'navy' },
+  nurse: { name: 'Nurse', color: '#2F6FD0', cname: 'blue', cap: true },
+  student: { name: 'Med student', color: state.student, cname: 'light purple', coat: 'short' },
+  tech: { name: 'Tech', color: state.tech, cname: 'charcoal', cap: true },
+  rt: { name: 'Respiratory therapist', color: '#2E8B57', cname: 'green' },
+  pharm: { name: 'Pharmacist', color: '#7A2E46', cname: 'wine' }
+};
+var PCOL = ['#E2483D', '#2F7FE0', '#E8B321', '#3BB273'];
+var players = [
+  makeChar(ROLES.attending.color, { coat: 'long', skin: SKINS[1], hair: '#8A8F96', ring: PCOL[0] }),
+  makeChar(ROLES.nurse.color, { cap: true, skin: SKINS[3], ring: PCOL[1] }),
+  makeChar(ROLES.resident.color, { skin: SKINS[5], hair: HAIRS[2], ring: PCOL[2] }),
+  makeChar(state.student, { coat: 'short', skin: SKINS[4], hair: HAIRS[3], ring: PCOL[3] })
+];
+players[0].role = 'attending'; players[1].role = 'nurse'; players[2].role = 'resident'; players[3].role = 'student';
+[[-2.0, 1.8], [1.5, 2.6], [-5.5, 3.5], [5.0, 1.2]].forEach(function(p, i){ players[i].pos.set(p[0], 0, p[1]); });
+players.forEach(function(c, i){ if (i > 0){ c.wait = Math.random()*1.5; c.target = null; c.stuck = 0; } });
+
+/* ---------- role lineup ---------- */
+var LZ = 40;
+var lfloor = P(new THREE.PlaneGeometry(18, 7), '#CBD6D3', { outline: false, cast: false, map: floorTex(9, 3.5) });
+lfloor.rotation.x = -Math.PI/2; put(scene, lfloor, 0, 0, LZ);
+var lineupKeys = ['attending', 'resident', 'nurse', 'student', 'tech', 'rt', 'pharm'];
+var lineup = lineupKeys.map(function(k, i){
+  var r = ROLES[k];
+  var c = makeChar(r.color, { coat: r.coat, cap: r.cap, skin: SKINS[(i + 2) % SKINS.length], hair: HAIRS[(i + 1) % HAIRS.length] });
+  c.pos.set(-6 + i*2, 0, LZ); c.role = k; return c;
+});
+
+/* ---------- labels ---------- */
+function makeTag(cls, html){ var d = document.createElement('div'); d.className = 'tag ' + cls; d.innerHTML = html; labelLayer.appendChild(d); return d; }
+var playerTags = players.map(function(c, i){
+  var t = makeTag('player', 'P' + (i + 1) + ' ' + ROLES[c.role].name); t.style.background = PCOL[i]; return t;
+});
+var cueTag = makeTag('cue', ''); cueTag.style.display = 'none';
+var roleTags = lineup.map(function(c){ return makeTag('role', ''); });
+function refreshRoleTags(){
+  lineup.forEach(function(c, i){
+    var r = ROLES[c.role], cname = r.cname;
+    roleTags[i].innerHTML = r.name + '<small>' + cname + '</small>';
+  });
+}
+refreshRoleTags();
+var tmpV = new V3();
+function place(el, v, anchor){
+  tmpV.copy(v).project(camera);
+  var w = stage.clientWidth, h = stage.clientHeight;
+  var x = (tmpV.x*0.5 + 0.5)*w, y = (-tmpV.y*0.5 + 0.5)*h;
+  el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) translate(-50%,' + (anchor === 'top' ? '0' : '-100%') + ')';
+}
+
+/* ---------- patient states ---------- */
+var CUES = {
+  blue: ['Not enough oxygen', '#3E6FB8'], pale: ['Losing blood', '#7D8A90'], hot: ['Overheated', '#E0663F'],
+  chest: ['Heart attack', '#D9433B'], allergy: ['Allergic reaction', '#C2457A'],
+  flat: ['Flat line: CPR + adrenaline', '#B8322B'], zigzag: ['Zigzag: CPR + shock', '#B8322B']
+};
+var SKINSTATE = { normal: PSKIN, blue: '#86A9D6', pale: '#EDEFEA', hot: '#E87358', chest: PSKIN, allergy: '#EFA286', flat: '#C9C2B8', zigzag: '#C9C2B8', death: '#C9C2B8' };
+var deathT = 0, currentFade = 1;
+function setGroupOpacity(group, a, force){
+  group.traverse(function(o){
+    if (!o.isMesh || o.userData.fx) return;
+    if (o.material === outlineMat){ o.visible = a >= 1 && state.look === 'toon'; return; }
+    var want = a < 1;
+    if (o.material.transparent !== want || force){ o.material.transparent = want; o.material.needsUpdate = true; }
+    o.material.opacity = a;
+  });
+}
+function setPatient(s){
+  state.patient = s; deathT = 0; currentFade = 1;
+  bed.group.position.copy(bedBase); setGroupOpacity(bed.group, 1);
+  setColor(pt.skull, SKINSTATE[s]);
+  pt.handEntries.forEach(function(e){ setColor(e, SKINSTATE[s]); });
+  var f = pt.face;
+  f.locked = (s === 'flat' || s === 'zigzag' || s === 'death');
+  f.eyes.forEach(function(e){ e.visible = s !== 'death'; e.scale.y = (s === 'flat' || s === 'zigzag') ? 0.15 : 1.15; });
+  f.xEyes.forEach(function(x){ x.visible = s === 'death'; });
+  f.tongue.visible = s === 'death';
+  f.blot.forEach(function(b){ b.visible = s === 'allergy'; });
+  f.mouth({ normal: 'smile', blue: 'oh', pale: 'frown', hot: 'frown', chest: 'frown', allergy: 'oh', flat: 'none', zigzag: 'none', death: 'oh' }[s]);
+  pt.head.scale.setScalar(s === 'allergy' ? 1.1 : 1);
+  pt.hands[0].position.set(0.1, 1.12, -0.36);
+  if (s === 'chest') pt.hands[0].position.set(-0.25, 1.2, -0.05);
+  var cue = CUES[s];
+  if (cue){ cueTag.textContent = cue[0]; cueTag.style.background = cue[1]; cueTag.style.borderTopColor = cue[1]; cueTag.style.display = ''; }
+  else cueTag.style.display = 'none';
+  syncButtons('patient', s);
+}
+
+/* particles: steam and sweat */
+var steam = [], sweat = [];
+for (var i = 0; i < 9; i++){
+  var m = new THREE.Mesh(G.sphere(0.08, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 }));
+  m.userData.t = i/9; m.userData.x = (Math.random() - 0.5)*0.5; m.userData.fx = true; bed.group.add(m); steam.push(m);
+}
+for (var j = 0; j < 6; j++){
+  var d = new THREE.Mesh(G.sphere(0.05, 10, 8), new THREE.MeshBasicMaterial({ color: 0x9fd6ff, transparent: true, opacity: 0.9 }));
+  d.scale.set(1, 1.5, 1); d.userData.t = j/6; d.userData.s = j % 2 ? 1 : -1; d.userData.fx = true; bed.group.add(d); sweat.push(d);
+}
+function updateParticles(dt){
+  var hot = state.patient === 'hot', sw = state.patient === 'hot' || state.patient === 'chest';
+  steam.forEach(function(m){
+    m.visible = hot; if (!hot) return;
+    var u = m.userData; u.t = (u.t + dt*0.6) % 1;
+    m.position.set(-0.75 + u.x*0.3, 1.55 + u.t*1.1, u.x);
+    m.material.opacity = 0.75*(1 - u.t); m.scale.setScalar(0.6 + u.t);
+  });
+  sweat.forEach(function(m){
+    m.visible = sw; if (!sw) return;
+    var u = m.userData; u.t = (u.t + dt*0.9) % 1;
+    m.position.set(-0.9 + u.t*0.15, 1.5 - u.t*0.45, u.s*(0.36 + u.t*0.05));
+    m.material.opacity = 0.9*(1 - u.t*0.6);
+  });
+}
+
+/* ---------- camera ---------- */
+var ELEV = 55*Math.PI/180;
+var camTarget = new V3(0, 0, -0.4), camDist = 30;
+var desiredT = new V3(), desiredD = 30;
+function fitDistance(halfW, halfD){
+  var vfov = camera.fov*Math.PI/180, hfov = 2*Math.atan(Math.tan(vfov/2)*camera.aspect);
+  var dH = (halfD*Math.sin(ELEV) + 1.2) / Math.tan(vfov/2);
+  var dW = halfW / Math.tan(hfov/2);
+  return Math.max(dH, dW) * 1.04;
+}
+function updateDesired(){
+  if (state.view === 'lineup'){ desiredT.set(0, 0.6, LZ); desiredD = fitDistance(7.8, 3.2); return; }
+  var full = fitDistance(12.4, 8.6);
+  if (state.cam === 'fixed'){ desiredT.set(0, 0, -0.3); desiredD = full; return; }
+  var minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9;
+  players.forEach(function(c){ minX = Math.min(minX, c.pos.x); maxX = Math.max(maxX, c.pos.x); minZ = Math.min(minZ, c.pos.z); maxZ = Math.max(maxZ, c.pos.z); });
+  desiredT.set((minX + maxX)/2, 0, (minZ + maxZ)/2 - 0.3);
+  desiredD = Math.min(full, Math.max(fitDistance((maxX - minX)/2 + 3.0, (maxZ - minZ)/2 + 2.4), 11.5));
+}
+function updateCamera(dt){
+  updateDesired();
+  var k = 1 - Math.exp(-4*dt);
+  camTarget.lerp(desiredT, k); camDist += (desiredD - camDist)*k;
+  camera.position.set(camTarget.x, camTarget.y + Math.sin(ELEV)*camDist, camTarget.z + Math.cos(ELEV)*camDist);
+  camera.lookAt(camTarget);
+  sun.position.set(camTarget.x + 7, 16, camTarget.z + 9); sun.target.position.copy(camTarget);
+}
+
+/* ---------- input ---------- */
+var keys = {};
+window.addEventListener('keydown', function(e){
+  var k = e.key.toLowerCase();
+  if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].indexOf(k) >= 0){
+    if (document.activeElement && document.activeElement.tagName === 'BUTTON') document.activeElement.blur();
+    keys[k] = true; players[0].target = null; e.preventDefault();
+  }
+});
+window.addEventListener('keyup', function(e){ keys[e.key.toLowerCase()] = false; });
+window.addEventListener('blur', function(){ keys = {}; });
+var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), ground = new THREE.Plane(new V3(0, 1, 0), 0), hit = new V3();
+canvas.addEventListener('pointerdown', function(e){
+  if (state.view !== 'bay') return;
+  var r = canvas.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left)/r.width)*2 - 1, -((e.clientY - r.top)/r.height)*2 + 1);
+  ray.setFromCamera(ndc, camera);
+  if (ray.ray.intersectPlane(ground, hit)) players[0].target = new V3(clamp(hit.x, -11.4, 11.4), 0, clamp(hit.z, -7.4, 7.4));
+});
+
+/* ---------- movement ---------- */
+var SPEED = 4.2;
+function moveChar(c, dx, dz, dt){
+  var len = Math.hypot(dx, dz);
+  if (len > 0.001){
+    c.pos.x += dx/len*SPEED*dt; c.pos.z += dz/len*SPEED*dt;
+    c.facing = Math.atan2(dx, dz); c.moving = true;
+  } else c.moving = false;
+  collide(c.pos);
+  c.pos.x = clamp(c.pos.x, -11.5, 11.5); c.pos.z = clamp(c.pos.z, -7.5, 7.6);
+}
+function pickTarget(){
+  var p1 = players[0].pos, near = state.cam === 'follow' && state.view === 'bay';
+  for (var n = 0; n < 30; n++){
+    var x = near ? p1.x + (Math.random() - 0.5)*5 : -10.5 + Math.random()*21;
+    var z = near ? p1.z + (Math.random() - 0.5)*4 : -3.2 + Math.random()*10.2;
+    x = clamp(x, -11, 11); z = clamp(z, -3.4, 7.2);
+    if (!insideBlock(x, z)) return new V3(x, 0, z);
+  }
+  return new V3(p1.x, 0, p1.z + 1);
+}
+function updatePlayers(dt){
+  var p1 = players[0], dx = 0, dz = 0;
+  if (state.view === 'bay'){
+    if (keys.a || keys.arrowleft) dx -= 1; if (keys.d || keys.arrowright) dx += 1;
+    if (keys.w || keys.arrowup) dz -= 1; if (keys.s || keys.arrowdown) dz += 1;
+    if (!dx && !dz && p1.target){
+      dx = p1.target.x - p1.pos.x; dz = p1.target.z - p1.pos.z;
+      if (Math.hypot(dx, dz) < 0.15){ dx = dz = 0; p1.target = null; }
+    }
+  }
+  moveChar(p1, dx, dz, dt);
+  for (var i = 1; i < players.length; i++){
+    var c = players[i];
+    if (c.wait > 0){ c.wait -= dt; moveChar(c, 0, 0, dt); continue; }
+    if (!c.target) c.target = pickTarget();
+    var tx = c.target.x - c.pos.x, tz = c.target.z - c.pos.z, before = c.pos.clone();
+    if (Math.hypot(tx, tz) < 0.2){ c.target = null; c.wait = state.cam === 'follow' ? 0.2 + Math.random()*0.5 : 0.6 + Math.random()*1.6; moveChar(c, 0, 0, dt); continue; }
+    moveChar(c, tx, tz, dt);
+    if (before.distanceTo(c.pos) < SPEED*dt*0.3){ c.stuck += dt; if (c.stuck > 0.8){ c.target = pickTarget(); c.stuck = 0; } } else c.stuck = 0;
+  }
+  players.forEach(function(c){ animateChar(c, dt); });
+  lineup.forEach(function(c){ c.moving = false; c.facing = 0; animateChar(c, dt); });
+}
+
+/* ---------- tickets + HUD mock ---------- */
+var ACU = { 1: '#D9433B', 2: '#EE8A2B', 3: '#E8C21F', 4: '#3BB273', 5: '#3E8BD6' };
+var tickets = [
+  { name: 'Chest Pain', a: 2, steps: [['EKG', 'done'], ['Aspirin', ''], ['Cath lab', '']], t: 0.62, rate: 0.045 },
+  { name: 'Broken Arm', a: 4, steps: [['X-ray', 'done'], ['Pain med', 'done'], ['Cast', '']], t: 0.85, rate: 0.025 },
+  { name: 'Wheezing', a: 3, steps: [['Oxygen', ''], ['Breathing treatment', '']], t: 0.4, rate: 0.035 },
+  { name: 'Dizzy', a: 3, steps: [['Ask questions', ''], ['Check vitals', ''], ['?', 'hidden']], t: 0.95, rate: 0.03 }
+];
+var tWrap = $('#tickets');
+tickets.forEach(function(tk){
+  var el = document.createElement('div'); el.className = 'ticket';
+  el.innerHTML = '<div class="paper" style="--acuity:' + ACU[tk.a] + '"><div class="t-name">' + tk.name + '</div><ul class="t-steps">' +
+    tk.steps.map(function(s){ return '<li class="' + s[1] + '">' + s[0] + '</li>'; }).join('') + '</ul><div class="t-bar"><i></i></div></div>';
+  tWrap.appendChild(el); tk.bar = el.querySelector('.t-bar i');
+});
+var clockT = 359, clockEl = $('#clock');
+function updateUI(dt){
+  tickets.forEach(function(tk){
+    tk.t -= tk.rate*dt; if (tk.t <= 0) tk.t = 1;
+    tk.bar.style.width = (tk.t*100).toFixed(1) + '%';
+    tk.bar.style.background = tk.t > 0.5 ? '#3BB273' : tk.t > 0.25 ? '#EE8A2B' : '#D9433B';
+  });
+  clockT -= dt; if (clockT < 0) clockT = 359;
+  var s = Math.ceil(clockT); clockEl.textContent = Math.floor(s/60) + ':' + String(s % 60).padStart(2, '0');
+}
+
+/* ---------- panel ---------- */
+function syncButtons(group, value){
+  document.querySelectorAll('.seg[data-group="' + group + '"] button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.value === value)); });
+}
+document.querySelectorAll('.seg').forEach(function(seg){
+  seg.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    var g = seg.dataset.group, v = b.dataset.value;
+    if (g === 'patient'){ setPatient(v); return; }
+    state[g] = v; syncButtons(g, v);
+    if (g === 'look') applyLook();
+    if (g === 'cam') players.forEach(function(c, i){ if (i > 0){ c.target = null; c.wait = 0; } });
+    if (g === 'student' || g === 'tech'){
+      ROLES[g].color = v;
+      players.concat(lineup).forEach(function(c){ if (c.role === g){ setColor(c.scrubEntry, v); if (c.capEntry) setColor(c.capEntry, v); } });
+      refreshRoleTags();
+    }
+    if (g === 'view'){ $('#hint').style.display = v === 'bay' ? '' : 'none'; $('#rail').style.display = v === 'bay' ? '' : 'none'; $('#hud').style.display = v === 'bay' ? '' : 'none'; }
+  });
+});
+var panel = $('#panel'), sheetBtn = $('#sheetToggle');
+sheetBtn.addEventListener('click', function(){
+  var open = !panel.classList.contains('open'); panel.classList.toggle('open', open);
+  sheetBtn.setAttribute('aria-expanded', String(open)); sheetBtn.querySelector('span').textContent = open ? '▾' : '▴';
+});
+
+/* ---------- resize + loop ---------- */
+function resize(){
+  var w = stage.clientWidth, h = stage.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix();
+}
+if (window.ResizeObserver) new ResizeObserver(resize).observe(stage); else window.addEventListener('resize', resize);
+resize();
+updateDesired(); camTarget.copy(desiredT); camDist = desiredD;
+
+var last = performance.now();
+function frame(now){
+  var dt = Math.min(0.05, (now - last)/1000); last = now;
+  updatePlayers(dt);
+  if (state.patient === 'death'){
+    deathT += dt;
+    if (deathT > 1.4){
+      var k = Math.min(1, (deathT - 1.4)/1.3);
+      bed.group.position.set(bedBase.x, 0, bedBase.z + k*3.2);
+      currentFade = 1 - k; setGroupOpacity(bed.group, currentFade);
+    }
+    if (deathT > 3.4) setPatient('normal');
+  }
+  pt.head.position.z = state.patient === 'pale' ? Math.sin(now/300)*0.05 : 0;
+  pt.head.position.y = state.patient === 'blue' ? 1.18 + Math.abs(Math.sin(now/260))*0.03 : 1.18;
+  blink(pt.face, dt);
+  updateParticles(dt);
+  drawECG(dt);
+  updateUI(dt);
+  updateCamera(dt);
+  renderer.render(scene, camera);
+
+  var inBay = state.view === 'bay';
+  players.forEach(function(c, i){
+    playerTags[i].style.display = inBay ? '' : 'none';
+    if (inBay) place(playerTags[i], tmp2.set(c.pos.x, 2.25 + c.inner.position.y, c.pos.z));
+  });
+  updateCueAndEdge(inBay);
+  lineup.forEach(function(c, i){
+    roleTags[i].style.display = inBay ? 'none' : '';
+    if (!inBay) place(roleTags[i], tmp2.set(c.pos.x, 0, c.pos.z + 0.9), 'top');
+  });
+  requestAnimationFrame(frame);
+}
+var tmp2 = new V3(), tmp3 = new V3();
+var edge = $('#edge'), edgeArrow = edge.querySelector('.edge-arrow'), edgeText = edge.querySelector('.edge-text');
+function updateCueAndEdge(inBay){
+  var cue = CUES[state.patient];
+  if (!inBay || !cue){ cueTag.style.display = 'none'; edge.hidden = true; return; }
+  pt.head.getWorldPosition(tmp2); tmp2.y += 0.85;
+  tmp3.copy(tmp2).project(camera);
+  var behind = tmp3.z > 1;
+  var onScreen = !behind && Math.abs(tmp3.x) < 0.94 && tmp3.y < 0.9 && tmp3.y > -0.94;
+  if (onScreen){ cueTag.style.display = ''; place(cueTag, tmp2); edge.hidden = true; return; }
+  cueTag.style.display = 'none';
+  var w = stage.clientWidth, h = stage.clientHeight;
+  var x = behind ? -tmp3.x : tmp3.x, y = behind ? -tmp3.y : tmp3.y;
+  var m = Math.max(Math.abs(x)/0.86, Math.abs(y)/0.8, 1e-6); x /= m; y /= m;
+  var px = (x*0.5 + 0.5)*w, py = (-y*0.5 + 0.5)*h;
+  px = clamp(px, 44, w - 44); py = clamp(py, 150, h - 90);
+  var ang = Math.atan2(-y, x);
+  edge.hidden = false;
+  edge.style.setProperty('--cue', cue[1]);
+  edge.style.transform = 'translate(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px) translate(-50%,-50%)';
+  edgeArrow.style.transform = 'rotate(' + ang.toFixed(3) + 'rad)';
+  edgeText.textContent = cue[0];
+  edge.classList.toggle('text-left', px > w*0.6);
+}
+setPatient('normal');
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

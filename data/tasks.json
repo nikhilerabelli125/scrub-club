@@ -1,0 +1,2100 @@
+{
+  "tasks": [
+    {
+      "id": "task.ask-questions",
+      "label": "Ask questions",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "any",
+      "perkTags": [
+        "assessment"
+      ]
+    },
+    {
+      "id": "task.check-vitals",
+      "label": "Check vitals",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2.5
+          }
+        }
+      ],
+      "spot": "arm",
+      "perkTags": [
+        "vitals"
+      ]
+    },
+    {
+      "id": "task.quick-check",
+      "label": "Quick check",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "perkTags": [
+        "vitals"
+      ]
+    },
+    {
+      "id": "task.scene-check",
+      "label": "Scene check",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "perkTags": [
+        "assessment"
+      ]
+    },
+    {
+      "id": "task.listen-lungs",
+      "label": "Listen to lungs",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "assessment"
+      ]
+    },
+    {
+      "id": "task.blood-draw",
+      "label": "Blood test",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "arm",
+      "producesItem": "item.blood-tube",
+      "result": {
+        "at": "station.lab",
+        "delaySeconds": 18
+      }
+    },
+    {
+      "id": "task.throat-swab",
+      "label": "Throat swab",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "head",
+      "producesItem": "item.swab",
+      "result": {
+        "at": "station.lab",
+        "delaySeconds": 12
+      }
+    },
+    {
+      "id": "task.sugar-check",
+      "label": "Sugar check",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "arm"
+    },
+    {
+      "id": "task.salt-check",
+      "label": "Salt check",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "arm",
+      "result": {
+        "at": "station.salt-machine",
+        "delaySeconds": 8
+      }
+    },
+    {
+      "id": "task.ekg",
+      "label": "EKG",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "chest",
+      "needsEquipment": "equipment.ekg"
+    },
+    {
+      "id": "task.xray",
+      "label": "X-ray",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.computer",
+      "result": {
+        "at": "station.computer",
+        "delaySeconds": 10
+      }
+    },
+    {
+      "id": "task.brain-scan",
+      "label": "Brain scan",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.computer",
+      "result": {
+        "at": "station.computer",
+        "delaySeconds": 15
+      }
+    },
+    {
+      "id": "task.ultrasound",
+      "label": "Ultrasound",
+      "steps": [
+        {
+          "type": "sweep",
+          "params": {
+            "targetSize": 0.18,
+            "holdSeconds": 1.0
+          }
+        }
+      ],
+      "spot": "chest",
+      "needsEquipment": "equipment.ultrasound",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.stroke-check",
+      "label": "Stroke check",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "head",
+      "perkTags": [
+        "assessment"
+      ]
+    },
+    {
+      "id": "task.neuro-check",
+      "label": "Brain check",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 2,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "head",
+      "perkTags": [
+        "assessment"
+      ]
+    },
+    {
+      "id": "task.pre-op-check",
+      "label": "Pre-op check",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any",
+      "perkTags": [
+        "assessment"
+      ]
+    },
+    {
+      "id": "task.time-out",
+      "label": "Time-out",
+      "steps": [
+        {
+          "type": "choice",
+          "params": {
+            "options": 3,
+            "onWrong": "wrongAction"
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.triage-tag",
+      "label": "Tag",
+      "steps": [
+        {
+          "type": "choice",
+          "params": {
+            "options": 4,
+            "onWrong": "wrongAction"
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.oxygen",
+      "label": "Oxygen",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "head",
+      "perkTags": [
+        "airway"
+      ]
+    },
+    {
+      "id": "task.breathing-treatment",
+      "label": "Breathing treatment",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 4
+          }
+        }
+      ],
+      "spot": "head",
+      "perkTags": [
+        "airway"
+      ]
+    },
+    {
+      "id": "task.iv",
+      "label": "IV",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "arm",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.iv-fluids",
+      "label": "IV fluids",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.fluid-bag"
+    },
+    {
+      "id": "task.transfusion",
+      "label": "Blood transfusion",
+      "steps": [
+        {
+          "type": "choice",
+          "params": {
+            "options": 3,
+            "onWrong": "wrongAction"
+          }
+        },
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.blood-bag"
+    },
+    {
+      "id": "task.aspirin",
+      "label": "Aspirin",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.antibiotics",
+      "label": "Antibiotics",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.allergy-shot",
+      "label": "Allergy shot",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.reversal-shot",
+      "label": "Reversal shot",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.water-pill",
+      "label": "Water pill",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.calcium-shot",
+      "label": "Calcium shot",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.blood-thinner",
+      "label": "Clot shot",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.anti-rejection",
+      "label": "Anti-rejection med",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.seasick-pill",
+      "label": "Seasick pill",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.headache-med",
+      "label": "Headache med",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.med",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.inhaler",
+      "label": "Inhaler",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.inhaler",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.vaccine",
+      "label": "Shot",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.vaccine",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.adrenaline",
+      "label": "Adrenaline",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.adrenaline",
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.pain-med",
+      "label": "Pain med",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.seizure-med",
+      "label": "Seizure med",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.clot-buster",
+      "label": "Clot-buster",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.insulin",
+      "label": "Insulin",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.withdrawal-med",
+      "label": "Withdrawal med",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.salty-iv",
+      "label": "Salty IV",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.pressure-med",
+      "label": "Pressure med pump",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.bp-med",
+      "label": "Blood pressure med",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.18,
+            "sweepSeconds": 1.4,
+            "overshoot": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.med",
+      "dosing": true,
+      "perkTags": [
+        "med"
+      ]
+    },
+    {
+      "id": "task.albumin",
+      "label": "Albumin bag",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.fluid-bag"
+    },
+    {
+      "id": "task.sugar-iv",
+      "label": "Sugar IV",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.fluid-bag"
+    },
+    {
+      "id": "task.give-drink",
+      "label": "Drink",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.drink"
+    },
+    {
+      "id": "task.splint",
+      "label": "Splint",
+      "steps": [
+        {
+          "type": "alternate",
+          "params": {
+            "presses": 16
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.splint",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.cast",
+      "label": "Cast",
+      "steps": [
+        {
+          "type": "alternate",
+          "params": {
+            "presses": 20
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.cast",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.wrap",
+      "label": "Wrap",
+      "steps": [
+        {
+          "type": "alternate",
+          "params": {
+            "presses": 12
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.wrap"
+    },
+    {
+      "id": "task.clean-wound",
+      "label": "Clean",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.stitches",
+      "label": "Stitches",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 5,
+            "zoneWidth": 0.2,
+            "sweepSeconds": 0.9
+          }
+        }
+      ],
+      "spot": "any",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.bandage",
+      "label": "Bandage",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.bandage"
+    },
+    {
+      "id": "task.ice-pack",
+      "label": "Ice",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.ice"
+    },
+    {
+      "id": "task.stretch",
+      "label": "Stretch",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.legs-up",
+      "label": "Lie down, legs up",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.petroleum-jelly",
+      "label": "Petroleum jelly",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.blanket",
+      "label": "Blanket",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.blanket"
+    },
+    {
+      "id": "task.ice-bath",
+      "label": "Ice bath",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 6
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.ice-bath"
+    },
+    {
+      "id": "task.tourniquet",
+      "label": "Tourniquet",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.2,
+            "sweepSeconds": 1.2,
+            "holdToFill": true
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsItem": "item.tourniquet",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.neck-collar",
+      "label": "Neck collar",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "head",
+      "needsItem": "item.collar"
+    },
+    {
+      "id": "task.heimlich",
+      "label": "Heimlich",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 3,
+            "zoneWidth": 0.22,
+            "sweepSeconds": 0.9
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.chest-relief-needle",
+      "label": "Chest relief needle",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.0
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.burn-care",
+      "label": "Cool + dressing",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.aloe",
+      "label": "Aloe",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.rinse",
+      "label": "Rinse",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.sit-up",
+      "label": "Sit up",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "head"
+    },
+    {
+      "id": "task.weigh-in",
+      "label": "Weigh-in",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.scale"
+    },
+    {
+      "id": "task.calm-down",
+      "label": "Calm down",
+      "steps": [
+        {
+          "type": "choice",
+          "params": {
+            "options": 3,
+            "onWrong": "retry"
+          }
+        }
+      ],
+      "spot": "head"
+    },
+    {
+      "id": "task.dressing-change",
+      "label": "Dressing change",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.radio-alert",
+      "label": "Radio ahead",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.radio"
+    },
+    {
+      "id": "task.prescription",
+      "label": "Prescription",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.computer"
+    },
+    {
+      "id": "task.isolate",
+      "label": "Isolate",
+      "steps": [],
+      "interaction": "escort",
+      "spot": "any"
+    },
+    {
+      "id": "task.walk-patient",
+      "label": "Walk",
+      "steps": [],
+      "interaction": "escort",
+      "spot": "any"
+    },
+    {
+      "id": "task.lead-back",
+      "label": "Lead back",
+      "steps": [],
+      "interaction": "escort",
+      "spot": "any"
+    },
+    {
+      "id": "task.dark-room",
+      "label": "Dark room",
+      "steps": [],
+      "interaction": "escort",
+      "spot": "any"
+    },
+    {
+      "id": "task.fetch",
+      "label": "Fetch",
+      "steps": [],
+      "interaction": "push",
+      "spot": "any"
+    },
+    {
+      "id": "task.observe",
+      "label": "Watch",
+      "steps": [],
+      "interaction": "escort",
+      "spot": "any"
+    },
+    {
+      "id": "task.bedpan",
+      "label": "Bedpan",
+      "steps": [],
+      "interaction": "carry",
+      "spot": "any"
+    },
+    {
+      "id": "task.bandage-kit",
+      "label": "Bandage kit",
+      "steps": [],
+      "interaction": "carry",
+      "spot": "any"
+    },
+    {
+      "id": "task.transport",
+      "label": "Transport",
+      "steps": [],
+      "interaction": "push",
+      "spot": "any"
+    },
+    {
+      "id": "task.two-person-lift",
+      "label": "Lift",
+      "steps": [],
+      "interaction": "twoPersonCarry",
+      "spot": "any"
+    },
+    {
+      "id": "task.cpr",
+      "label": "CPR",
+      "steps": [
+        {
+          "type": "rhythm",
+          "params": {
+            "bpm": 110,
+            "beats": 30,
+            "buttons": "1,2"
+          }
+        }
+      ],
+      "spot": "chest"
+    },
+    {
+      "id": "task.shock",
+      "label": "Shock",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1
+          }
+        },
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.1
+          }
+        }
+      ],
+      "spot": "side",
+      "needsEquipment": "equipment.defib"
+    },
+    {
+      "id": "task.intubate",
+      "label": "Intubate",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "head",
+      "perkTags": [
+        "airway",
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.bag",
+      "label": "Bagging",
+      "steps": [
+        {
+          "type": "rhythm",
+          "params": {
+            "bpm": 12,
+            "beats": 6,
+            "buttons": "2"
+          }
+        }
+      ],
+      "spot": "head",
+      "perkTags": [
+        "airway"
+      ]
+    },
+    {
+      "id": "task.central-line",
+      "label": "Big IV in the neck",
+      "steps": [
+        {
+          "type": "sweep",
+          "params": {
+            "targetSize": 0.18,
+            "holdSeconds": 1.0
+          }
+        },
+        {
+          "type": "steer",
+          "params": {
+            "lengthSeconds": 3,
+            "pathWidth": 0.22,
+            "wiggle": 0.4
+          }
+        }
+      ],
+      "spot": "head",
+      "needsEquipment": "equipment.ultrasound",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.lung-drain",
+      "label": "Lung drain",
+      "steps": [
+        {
+          "type": "sweep",
+          "params": {
+            "targetSize": 0.18,
+            "holdSeconds": 1.0
+          }
+        },
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.0
+          }
+        },
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 4
+          }
+        }
+      ],
+      "spot": "side",
+      "needsEquipment": "equipment.ultrasound",
+      "producesItem": "item.fluid-jar",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.belly-drain",
+      "label": "Belly drain",
+      "steps": [
+        {
+          "type": "sweep",
+          "params": {
+            "targetSize": 0.18,
+            "holdSeconds": 1.0
+          }
+        },
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.0
+          }
+        }
+      ],
+      "spot": "side",
+      "needsEquipment": "equipment.ultrasound",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.chest-tube",
+      "label": "Chest tube",
+      "steps": [
+        {
+          "type": "steer",
+          "params": {
+            "lengthSeconds": 2,
+            "pathWidth": 0.25,
+            "wiggle": 0.4
+          }
+        },
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "side",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.heart-drain",
+      "label": "Heart drain",
+      "steps": [
+        {
+          "type": "sweep",
+          "params": {
+            "targetSize": 0.18,
+            "holdSeconds": 1.0
+          }
+        },
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.08,
+            "sweepSeconds": 1.0
+          }
+        }
+      ],
+      "spot": "chest",
+      "needsEquipment": "equipment.ultrasound",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.cardioversion",
+      "label": "Rhythm reset",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1
+          }
+        },
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.0,
+            "syncToMonitor": true
+          }
+        }
+      ],
+      "spot": "side",
+      "needsEquipment": "equipment.defib",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.dialysis-hookup",
+      "label": "Dialysis",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "arm",
+      "needsEquipment": "equipment.dialysis"
+    },
+    {
+      "id": "task.suction",
+      "label": "Suction",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "head",
+      "perkTags": [
+        "airway"
+      ]
+    },
+    {
+      "id": "task.pump-check",
+      "label": "Pump check",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "side"
+    },
+    {
+      "id": "task.pump-reposition",
+      "label": "Reposition pump",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.0
+          }
+        }
+      ],
+      "spot": "side",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.drain-check",
+      "label": "Drain check",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "side"
+    },
+    {
+      "id": "task.scrub-in",
+      "label": "Scrub in",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.scrub-sink"
+    },
+    {
+      "id": "task.open",
+      "label": "Open",
+      "steps": [
+        {
+          "type": "steer",
+          "params": {
+            "lengthSeconds": 4,
+            "pathWidth": 0.25,
+            "wiggle": 0.5
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.find",
+      "label": "Find it",
+      "steps": [
+        {
+          "type": "sweep",
+          "params": {
+            "targetSize": 0.18,
+            "holdSeconds": 1.0
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.clip",
+      "label": "Clip",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.1
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.lift-out",
+      "label": "Lift out",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "chest",
+      "producesItem": "item.specimen"
+    },
+    {
+      "id": "task.push-back",
+      "label": "Push back",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "chest"
+    },
+    {
+      "id": "task.place-mesh",
+      "label": "Place mesh",
+      "steps": [
+        {
+          "type": "choice",
+          "params": {
+            "options": 3,
+            "onWrong": "wrongAction"
+          }
+        }
+      ],
+      "spot": "chest",
+      "needsItem": "item.mesh"
+    },
+    {
+      "id": "task.keyhole-ports",
+      "label": "Keyhole cuts",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 3,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.1
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.camera-steer",
+      "label": "Camera",
+      "steps": [
+        {
+          "type": "steer",
+          "params": {
+            "lengthSeconds": 3,
+            "pathWidth": 0.25,
+            "wiggle": 0.5
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.clip-cut",
+      "label": "Clip, clip, cut",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.wipe-camera",
+      "label": "Wipe camera",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "chest"
+    },
+    {
+      "id": "task.drill",
+      "label": "Drill",
+      "steps": [
+        {
+          "type": "rhythm",
+          "params": {
+            "bpm": 90,
+            "beats": 12,
+            "buttons": "1,2"
+          }
+        }
+      ],
+      "spot": "side",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.screws",
+      "label": "Screws",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 3,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.1
+          }
+        }
+      ],
+      "spot": "side",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.c-arm-check",
+      "label": "X-ray check",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "side",
+      "needsEquipment": "equipment.c-arm"
+    },
+    {
+      "id": "task.mark-site",
+      "label": "Mark the limb",
+      "steps": [
+        {
+          "type": "choice",
+          "params": {
+            "options": 2,
+            "onWrong": "wrongAction"
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.saw",
+      "label": "Saw",
+      "steps": [
+        {
+          "type": "alternate",
+          "params": {
+            "presses": 20
+          }
+        }
+      ],
+      "spot": "side",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.clamp",
+      "label": "Clamp",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 1,
+            "zoneWidth": 0.15,
+            "sweepSeconds": 1.1
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.disconnect",
+      "label": "Disconnect",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.connect",
+      "label": "Connect",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.bypass-connect",
+      "label": "Connect bypass machine",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 4,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "chest",
+      "needsEquipment": "equipment.bypass",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.sew-vessel",
+      "label": "Sew vessel",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 5,
+            "zoneWidth": 0.2,
+            "sweepSeconds": 0.9
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.bypass-watch",
+      "label": "Watch bypass machine",
+      "steps": [
+        {
+          "type": "steer",
+          "params": {
+            "lengthSeconds": 8,
+            "pathWidth": 0.3,
+            "wiggle": 0.6
+          }
+        }
+      ],
+      "spot": "side",
+      "needsEquipment": "equipment.bypass"
+    },
+    {
+      "id": "task.sponge-check",
+      "label": "Sponge check",
+      "steps": [
+        {
+          "type": "sweep",
+          "params": {
+            "targetSize": 0.2,
+            "holdSeconds": 0.5
+          }
+        }
+      ],
+      "spot": "chest"
+    },
+    {
+      "id": "task.close",
+      "label": "Close",
+      "steps": [
+        {
+          "type": "timingBar",
+          "params": {
+            "hits": 5,
+            "zoneWidth": 0.2,
+            "sweepSeconds": 0.9
+          }
+        }
+      ],
+      "spot": "chest",
+      "perkTags": [
+        "procedure"
+      ]
+    },
+    {
+      "id": "task.bed-turnover",
+      "label": "Clean bed",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 3
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.restock",
+      "label": "Restock",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.supplies"
+    },
+    {
+      "id": "task.recharge-defib",
+      "label": "Recharge",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.outlet"
+    },
+    {
+      "id": "task.clean-spill",
+      "label": "Mop",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.mop"
+    },
+    {
+      "id": "task.empty-bedpan",
+      "label": "Empty bedpan",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.dirty-utility"
+    },
+    {
+      "id": "task.sterilize-tray",
+      "label": "Sterilize tray",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.sterilizer",
+      "result": {
+        "at": "station.sterilizer",
+        "delaySeconds": 10
+      }
+    },
+    {
+      "id": "task.refill-ice",
+      "label": "Refill ice",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any",
+      "needsItem": "item.ice-bag"
+    },
+    {
+      "id": "task.swap-jug",
+      "label": "Swap jug",
+      "steps": [
+        {
+          "type": "tapWait",
+          "params": {
+            "seconds": 1
+          }
+        }
+      ],
+      "spot": "any"
+    },
+    {
+      "id": "task.refuel-light",
+      "label": "Refuel floodlight",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 2
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.floodlight"
+    },
+    {
+      "id": "task.restart-generator",
+      "label": "Restart generator",
+      "steps": [
+        {
+          "type": "qte",
+          "params": {
+            "length": 3,
+            "promptSeconds": 1.2
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.generator"
+    },
+    {
+      "id": "task.sign-out",
+      "label": "Sign out",
+      "steps": [
+        {
+          "type": "hold",
+          "params": {
+            "seconds": 1.5
+          }
+        }
+      ],
+      "spot": "any",
+      "station": "station.computer"
+    }
+  ]
+}

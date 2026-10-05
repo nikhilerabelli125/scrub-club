@@ -1,0 +1,112 @@
+{
+  "id": "ed-e",
+  "number": 10,
+  "name": "Code Blue",
+  "setting": "ed",
+  "tier": 3,
+  "format": "inflow",
+  "lengthSeconds": 360,
+  "camera": "fixed",
+  "map": "ed-main",
+  "strikeLimit": 6,
+  "ticketMode": "assess",
+  "disposition": "transport",
+  "gimmicks": [
+    "gimmick.swinging-doors"
+  ],
+  "hazards": [
+    "hazard.stretcher-lane"
+  ],
+  "introduces": [
+    "deterioration-alarms",
+    "code",
+    "cpr",
+    "shock",
+    "bed-spots"
+  ],
+  "briefing": {
+    "title": "Code Blue",
+    "body": "Code blue! When a monitor goes flat or zigzags, that heart has stopped. Start CPR and hit the beats. Grab the crash cart: zigzag means shock, flat means an adrenaline shot. It takes two of you to bring them back. Once they have a pulse, one person can stay with them.",
+    "fact": "Good CPR is about 100 to 120 compressions a minute."
+  },
+  "events": [
+    {
+      "at": 0,
+      "type": "spawn",
+      "condition": "ed.broken-arm"
+    },
+    {
+      "at": 0,
+      "type": "spawn",
+      "condition": "ed.bad-cut"
+    },
+    {
+      "at": 40,
+      "type": "spawn",
+      "condition": "ed.wheezing",
+      "jitter": 15
+    },
+    {
+      "at": 70,
+      "type": "spawn",
+      "condition": "ed.chest-pain",
+      "jitter": 15,
+      "via": "ambulance"
+    },
+    {
+      "at": 100,
+      "type": "spawn",
+      "condition": "ed.headache"
+    },
+    {
+      "at": 130,
+      "type": "spawn",
+      "condition": "ed.belly-pain"
+    },
+    {
+      "at": 180,
+      "type": "spawn",
+      "condition": "ed.collapsed",
+      "jitter": 20,
+      "via": "ambulance"
+    },
+    {
+      "at": 225,
+      "type": "falseAlarm",
+      "bed": "bay-2",
+      "label": "Sticker fell off"
+    },
+    {
+      "at": 255,
+      "type": "spawn",
+      "condition": "ed.allergic-reaction",
+      "jitter": 20
+    },
+    {
+      "at": 285,
+      "type": "spawn",
+      "condition": "ed.dizzy-bleeding"
+    },
+    {
+      "at": 315,
+      "type": "spawn",
+      "condition": "ed.seizure"
+    },
+    {
+      "at": 330,
+      "type": "spawn",
+      "condition": "ed.bad-cut"
+    },
+    {
+      "at": 345,
+      "type": "spawn",
+      "condition": "ed.broken-arm"
+    }
+  ],
+  "starMode": "points",
+  "stars": [
+    260,
+    430,
+    600
+  ]
+}

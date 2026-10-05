@@ -1,0 +1,53 @@
+{
+  "id": "cl-a",
+  "number": 1,
+  "name": "First Day",
+  "setting": "cl",
+  "tier": 1,
+  "format": "inflow",
+  "lengthSeconds": null,
+  "camera": "fixed",
+  "map": "cl-a",
+  "strikeLimit": null,
+  "ticketMode": "full",
+  "disposition": "auto",
+  "maxEscalation": "rescue",
+  "gimmicks": [],
+  "hazards": [],
+  "introduces": [
+    "movement",
+    "pick-up",
+    "check-in",
+    "ask-questions",
+    "check-vitals",
+    "prescription",
+    "splint"
+  ],
+  "briefing": {
+    "title": "First Day",
+    "body": "Welcome to Scrub Club. Walk up to a patient and hold Use to ask questions and check vitals. Their ticket tells you what's next."
+  },
+  "spawn": {
+    "pool": [],
+    "sequence": [
+      "cl.sore-throat",
+      "cl.cough",
+      "cl.twisted-ankle",
+      "cl.sore-throat",
+      "cl.bp-check"
+    ],
+    "intervalSeconds": [
+      3,
+      3
+    ],
+    "maxWaiting": 1
+  },
+  "endAfterPatients": 5,
+  "events": [],
+  "starMode": "time",
+  "stars": [
+    0,
+    180,
+    135
+  ]
+}

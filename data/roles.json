@@ -1,0 +1,218 @@
+{
+  "roles": [
+    {
+      "id": "role.attending",
+      "name": "Attending",
+      "start": "base",
+      "scrub": "#F2EBDD",
+      "accessory": "long-coat",
+      "passive": {
+        "type": "speed",
+        "tags": [
+          "assessment"
+        ],
+        "multiplier": 0.6
+      },
+      "abilities": [
+        "ability.huddle",
+        "ability.second-look"
+      ]
+    },
+    {
+      "id": "role.resident",
+      "name": "Resident",
+      "start": "base",
+      "scrub": "#1F2E5A",
+      "passive": {
+        "type": "speed",
+        "tags": [
+          "procedure"
+        ],
+        "multiplier": 0.75
+      },
+      "abilities": [
+        "ability.hustle",
+        "ability.stat-results"
+      ]
+    },
+    {
+      "id": "role.nurse",
+      "name": "Nurse",
+      "start": "base",
+      "scrub": "#2F6FD0",
+      "accessory": "scrub-cap",
+      "passive": {
+        "type": "speed",
+        "tags": [
+          "vitals"
+        ],
+        "multiplier": 0.5,
+        "earlyWarningSeconds": 3
+      },
+      "abilities": [
+        "ability.rounds",
+        "ability.quick-stick"
+      ]
+    },
+    {
+      "id": "role.med-student",
+      "name": "Med student",
+      "start": "base",
+      "scrub": "#B9A4E3",
+      "accessory": "short-coat",
+      "passive": {
+        "type": "student",
+        "allTasksMultiplier": 1.2,
+        "extraClue": true,
+        "fumbleChance": 0.05
+      },
+      "abilities": [
+        "ability.coffee-run"
+      ]
+    },
+    {
+      "id": "role.tech",
+      "name": "Tech",
+      "start": "unlock",
+      "unlockAfterLevel": 5,
+      "scrub": "#454B55",
+      "accessory": "scrub-cap",
+      "passive": {
+        "type": "carry",
+        "slots": 2
+      },
+      "abilities": [
+        "ability.turbo-turnover",
+        "ability.supply-run"
+      ]
+    },
+    {
+      "id": "role.rt",
+      "name": "Respiratory therapist",
+      "start": "unlock",
+      "unlockAfterLevel": 12,
+      "scrub": "#2E8B57",
+      "passive": {
+        "type": "speed",
+        "tags": [
+          "airway"
+        ],
+        "multiplier": 0.6
+      },
+      "abilities": [
+        "ability.deep-breath",
+        "ability.vent-sweep"
+      ]
+    },
+    {
+      "id": "role.pharmacist",
+      "name": "Pharmacist",
+      "start": "unlock",
+      "unlockAfterLevel": 15,
+      "scrub": "#7A2E46",
+      "passive": {
+        "type": "pharmacist",
+        "noOverdose": true,
+        "tags": [
+          "med"
+        ],
+        "multiplier": 0.6
+      },
+      "abilities": [
+        "ability.med-drop",
+        "ability.auto-dose"
+      ]
+    }
+  ],
+  "abilities": [
+    {
+      "id": "ability.huddle",
+      "name": "Huddle",
+      "effect": "Team works and moves 30% faster",
+      "durationSeconds": 5,
+      "cooldownSeconds": 40
+    },
+    {
+      "id": "ability.second-look",
+      "name": "Second Look",
+      "effect": "Reveal one patient's full task list, including hidden conditions",
+      "cooldownSeconds": 30
+    },
+    {
+      "id": "ability.hustle",
+      "name": "Hustle",
+      "effect": "Unlimited dash",
+      "durationSeconds": 6,
+      "cooldownSeconds": 35
+    },
+    {
+      "id": "ability.stat-results",
+      "name": "Stat Results",
+      "effect": "Next lab or scan result arrives instantly",
+      "cooldownSeconds": 40
+    },
+    {
+      "id": "ability.rounds",
+      "name": "Rounds",
+      "effect": "Check vitals on every patient on screen",
+      "cooldownSeconds": 45
+    },
+    {
+      "id": "ability.quick-stick",
+      "name": "Quick Stick",
+      "effect": "Next IV or blood draw is instant",
+      "cooldownSeconds": 25
+    },
+    {
+      "id": "ability.coffee-run",
+      "name": "Coffee Run",
+      "effect": "Everyone moves 20% faster",
+      "durationSeconds": 8,
+      "cooldownSeconds": 45
+    },
+    {
+      "id": "ability.turbo-turnover",
+      "name": "Turbo Turnover",
+      "effect": "Instantly clean and prep one bed",
+      "cooldownSeconds": 30
+    },
+    {
+      "id": "ability.supply-run",
+      "name": "Supply Run",
+      "effect": "Restock every supply station",
+      "cooldownSeconds": 50
+    },
+    {
+      "id": "ability.deep-breath",
+      "name": "Deep Breath",
+      "effect": "Freeze timers of every low-oxygen patient",
+      "durationSeconds": 8,
+      "cooldownSeconds": 45
+    },
+    {
+      "id": "ability.vent-sweep",
+      "name": "Vent Sweep",
+      "effect": "Auto-suction every breathing machine",
+      "cooldownSeconds": 40
+    },
+    {
+      "id": "ability.med-drop",
+      "name": "Med Drop",
+      "effect": "Every patient's due meds appear at their bedside",
+      "cooldownSeconds": 45
+    },
+    {
+      "id": "ability.auto-dose",
+      "name": "Auto-Dose",
+      "effect": "Due scheduled meds are given automatically",
+      "durationSeconds": 6,
+      "cooldownSeconds": 60
+    }
+  ],
+  "playerColors": {
+    "P1": "#E2483D",
+    "P2": "#2F7FE0",
+    "P3": "#E8B321",
+    "P4": "#3BB273"
+  }
+}

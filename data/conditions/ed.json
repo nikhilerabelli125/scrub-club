@@ -1,0 +1,714 @@
+{
+  "setting": "ed",
+  "baseTasks": [
+    "task.ask-questions",
+    "task.check-vitals"
+  ],
+  "conditions": [
+    {
+      "id": "ed.chest-pain",
+      "setting": "ed",
+      "label": "Chest pain",
+      "realName": "Myocardial infarction",
+      "acuity": 2,
+      "arrivalCues": [
+        "heartAttack"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.ekg"
+        },
+        {
+          "task": "task.aspirin",
+          "after": [
+            "task.ekg"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 30,
+          "cues": [
+            "heartAttack"
+          ],
+          "jitterSeconds": 8,
+          "slowedBy": [
+            "task.aspirin"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "heartAttack"
+          ],
+          "badge": "Heart attack",
+          "slowedBy": [
+            "task.aspirin"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "zigzag"
+          ],
+          "outcome": "code-zigzag"
+        }
+      ],
+      "disposition": {
+        "exit": "heart-lab",
+        "planned": true
+      }
+    },
+    {
+      "id": "ed.broken-arm",
+      "setting": "ed",
+      "label": "Broken arm",
+      "realName": "Forearm fracture",
+      "acuity": 4,
+      "arrivalCues": [
+        "pain"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.xray"
+        },
+        {
+          "task": "task.pain-med",
+          "after": [
+            "task.xray"
+          ]
+        },
+        {
+          "task": "task.cast",
+          "after": [
+            "task.xray"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "ed.bad-cut",
+      "setting": "ed",
+      "label": "Bad cut",
+      "realName": "Laceration",
+      "acuity": 4,
+      "arrivalCues": [
+        "pain"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.clean-wound"
+        },
+        {
+          "task": "task.stitches",
+          "after": [
+            "task.clean-wound"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "ed.wheezing",
+      "setting": "ed",
+      "label": "Wheezing",
+      "realName": "Asthma exacerbation",
+      "acuity": 3,
+      "arrivalCues": [],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.oxygen"
+        },
+        {
+          "task": "task.breathing-treatment"
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 40,
+          "cues": [
+            "lowOxygen"
+          ],
+          "jitterSeconds": 8,
+          "slowedBy": [
+            "task.oxygen"
+          ]
+        },
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "lowOxygen"
+          ],
+          "badge": "Not enough oxygen",
+          "slowedBy": [
+            "task.oxygen"
+          ],
+          "addTasks": [
+            {
+              "task": "task.intubate"
+            }
+          ]
+        },
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "lowOxygen"
+          ],
+          "outcome": "rescue"
+        }
+      ],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "ed.allergic-reaction",
+      "setting": "ed",
+      "label": "Allergic reaction",
+      "realName": "Anaphylaxis",
+      "acuity": 2,
+      "arrivalCues": [
+        "allergy"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.allergy-shot",
+          "before": "base"
+        },
+        {
+          "task": "task.iv-fluids",
+          "after": [
+            "task.allergy-shot"
+          ]
+        },
+        {
+          "task": "task.observe",
+          "after": [
+            "task.iv-fluids"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "allergy"
+          ],
+          "badge": "Allergic reaction",
+          "slowedBy": [
+            "task.allergy-shot"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "lowOxygen"
+          ],
+          "badge": "Not enough oxygen",
+          "addTasks": [
+            {
+              "task": "task.intubate"
+            }
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "lowOxygen"
+          ],
+          "outcome": "rescue"
+        }
+      ],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "ed.face-drooping",
+      "setting": "ed",
+      "label": "Face drooping",
+      "realName": "Ischemic stroke",
+      "acuity": 2,
+      "arrivalCues": [
+        "stroke"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.brain-scan"
+        },
+        {
+          "task": "task.clot-buster",
+          "after": [
+            "task.brain-scan"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 30,
+          "cues": [
+            "stroke"
+          ],
+          "jitterSeconds": 8
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "stroke"
+          ],
+          "badge": "Stroke"
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "stroke"
+          ],
+          "outcome": "rescue"
+        }
+      ],
+      "disposition": {
+        "exit": "icu",
+        "planned": true
+      }
+    },
+    {
+      "id": "ed.belly-pain",
+      "setting": "ed",
+      "label": "Belly pain",
+      "realName": "Appendicitis",
+      "acuity": 3,
+      "arrivalCues": [
+        "pain"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.blood-draw"
+        },
+        {
+          "task": "task.ultrasound"
+        },
+        {
+          "task": "task.pain-med"
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 45,
+          "cues": [
+            "pain"
+          ],
+          "jitterSeconds": 10
+        },
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "pale"
+          ],
+          "badge": "Getting worse"
+        },
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "pale"
+          ],
+          "outcome": "rescue"
+        }
+      ],
+      "disposition": {
+        "exit": "or",
+        "planned": true
+      }
+    },
+    {
+      "id": "ed.fever-confused",
+      "setting": "ed",
+      "label": "Fever and confused",
+      "realName": "Sepsis",
+      "acuity": 2,
+      "arrivalCues": [
+        "overheated"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.blood-draw"
+        },
+        {
+          "task": "task.iv-fluids",
+          "after": [
+            "task.blood-draw"
+          ]
+        },
+        {
+          "task": "task.antibiotics",
+          "after": [
+            "task.blood-draw"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 30,
+          "cues": [
+            "pale"
+          ],
+          "jitterSeconds": 8,
+          "slowedBy": [
+            "task.iv-fluids"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "pale"
+          ],
+          "badge": "Getting worse",
+          "slowedBy": [
+            "task.iv-fluids"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "pale"
+          ],
+          "outcome": "rescue"
+        }
+      ],
+      "disposition": {
+        "exit": "wards",
+        "planned": true
+      }
+    },
+    {
+      "id": "ed.headache",
+      "setting": "ed",
+      "label": "Headache",
+      "realName": "Migraine",
+      "acuity": 4,
+      "arrivalCues": [
+        "pain"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.headache-med"
+        },
+        {
+          "task": "task.dark-room",
+          "after": [
+            "task.headache-med"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "ed.dizzy-bleeding",
+      "setting": "ed",
+      "label": "Internal bleeding",
+      "realName": "Upper GI bleed",
+      "acuity": 2,
+      "hidden": {
+        "showsAs": {
+          "label": "Dizzy",
+          "acuity": 4
+        },
+        "revealedBy": [
+          "task.ask-questions",
+          "task.check-vitals"
+        ]
+      },
+      "arrivalCues": [
+        "pale"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.blood-draw"
+        },
+        {
+          "task": "task.iv"
+        },
+        {
+          "task": "task.transfusion",
+          "after": [
+            "task.iv"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 35,
+          "cues": [
+            "pale"
+          ],
+          "jitterSeconds": 8,
+          "slowedBy": [
+            "task.transfusion"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "pale"
+          ],
+          "badge": "Losing blood",
+          "slowedBy": [
+            "task.transfusion"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "flatLine"
+          ],
+          "outcome": "code-flat"
+        }
+      ],
+      "disposition": {
+        "exit": "icu",
+        "planned": true
+      }
+    },
+    {
+      "id": "ed.seizure",
+      "setting": "ed",
+      "label": "Seizure",
+      "realName": "Prolonged seizure",
+      "acuity": 2,
+      "arrivalCues": [
+        "seizure"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.seizure-med",
+          "before": "base"
+        },
+        {
+          "task": "task.brain-scan",
+          "after": [
+            "task.seizure-med"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 25,
+          "cues": [
+            "seizure"
+          ],
+          "slowedBy": [
+            "task.seizure-med"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "lowOxygen"
+          ],
+          "badge": "Not enough oxygen",
+          "addTasks": [
+            {
+              "task": "task.intubate"
+            }
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "lowOxygen"
+          ],
+          "outcome": "rescue"
+        }
+      ],
+      "disposition": {
+        "exit": "wards",
+        "planned": true
+      }
+    },
+    {
+      "id": "ed.very-sleepy",
+      "setting": "ed",
+      "label": "Very sleepy",
+      "realName": "Opioid overdose",
+      "acuity": 2,
+      "arrivalCues": [
+        "tooMuchMed"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.reversal-shot",
+          "before": "base"
+        },
+        {
+          "task": "task.oxygen",
+          "after": [
+            "task.reversal-shot"
+          ]
+        },
+        {
+          "task": "task.observe",
+          "after": [
+            "task.oxygen"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "tooMuchMed"
+          ],
+          "slowedBy": [
+            "task.oxygen",
+            "task.bag"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "lowOxygen"
+          ],
+          "badge": "Not enough oxygen",
+          "slowedBy": [
+            "task.bag"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "flatLine"
+          ],
+          "outcome": "code-flat"
+        }
+      ],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "ed.car-crash",
+      "setting": "ed",
+      "label": "Car crash",
+      "realName": "Multiple trauma",
+      "acuity": 1,
+      "arrivalCues": [
+        "pale",
+        "pain"
+      ],
+      "baseTasks": false,
+      "tasks": [
+        {
+          "task": "task.intubate"
+        },
+        {
+          "task": "task.iv"
+        },
+        {
+          "task": "task.iv"
+        },
+        {
+          "task": "task.transfusion",
+          "after": [
+            "task.iv"
+          ]
+        },
+        {
+          "task": "task.xray"
+        },
+        {
+          "task": "task.ultrasound"
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 25,
+          "cues": [
+            "pale"
+          ],
+          "badge": "Losing blood",
+          "slowedBy": [
+            "task.transfusion"
+          ]
+        },
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "flatLine"
+          ],
+          "outcome": "code-flat"
+        }
+      ],
+      "disposition": {
+        "exit": "or",
+        "planned": true
+      }
+    },
+    {
+      "id": "ed.collapsed",
+      "setting": "ed",
+      "label": "Collapsed at home",
+      "realName": "Out-of-hospital cardiac arrest (VF)",
+      "acuity": 1,
+      "arrivalCues": [
+        "zigzag"
+      ],
+      "baseTasks": false,
+      "tasks": [
+        {
+          "task": "task.cpr"
+        },
+        {
+          "task": "task.shock"
+        },
+        {
+          "task": "task.intubate",
+          "after": [
+            "task.shock"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 45,
+          "cues": [
+            "zigzag"
+          ],
+          "badge": "Zigzag: CPR + shock",
+          "outcome": "code-zigzag"
+        }
+      ],
+      "disposition": {
+        "exit": "icu",
+        "planned": true
+      },
+      "notes": "Arrives already in a code; the escalation timer is the code clock."
+    }
+  ]
+}

@@ -1,0 +1,352 @@
+{
+  "setting": "cl",
+  "baseTasks": [
+    "task.ask-questions",
+    "task.check-vitals"
+  ],
+  "conditions": [
+    {
+      "id": "cl.sore-throat",
+      "setting": "cl",
+      "label": "Sore throat",
+      "realName": "Strep throat",
+      "acuity": 5,
+      "arrivalCues": [],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.throat-swab"
+        },
+        {
+          "task": "task.antibiotics",
+          "after": [
+            "task.throat-swab"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "cl.needs-shot",
+      "setting": "cl",
+      "label": "Needs a shot",
+      "realName": "Routine vaccine",
+      "acuity": 5,
+      "arrivalCues": [],
+      "baseTasks": false,
+      "tasks": [
+        {
+          "task": "task.check-vitals"
+        },
+        {
+          "task": "task.vaccine",
+          "after": [
+            "task.check-vitals"
+          ]
+        },
+        {
+          "task": "task.observe",
+          "after": [
+            "task.vaccine"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "cl.cough",
+      "setting": "cl",
+      "label": "Cough",
+      "realName": "Acute bronchitis",
+      "acuity": 5,
+      "arrivalCues": [],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.listen-lungs"
+        },
+        {
+          "task": "task.prescription",
+          "after": [
+            "task.listen-lungs"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "cl.twisted-ankle",
+      "setting": "cl",
+      "label": "Twisted ankle",
+      "realName": "Ankle sprain",
+      "acuity": 4,
+      "arrivalCues": [
+        "pain"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.xray"
+        },
+        {
+          "task": "task.splint",
+          "after": [
+            "task.xray"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "cl.cut-finger",
+      "setting": "cl",
+      "label": "Cut finger",
+      "realName": "Finger laceration",
+      "acuity": 4,
+      "arrivalCues": [
+        "pain"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.clean-wound"
+        },
+        {
+          "task": "task.stitches",
+          "after": [
+            "task.clean-wound"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "cl.bp-check",
+      "setting": "cl",
+      "label": "Blood pressure check",
+      "realName": "Hypertension follow-up",
+      "acuity": 5,
+      "arrivalCues": [],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.blood-draw"
+        },
+        {
+          "task": "task.prescription",
+          "after": [
+            "task.blood-draw"
+          ]
+        }
+      ],
+      "escalation": [],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "cl.dizzy-sugar",
+      "setting": "cl",
+      "label": "Low sugar",
+      "realName": "Hypoglycemia",
+      "acuity": 3,
+      "hidden": {
+        "showsAs": {
+          "label": "Dizzy",
+          "acuity": 4
+        },
+        "revealedBy": [
+          "task.ask-questions",
+          "task.check-vitals"
+        ]
+      },
+      "arrivalCues": [
+        "lowSugar"
+      ],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.sugar-check"
+        },
+        {
+          "task": "task.give-drink",
+          "after": [
+            "task.sugar-check"
+          ],
+          "params": {
+            "drink": "juice"
+          }
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 40,
+          "cues": [
+            "lowSugar"
+          ],
+          "jitterSeconds": 8,
+          "slowedBy": [
+            "task.give-drink"
+          ]
+        },
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "lowSugar"
+          ],
+          "badge": "Sugar too low",
+          "addTasks": [
+            {
+              "task": "task.iv"
+            },
+            {
+              "task": "task.sugar-iv",
+              "after": [
+                "task.iv"
+              ]
+            }
+          ]
+        }
+      ],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    },
+    {
+      "id": "cl.indigestion",
+      "setting": "cl",
+      "label": "Heart attack",
+      "realName": "Myocardial infarction (atypical presentation)",
+      "acuity": 2,
+      "hidden": {
+        "showsAs": {
+          "label": "Indigestion",
+          "acuity": 4
+        },
+        "revealedBy": [
+          "task.ask-questions",
+          "task.check-vitals"
+        ]
+      },
+      "arrivalCues": [],
+      "baseTasks": true,
+      "tasks": [
+        {
+          "task": "task.ekg"
+        },
+        {
+          "task": "task.aspirin",
+          "after": [
+            "task.ekg"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 35,
+          "cues": [
+            "heartAttack"
+          ],
+          "jitterSeconds": 8,
+          "slowedBy": [
+            "task.aspirin"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "heartAttack"
+          ],
+          "badge": "Heart attack",
+          "slowedBy": [
+            "task.aspirin"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "zigzag"
+          ],
+          "outcome": "code-zigzag"
+        }
+      ],
+      "disposition": {
+        "exit": "ambulance",
+        "planned": true
+      }
+    },
+    {
+      "id": "cl.shot-reaction",
+      "setting": "cl",
+      "label": "Shot reaction",
+      "realName": "Anaphylaxis after vaccination",
+      "acuity": 2,
+      "arrivalCues": [
+        "allergy"
+      ],
+      "baseTasks": false,
+      "tasks": [
+        {
+          "task": "task.allergy-shot"
+        },
+        {
+          "task": "task.observe",
+          "after": [
+            "task.allergy-shot"
+          ]
+        }
+      ],
+      "escalation": [
+        {
+          "afterSeconds": 20,
+          "cues": [
+            "allergy"
+          ],
+          "badge": "Allergic reaction",
+          "slowedBy": [
+            "task.allergy-shot"
+          ]
+        },
+        {
+          "afterSeconds": 15,
+          "cues": [
+            "lowOxygen"
+          ],
+          "badge": "Not enough oxygen",
+          "addTasks": [
+            {
+              "task": "task.intubate"
+            }
+          ],
+          "outcome": "rescue"
+        }
+      ],
+      "disposition": {
+        "exit": "home",
+        "planned": false
+      }
+    }
+  ]
+}

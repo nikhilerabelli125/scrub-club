@@ -1,0 +1,68 @@
+{
+  "id": "ed-a",
+  "number": 2,
+  "name": "Triage Time",
+  "setting": "ed",
+  "tier": 1,
+  "format": "inflow",
+  "lengthSeconds": 300,
+  "camera": "fixed",
+  "map": "ed-main",
+  "strikeLimit": 9,
+  "ticketMode": "full",
+  "disposition": "auto",
+  "maxEscalation": "rescue",
+  "gimmicks": [],
+  "hazards": [
+    "hazard.waiting-overflow"
+  ],
+  "introduces": [
+    "ticket-rail",
+    "acuity-colors",
+    "prioritizing"
+  ],
+  "briefing": {
+    "title": "Triage Time",
+    "body": "Colors show who's sickest. Red and orange first; green and blue can wait a bit."
+  },
+  "spawn": {
+    "pool": [
+      {
+        "condition": "ed.chest-pain",
+        "weight": 1
+      },
+      {
+        "condition": "ed.wheezing",
+        "weight": 2
+      },
+      {
+        "condition": "ed.bad-cut",
+        "weight": 3
+      },
+      {
+        "condition": "ed.headache",
+        "weight": 2
+      }
+    ],
+    "intervalSeconds": [
+      22,
+      30
+    ],
+    "maxWaiting": 4
+  },
+  "events": [
+    {
+      "at": 60,
+      "jitter": 15,
+      "type": "spawn",
+      "condition": "ed.chest-pain",
+      "via": "ambulance"
+    }
+  ],
+  "starMode": "points",
+  "stars": [
+    150,
+    250,
+    350
+  ]
+}
