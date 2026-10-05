@@ -1,0 +1,9 @@
+{
+  // Solution file: run `npm run typecheck` (tsc -b). A bare `tsc` here checks nothing.
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.sim.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
