@@ -62,7 +62,7 @@ Times marked ± shift every run (seeded jitter) so replays feel different.
 ### 2. ED-A Triage Time
 - **Tier 1, ED, inflow, 5:00.** Fixed camera.
 - **New:** the ticket rail and acuity colors. Choosing who goes first from the waiting room.
-- **Patients:** `ed.chest-pain` (the orange one to prioritize), `ed.wheezing`, `ed.bad-cut`, `ed.headache`. `ed.broken-arm` waits until level 6, after the dosing meter is taught. Spawn every 22 to 30 s, max 4 waiting.
+- **Patients:** `ed.chest-pain` (the orange one to prioritize), `ed.wheezing`, `ed.bad-cut`, `ed.headache`. `ed.broken-arm` waits until level 6, after the dosing meter is taught. Spawn every 22 to 30 s, max 4 waiting. A guaranteed `ed.chest-pain` arrives by ambulance at 1:00 ±15 s, so every run has an orange patient to prioritize.
 - **Hazard:** the waiting room crowd spills into the hallway.
 - **Briefing:** "Colors show who's sickest. Red and orange first; green and blue can wait a bit."
 
@@ -91,7 +91,7 @@ Times marked ± shift every run (seeded jitter) so replays feel different.
 
 ### 6. ED-B Mystery Symptoms
 - **Tier 2, ED, inflow, 5:00.** Tickets switch to `assess`.
-- **New:** tickets show only the complaint; questions and vitals reveal the rest. The allergy shot is the one thing you give before asking questions.
+- **New:** tickets show only the complaint; questions and vitals reveal the rest. In this level, the allergy shot is the one thing you give before asking questions.
 - **Patients:** `ed.broken-arm`, `ed.wheezing`, `ed.allergic-reaction`, `ed.belly-pain` (planned OR), `ed.headache`.
 - **Hazard:** bay curtains open and close.
 
@@ -130,7 +130,7 @@ Times marked ± shift every run (seeded jitter) so replays feel different.
 | 1:10 ±15 s | `ed.chest-pain` arrives down the stretcher lane |
 | 1:40 | `ed.headache` (never escalates) |
 | 2:10 | `ed.belly-pain` |
-| 2:30 ±20 s | Chest pain starts sweating if not yet sent to the heart lab |
+| About 1:40 | Chest pain starts sweating if not yet sent to the heart lab (its own escalation timer) |
 | 3:00 ±20 s | Guaranteed code: `ed.collapsed` rolls into the resus bay mid-arrest |
 | 3:45 | False alarm: bay 2 monitor beeps because a sticker fell off |
 | 4:15 ±20 s | `ed.allergic-reaction` |

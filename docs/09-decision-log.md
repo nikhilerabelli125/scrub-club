@@ -76,3 +76,10 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Unlocks | Levels own unlocks (`unlocks` in level data); roles only say base or unlock | M0 |
 | Codes | Patients can arrive mid-code; a code not fixed within 45 s (draft) is lost | M0 |
 | Maps | Clinic gets a med cabinet, juice fridge, and EKG machine; ED gets a blood fridge and observation chairs, because their patients need them | M0 |
+| Sepsis | Antibiotics go alongside IV fluids after the blood test, not after the fluids, since antibiotics shouldn't wait (pending medical review) | M0 review |
+| Appendicitis | Pain med goes alongside the workup; early pain relief doesn't hide the diagnosis (pending medical review) | M0 review |
+| Treat first | Seizure med and the opioid reversal shot come before questions, like the allergy shot, since these patients can't answer (01 §4.3; pending medical review) | M0 review |
+| Anaphylaxis | ED allergic reaction that turns blue ends in a rescue transfer, like the clinic version | M0 review |
+| Pharmacist | Passive speeds up giving meds; nothing in the game makes the med cabinet slow | M0 review |
+| ED-A | A guaranteed chest pain arrives by ambulance at 1:00, so every run has an orange patient to prioritize | M0 review |
+| ED-E | Chest pain deteriorates on its own escalation timer (about 1:40), not a scripted 2:30 event | M0 review |

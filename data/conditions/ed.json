@@ -61,7 +61,7 @@
         },
         {
           "task": "task.cast",
-          "after": ["task.xray"]
+          "after": ["task.pain-med"]
         }
       ],
       "escalation": [],
@@ -356,7 +356,8 @@
           "task": "task.blood-draw"
         },
         {
-          "task": "task.iv"
+          "task": "task.iv",
+          "after": ["task.blood-draw"]
         },
         {
           "task": "task.transfusion",

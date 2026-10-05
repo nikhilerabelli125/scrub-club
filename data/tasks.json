@@ -373,7 +373,7 @@
         {
           "type": "tapWait",
           "params": {
-            "seconds": 1
+            "seconds": 1.5
           }
         }
       ],

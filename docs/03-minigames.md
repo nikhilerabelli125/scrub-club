@@ -18,7 +18,7 @@ Nine reusable types. Each is a sim-side state machine with parameters in `data/t
 |---|---|---|
 | `hold` | Hold Use until the bar fills. Releasing pauses; progress is kept | `seconds` |
 | `tapWait` | Press Use once; the player is locked in place while a bar drains | `seconds` |
-| `timingBar` | A marker sweeps across a bar; press Use in the green zone. Miss = 0.6 s retry | `hits`, `zoneWidth` (0 to 1), `sweepSeconds`, `overshoot` (dosing), `syncToMonitor` |
+| `timingBar` | A marker sweeps across a bar; press Use in the green zone. Miss = 0.6 s retry | `hits`, `zoneWidth` (0 to 1), `sweepSeconds`, `overshoot` (dosing), `syncToMonitor`, `holdToFill` (hold to tighten, release in the zone) |
 | `qte` | A sequence of button prompts. Wrong or late = restart after 1 s | `length`, `promptSeconds` |
 | `rhythm` | Notes scroll to a hitline at a fixed tempo; hit the shown button on the beat | `bpm`, `beats`, `buttons`, perfect ±50 ms, good ±110 ms, each miss adds 2 beats |
 | `steer` | An auto-scrolling path; steer left and right to stay on the line. Off the line = slower | `lengthSeconds`, `pathWidth`, `wiggle` |
@@ -110,6 +110,7 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.blood-thinner` | Clot shot | tapWait 1 s | arm | Scheduled |
 | `task.salty-iv` | Salty IV | timingBar dosing | arm | Low-salt runners |
 | `task.pressure-med` | Pressure med pump | timingBar dosing | arm | Keep the pump full |
+| `task.bp-med` | Blood pressure med | timingBar dosing | arm | Brain bleed (ICU) |
 | `task.anti-rejection` | Anti-rejection med | tapWait 1 s | arm | Transplant |
 | `task.albumin` | Albumin bag | tapWait 1.5 s | arm | After belly drain |
 | `task.seasick-pill` | Seasick pill | tapWait 1 s | any | |
@@ -134,6 +135,8 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.rinse` | Rinse | hold 1.5 s | any | |
 | `task.isolate` | Isolate | escort to isolation cabin | | Stops contagion |
 | `task.sit-up` | Sit up | hold 1.5 s | head | |
+| `task.legs-up` | Lie down, legs up | hold 1.5 s | any | Same hold as sit up, different animation (lightheaded runners) |
+| `task.two-person-lift` | Lift | two-person carry | | Fell out of bed, trapped under debris |
 | `task.weigh-in` | Weigh-in | hold 1.5 s | any | Scale item |
 | `task.walk-patient` | Walk | escort to hallway marker and back | | |
 | `task.lead-back` | Lead back | escort to bed | | Wandering patients |
