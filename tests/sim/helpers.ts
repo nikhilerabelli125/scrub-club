@@ -4,8 +4,14 @@ import {
   availableTasks,
   createContext,
   createWorld,
+  distanceToBox,
+  idleControls,
   stepWorld,
+  type Box,
+  type Player,
   type PlayerCount,
+  type PlayerInput,
+  type PlayerSlot,
   type SimCommand,
   type SimContext,
   type SimEvent,
@@ -89,4 +95,46 @@ export function treatEveryone(world: World): TickInput {
       })),
     ),
   };
+}
+
+// One player's controls for a tick: idle except for what's given.
+export function press(slot: PlayerSlot, controls: Partial<Omit<PlayerInput, 'slot'>>): PlayerInput {
+  return { ...idleControls(slot), ...controls };
+}
+
+export function players(...inputs: PlayerInput[]): TickInput {
+  return { players: inputs };
+}
+
+export function playerIn(world: World, slot: PlayerSlot): Player {
+  const player = world.players.find((p) => p.slot === slot);
+  if (!player) throw new Error(`no player ${slot}`);
+  return player;
+}
+
+// Puts a player on free floor within reach of a bed or station, as a stand-in for
+// walking there (movement has its own tests).
+export function standNextTo(world: World, ctx: SimContext, slot: PlayerSlot, box: Box): void {
+  const { radius, reach } = ctx.content.rules.movement;
+  const gap = radius + 0.05;
+  const midX = (box.x0 + box.x1) / 2;
+  const midZ = (box.z0 + box.z1) / 2;
+  const [width, depth] = ctx.map.size;
+  const candidates: [number, number][] = [
+    [midX, box.z1 + gap],
+    [box.x1 + gap, midZ],
+    [box.x0 - gap, midZ],
+    [midX, box.z0 - gap],
+  ];
+  const spot = candidates.find(
+    ([x, z]) =>
+      x > radius &&
+      x < width - radius &&
+      z > radius &&
+      z < depth - radius &&
+      ctx.colliders.every((collider) => distanceToBox(collider, [x, z]) >= radius) &&
+      distanceToBox(box, [x, z]) <= reach,
+  );
+  if (!spot) throw new Error('no free floor next to that box');
+  playerIn(world, slot).pos = spot;
 }

@@ -83,6 +83,11 @@ scrub-club/
 - Tasks: "first" tasks (`before: 'base'`) come before the setting's base tasks, the base tasks gate everything else, and `after` waits for every repeat of a counted task.
 - Finishing pays the acuity's points plus up to `speedBonusMax` of them for patience left. Every disposition mode behaves like `auto` until M2.
 - Star thresholds scale by player count in both points and time mode.
+- Beds: arriving patients take free beds in map order, first come, first served. Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. Letting players choose who goes first, by escorting patients, arrives with escorts in M2.
+- Pick up: empty-handed at a station, you get the item a patient will need from it (longest-waiting patient first); with an item, Pick up returns it to a station that stocks it, or sets it down in front of you. Items on the floor can be picked back up.
+- Use: beside a patient (within `movement.reach` of their bed), starts the first task you can do there, preferring one that uses the item you carry. At a station, it starts that station's task (an X-ray at the computer) for the longest-waiting patient. One player per task and per bed spot.
+- Working: players stay rooted while working. Letting go of a hold pauses it and keeps its progress on the patient, so anyone can finish it; pushing a direction for `walkAwaySeconds` walks away. A tap-and-wait locks the player until it drains.
+- Stand-ins until their milestones: minigame types other than hold and tapWait, and the carry/escort/push interactions, run as a `standInSeconds` hold at the bedside. `needsEquipment` is ignored until scarce equipment (M2), bed spots are exclusive but not yet positions on the bed (M3), and dash comes later.
 
 ## 4. Data model
 
@@ -301,6 +306,8 @@ interface RulesFile {
   speedBonusMax: number;         // 0.5 = up to +50% of a patient's points, by patience left
   outcomes: Record<'leave' | 'rescue' | 'death', { points: number; strikes: number }>;
   playerScaling: { players: 1 | 2 | 3 | 4; spawnInterval: number; census: number; stars: number }[];
+  movement: { speed: number; radius: number; reach: number }; // m/s; player circle; how far a player can interact (m)
+  interaction: { walkAwaySeconds: number; standInSeconds: number }; // 03 §1; hold used for mechanics not built yet
   codes: {
     lostAfterSeconds: number;    // a code not fixed in time is lost (death)
     fix: { flat: string[]; zigzag: string[] }; // task ids for each rhythm (01 §5)
@@ -336,6 +343,8 @@ The same checks run in `npm run test`, and a test compiles the block above again
 - The sim owns minigame state per player; the UI draws the panel above that player from the state.
 - Tasks with several steps (lung drain: sweep → timingBar → hold) run the steps in sequence.
 - Role speed perks apply by shortening parameters (fewer beats, fewer presses, shorter seconds), never by widening timing windows.
+- A task's minigame progress lives on the patient's task, not on the player, so a hold one player walked away from resumes for whoever comes next.
+- M1 builds `hold` and `tapWait`; the other types run as stand-in holds until M3 (see §3).
 
 ## 7. Rendering
 

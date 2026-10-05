@@ -368,6 +368,15 @@ export const RulesFileSchema = z.strictObject({
       stars: z.number().positive(),
     }),
   ),
+  movement: z.strictObject({
+    speed: z.number().positive(),
+    radius: z.number().positive(),
+    reach: z.number().positive(),
+  }),
+  interaction: z.strictObject({
+    walkAwaySeconds: z.number().positive(),
+    standInSeconds: z.number().positive(),
+  }),
   codes: z.strictObject({
     lostAfterSeconds: z.number().positive(),
     fix: z.strictObject({ flat: z.array(TaskId).min(1), zigzag: z.array(TaskId).min(1) }),

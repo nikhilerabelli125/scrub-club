@@ -88,3 +88,8 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Tasks | "First" tasks come before the base tasks, which gate the rest; `after` waits for every repeat | M1 |
 | Stars | Thresholds scale by player count in time mode too | M1 |
 | Debugging | Dev and test commands travel in the per-tick input, so replays stay exact | M1 |
+| Beds | Patients take free beds in map order; beds named by scripted spawns stay free; choosing seats by escort arrives in M2 | M1 |
+| Items | Pick up at a station hands out what a patient will need; Pick up again returns it to its shelf or sets it down | M1 |
+| Use | Starts the first task doable at the nearest patient, preferring the carried item; at a station, its task for the longest-waiting patient | M1 |
+| Working | Players stay rooted while working; letting go of a hold pauses it with progress kept on the patient | M1 |
+| Stand-ins | Unbuilt minigames and interactions are 2 s holds until their milestones; equipment ignored until M2 | M1 |

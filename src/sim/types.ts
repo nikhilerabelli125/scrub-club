@@ -2,6 +2,8 @@
 // undefined values, so a world survives a JSON round trip for saves, replays, and online
 // play. Timers count whole ticks (see clock.ts).
 import type { Acuity, Content, LevelDef, MapDef } from '../data';
+import type { MinigameState } from '../minigames';
+import type { Box } from './geometry';
 import type { Rng } from './rng';
 
 export type PlayerSlot = 1 | 2 | 3 | 4;
@@ -46,6 +48,8 @@ export interface PatientTask {
   phase: 'first' | 'base' | 'main';
   optional: boolean;
   params: Record<string, string>; // e.g. { drink: 'juice' }
+  stepIndex: number; // which of the task's mechanic steps is next
+  step: MinigameState | null; // that step's progress; a hold keeps it when its player walks away
 }
 
 export type PatientLocation = { kind: 'waiting' } | { kind: 'bed'; bed: string };
@@ -71,6 +75,15 @@ export interface Player {
   slot: PlayerSlot;
   pos: [number, number]; // meters from the map's top-left corner (x right, z toward the camera)
   facing: number; // radians; 0 faces the camera
+  holding: number | null; // id of the carried item
+  activity: { patient: number; task: string } | null; // the task this player is working on
+  walkAwayTicks: number; // how long they have pushed a direction mid-task (docs/03 §1)
+}
+
+export interface ItemInstance {
+  id: number;
+  item: string;
+  place: { kind: 'held'; player: PlayerSlot } | { kind: 'floor'; pos: [number, number] };
 }
 
 // A level event with its jitter already rolled. `index` points into the level's events.
@@ -100,7 +113,37 @@ export type SimEvent =
       bed: string | null;
     }
   | { type: 'patientSeated'; patient: number; bed: string }
-  | { type: 'taskCompleted'; patient: number; task: string; remaining: number }
+  | {
+      type: 'taskCompleted';
+      patient: number;
+      task: string;
+      remaining: number;
+      player: PlayerSlot | null; // null when a dev or test command did it
+    }
+  | { type: 'taskStarted'; player: PlayerSlot; patient: number; task: string }
+  | {
+      type: 'taskStopped';
+      player: PlayerSlot;
+      patient: number;
+      task: string;
+      progressKept: boolean;
+    }
+  | {
+      type: 'itemPickedUp';
+      player: PlayerSlot;
+      itemId: number;
+      item: string;
+      from: 'station' | 'floor';
+    }
+  | {
+      type: 'itemDropped';
+      player: PlayerSlot;
+      itemId: number;
+      item: string;
+      pos: [number, number];
+    }
+  | { type: 'itemReturned'; player: PlayerSlot; itemId: number; item: string }
+  | { type: 'itemUsed'; player: PlayerSlot; itemId: number; item: string; task: string }
   | {
       type: 'patientFinished';
       patient: number;
@@ -131,6 +174,8 @@ export interface World {
   patients: Patient[];
   beds: Bed[];
   players: Player[];
+  items: ItemInstance[];
+  nextItemId: number;
   spawn: { timerTicks: number; sequenceIndex: number };
   scheduled: ScheduledEvent[];
   events: SimEvent[]; // this tick's events, cleared at the start of the next tick
@@ -142,4 +187,6 @@ export interface SimContext {
   content: Content;
   level: LevelDef;
   map: MapDef;
+  colliders: Box[]; // walls, stations, and beds players can't walk through
+  reservedBeds: string[]; // beds named by scripted spawns, kept free for them
 }

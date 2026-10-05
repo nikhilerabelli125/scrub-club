@@ -1,4 +1,4 @@
-import type { Patient, PatientTask, SimContext, World } from '../types';
+import type { Patient, PatientTask, PlayerSlot, SimContext, World } from '../types';
 import { removePatient } from './patients';
 
 // The tasks a player can start right now. Tasks marked "first" (like the allergy shot)
@@ -21,13 +21,14 @@ export function availableTasks(patient: Patient): PatientTask[] {
   });
 }
 
-// Records one completion of a task. Lane B's interactions call this when a hold or
-// minigame finishes. Returns why it was refused, or null when it counted.
+// Records one completion of a task, by a player's finished minigame or a dev/test
+// command (`by` null). Returns why it was refused, or null when it counted.
 export function completeTask(
   world: World,
   ctx: SimContext,
   patientId: number,
   taskId: string,
+  by: PlayerSlot | null = null,
 ): string | null {
   const patient = world.patients.find((p) => p.id === patientId);
   if (!patient) return `no patient ${patientId}`;
@@ -38,11 +39,15 @@ export function completeTask(
       : `${taskId} isn't on this patient's list`;
   }
   entry.remaining -= 1;
+  // A repeated task (two IVs) starts each repeat from scratch.
+  entry.stepIndex = 0;
+  entry.step = null;
   world.events.push({
     type: 'taskCompleted',
     patient: patient.id,
     task: taskId,
     remaining: entry.remaining,
+    player: by,
   });
   if (patient.tasks.every((t) => t.optional || t.remaining === 0)) {
     finishPatient(world, ctx, patient);
