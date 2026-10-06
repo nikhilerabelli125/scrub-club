@@ -596,11 +596,10 @@ function checkMaps(p: ParsedData, ix: Index, report: Report, known: Known, uniqu
     map.stations.forEach((s, i) =>
       known('station type', s.type, ix.stationTypes, file, `stations[${i}].type`),
     );
-    map.equipmentHomes.forEach((home, i) => {
-      const at = `equipmentHomes[${i}]`;
-      known('equipment', home.equipment, ix.equipment, file, `${at}.equipment`);
-      unique(`equipment home in map ${map.id}`, home.equipment, file, at);
-    });
+    // A map can have several of one kind of equipment (two vitals carts in the ED).
+    map.equipmentHomes.forEach((home, i) =>
+      known('equipment', home.equipment, ix.equipment, file, `equipmentHomes[${i}].equipment`),
+    );
     const zoneKinds = new Set([...ix.gimmicks, ...ix.hazards]);
     map.zones?.forEach((zone, i) =>
       known('gimmick or hazard', zone.kind, zoneKinds, file, `zones[${i}].kind`),

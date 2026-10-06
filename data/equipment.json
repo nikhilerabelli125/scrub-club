@@ -6,6 +6,7 @@
     { "id": "equipment.defib", "label": "Defibrillator" },
     { "id": "equipment.dialysis", "label": "Dialysis machine" },
     { "id": "equipment.ekg", "label": "EKG machine" },
-    { "id": "equipment.ultrasound", "label": "Ultrasound cart" }
+    { "id": "equipment.ultrasound", "label": "Ultrasound cart" },
+    { "id": "equipment.vitals-cart", "label": "Vitals cart" }
   ]
 }

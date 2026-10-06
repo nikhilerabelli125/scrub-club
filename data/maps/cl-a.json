@@ -110,7 +110,12 @@
       "rot": 0
     }
   ],
-  "equipmentHomes": [],
+  "equipmentHomes": [
+    {
+      "equipment": "equipment.vitals-cart",
+      "pos": [7.2, 7]
+    }
+  ],
   "spawns": [
     [9, 8.5],
     [10, 8.5],

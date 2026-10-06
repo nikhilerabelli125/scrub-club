@@ -18,13 +18,17 @@
     { "id": "item.med", "label": "Medicine", "sources": ["station.med-cabinet"] },
     { "id": "item.mesh", "label": "Mesh", "sources": ["station.instrument-tray"] },
     { "id": "item.mop", "label": "Mop", "sources": ["station.supply"] },
+    { "id": "item.nebulizer", "label": "Nebulizer kit", "sources": ["station.supply"] },
+    { "id": "item.oxygen-mask", "label": "Oxygen mask", "sources": ["station.supply"] },
     { "id": "item.scale", "label": "Scale", "sources": ["station.scale"] },
     { "id": "item.specimen", "label": "Specimen", "sources": [] },
     { "id": "item.splint", "label": "Splint", "sources": ["station.supply"] },
+    { "id": "item.stitch-kit", "label": "Stitch kit", "sources": ["station.supply"] },
     { "id": "item.supplies", "label": "Supplies", "sources": ["station.supply"] },
     { "id": "item.swab", "label": "Swab", "sources": [] },
     { "id": "item.tourniquet", "label": "Tourniquet", "sources": ["station.supply"] },
     { "id": "item.vaccine", "label": "Vaccine", "sources": ["station.vaccine-fridge"] },
-    { "id": "item.wrap", "label": "Wrap", "sources": ["station.supply"] }
+    { "id": "item.wrap", "label": "Wrap", "sources": ["station.supply"] },
+    { "id": "item.wound-kit", "label": "Wound kit", "sources": ["station.supply"] }
   ]
 }

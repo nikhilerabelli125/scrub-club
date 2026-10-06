@@ -26,6 +26,7 @@
         }
       ],
       "spot": "arm",
+      "needsEquipment": "equipment.vitals-cart",
       "perkTags": ["vitals"]
     },
     {
@@ -286,6 +287,7 @@
         }
       ],
       "spot": "head",
+      "needsItem": "item.oxygen-mask",
       "perkTags": ["airway"]
     },
     {
@@ -300,6 +302,7 @@
         }
       ],
       "spot": "head",
+      "needsItem": "item.nebulizer",
       "perkTags": ["airway"]
     },
     {
@@ -795,7 +798,8 @@
           }
         }
       ],
-      "spot": "any"
+      "spot": "any",
+      "needsItem": "item.wound-kit"
     },
     {
       "id": "task.stitches",
@@ -811,6 +815,7 @@
         }
       ],
       "spot": "any",
+      "needsItem": "item.stitch-kit",
       "perkTags": ["procedure"]
     },
     {

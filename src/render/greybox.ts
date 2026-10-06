@@ -21,12 +21,13 @@ const STATION_LOOK: Record<string, { height: number; color: string }> = {
   'station.imaging': { height: 1.3, color: '#AFBDB9' },
   'station.dark-room': { height: 1.3, color: '#7C8A96' },
 };
-// Scarce equipment has its own color so players spot it instantly (docs/06 §4). Only the
-// floor marker of its home spot is drawn until equipment arrives in M2.
-const EQUIPMENT_COLORS: Record<string, string> = {
+// Each kind of equipment has its own color so players spot it instantly (docs/06 §4).
+// Its home spot gets a floor marker in the same color; actors.ts draws the equipment.
+export const EQUIPMENT_COLORS: Record<string, string> = {
   'equipment.crash-cart': '#D9433B',
   'equipment.ekg': '#E8C21F',
   'equipment.ultrasound': '#3E8BD6',
+  'equipment.vitals-cart': '#2A9D8F',
   'equipment.c-arm': '#8A9199',
   'equipment.dialysis': '#F4F6F5',
 };

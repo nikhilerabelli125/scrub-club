@@ -159,6 +159,14 @@
     {
       "equipment": "equipment.ultrasound",
       "pos": [18.2, 8.5]
+    },
+    {
+      "equipment": "equipment.vitals-cart",
+      "pos": [8.75, 7.2]
+    },
+    {
+      "equipment": "equipment.vitals-cart",
+      "pos": [13.2, 6.9]
     }
   ],
   "spawns": [

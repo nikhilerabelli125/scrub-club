@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import type { Point, PlayerSlot, SimContext, World } from '../sim';
-import { waitingSpot } from '../sim';
+import { CART_SIZE, patientSpot } from '../sim';
 import { PLAYER_COLORS } from '../ui/model';
+import { EQUIPMENT_COLORS } from './greybox';
 import { matte } from './materials';
 
 // Greybox stand-ins for characters (M5 ports the style lab's procedural characters).
@@ -45,6 +46,7 @@ export function createActors(scene: THREE.Scene): ActorView {
   >();
   const items = new Map<number, THREE.Mesh>();
   const itemGeometry = new THREE.BoxGeometry(0.22, 0.22, 0.22);
+  const equipment = new Map<number, THREE.Group>();
 
   return {
     sync(world, ctx, alpha, previous) {
@@ -82,15 +84,38 @@ export function createActors(scene: THREE.Scene): ActorView {
         const bed =
           location.kind === 'bed' ? ctx.map.beds.find((b) => b.id === location.bed) : undefined;
         model.lying.visible = bed !== undefined;
+        // Seated in the waiting room or at a station; the same shape stands in for walking.
         model.seated.visible = bed === undefined;
         if (bed) {
           model.group.position.set(bed.pos[0], 0, bed.pos[1]);
           model.group.rotation.y = -THREE.MathUtils.degToRad(bed.rot);
         } else {
-          const [x, z] = waitingSpot(world, ctx, patient);
+          const [x, z] = patientSpot(world, ctx, patient);
           model.group.position.set(x, 0, z);
           model.group.rotation.y = 0;
         }
+      }
+
+      for (const cart of world.equipment) {
+        let model = equipment.get(cart.id);
+        if (!model) {
+          model = equipmentModel(EQUIPMENT_COLORS[cart.equipment] ?? '#8A9199');
+          scene.add(model);
+          equipment.set(cart.id, model);
+        }
+        // A pushed cart keeps its place in front of its pusher's smoothed position.
+        const pusher = world.players.find((p) => p.slot === cart.pushedBy);
+        const holder = cart.pushedBy === null ? undefined : players.get(cart.pushedBy);
+        if (pusher && holder) {
+          model.position.set(
+            holder.position.x + cart.pos[0] - pusher.pos[0],
+            0,
+            holder.position.z + cart.pos[1] - pusher.pos[1],
+          );
+        } else {
+          model.position.set(cart.pos[0], 0, cart.pos[1]);
+        }
+        model.rotation.y = cart.facing;
       }
 
       const live = new Set(world.items.map((i) => i.id));
@@ -151,6 +176,32 @@ function playerModel(ringColor: string): THREE.Group {
   ring.position.y = 0.02;
   ring.renderOrder = RING_ORDER;
   group.add(body, head, visor, ring);
+  return group;
+}
+
+// A cart on wheels with a handle on the side its pusher stands (local -z).
+function equipmentModel(color: string): THREE.Group {
+  const group = new THREE.Group();
+  const [width, depth] = CART_SIZE;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(width, 0.62, depth), matte(color));
+  body.position.y = 0.45;
+  const top = new THREE.Mesh(
+    new THREE.BoxGeometry(width * 0.8, 0.12, depth * 0.7),
+    matte('#F4F6F5'),
+  );
+  top.position.y = 0.82;
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(width * 0.9, 0.06, 0.06), matte('#2B3036'));
+  handle.position.set(0, 0.9, -depth / 2 - 0.05);
+  const wheels = new THREE.Mesh(
+    new THREE.BoxGeometry(width * 0.9, 0.14, depth * 0.9),
+    matte('#2B3036'),
+  );
+  wheels.position.y = 0.07;
+  for (const mesh of [body, top, handle, wheels]) {
+    mesh.castShadow = true;
+    mesh.renderOrder = CHARACTER_ORDER;
+  }
+  group.add(body, top, handle, wheels);
   return group;
 }
 

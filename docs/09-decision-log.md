@@ -103,3 +103,9 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Waiting room | Patients there get triage only (treat-first shots, questions, vitals); the rest of their care waits for a bed | M1 playtest (#10) |
 | Spawning | `maxWaiting` caps the waiting room, as docs/05 words it ("max 4 waiting"); `maxActive` caps tickets for one-at-a-time tutorials (CL-A) | M1 playtest (#10) |
 | Debug panel | Dev builds only, opened with the backquote key: jump to a level, restart with a seed, spawn a condition, skip time, fps and tick time | M1 lane D |
+| Trips | Every task except asking questions needs a trip: an item, wheeled equipment, or a walk with the patient. ED-A's list approved; other tasks pending review | M1 playtest (#8) |
+| Vitals | Check vitals needs a vitals cart at the bed: two in the ED, one in the clinic | M1 playtest (#8) |
+| Supplies | Oxygen mask, nebulizer kit, wound kit, and stitch kit come from the supply closet | M1 playtest (#8) |
+| Equipment | Pick up grabs and parks it; it rolls at 85% speed; a task needs it within 1.5 m of the bed; one task per piece at a time | M1 playtest (#8) |
+| Walks | Use starts the walk; the patient follows a step behind and goes in when the player reaches the station, freeing their bed | M1 playtest (#8) |
+| Handouts | Stations hand out needs for tasks that can be done now first, the player's own patient first, skipping items already in play | M1 playtest (#8) |

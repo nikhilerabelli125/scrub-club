@@ -9,6 +9,7 @@
 5. **Four buttons only.** Every prompt uses buttons 1 to 4 (pick up, use, dash, ability) plus movement.
 6. **Leaving cancels.** Walking away (pressing a movement direction for 0.3 s) exits the minigame. Hold tasks keep their progress; other minigames restart.
 7. **Role speed perks** shorten tasks (fewer beats, shorter sequences, shorter waits). They never widen timing windows.
+8. **Every task needs a trip.** Except asking questions, a task needs one physical step before the bedside part: an item from a station, equipment wheeled to the bed, or a walk with the patient (01 §7). The "Needs" notes below say which.
 
 ## 2. Mechanic types
 
@@ -33,8 +34,8 @@ Nine reusable types. Each is a sim-side state machine with parameters in `data/t
 | Interaction | How it works |
 |---|---|
 | `carry` | Pick up an item or patient chart and bring it somewhere |
-| `escort` | The patient follows you (leading a wandering patient back, walking a post-op patient) |
-| `push` | Push a bed, wheelchair, or equipment cart |
+| `escort` | Use beside the patient and they follow a step behind (leading a wandering patient back, walking a post-op patient). Reaching the task's station finishes it, and their bed frees up |
+| `push` | Push a bed, wheelchair, or equipment cart. Pick up grabs it and parks it again; Use parks it too. Equipment rolls in front at 85% speed |
 | `twoPersonCarry` | Two players each grab a handle (both press Pick up within 1 s), then move together at 70% speed. Either one letting go drops it. Used for stretchers in Ambulance, Mass Casualty, and sometimes the ED |
 
 ## 3. Signature minigames
@@ -68,7 +69,7 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | Task | Label | Mechanic | Spot / station | Notes |
 |---|---|---|---|---|
 | `task.ask-questions` | Ask questions | hold 3 s | any | Reveals tasks in `assess` mode |
-| `task.check-vitals` | Check vitals | hold 2.5 s | arm | Nurse 50% faster |
+| `task.check-vitals` | Check vitals | hold 2.5 s | arm | Needs a vitals cart at the bed (two in the ED). Nurse 50% faster |
 | `task.quick-check` | Quick check | hold 1.5 s | any | Marathon base task |
 | `task.scene-check` | Scene check | hold 1.5 s | any | Ambulance and Mass Casualty base task |
 | `task.listen-lungs` | Listen to lungs | hold 2 s | chest | |
@@ -76,7 +77,7 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.throat-swab` | Throat swab | tapWait 2 s | head | Result after 12 s |
 | `task.sugar-check` | Sugar check | tapWait 1.5 s | arm | Instant result |
 | `task.salt-check` | Salt check | tapWait 2 s | arm | Result after 8 s (marathon machine) |
-| `task.ekg` | EKG | hold 3 s | chest | Needs the EKG machine (scarce) |
+| `task.ekg` | EKG | hold 3 s | chest | Needs the EKG machine at the bed (one per map) |
 | `task.xray` | X-ray | hold 1.5 s | computer | Order, then result after 10 s |
 | `task.brain-scan` | Brain scan | hold 1.5 s | computer | Order, then result after 15 s |
 | `task.ultrasound` | Ultrasound | sweep | chest | Needs the ultrasound cart |
@@ -90,8 +91,8 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 
 | Task | Label | Mechanic | Spot / station | Notes |
 |---|---|---|---|---|
-| `task.oxygen` | Oxygen | hold 1.5 s | head | Slows low-oxygen escalation |
-| `task.breathing-treatment` | Breathing treatment | tapWait 4 s | head | |
+| `task.oxygen` | Oxygen | hold 1.5 s | head | Needs an oxygen mask from the supply closet. Slows low-oxygen escalation |
+| `task.breathing-treatment` | Breathing treatment | tapWait 4 s | head | Needs a nebulizer kit from the supply closet |
 | `task.iv` | IV | tapWait 3 s | arm | |
 | `task.iv-fluids` | IV fluids | tapWait 1.5 s | arm | Bag from supply |
 | `task.transfusion` | Blood transfusion | choice (bag color) + tapWait 2 s | arm | Bag from blood fridge must match the wristband color |
@@ -117,8 +118,8 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.give-drink` | Drink | tapWait 1 s | any | Item sets the drink: water, sports drink, juice, warm drink, ginger ale |
 | `task.splint` | Splint | alternate (16) | any | |
 | `task.cast` | Cast | alternate (20) | any | |
-| `task.clean-wound` | Clean | hold 2 s | any | |
-| `task.stitches` | Stitches | timingBar (5 hits) | any | |
+| `task.clean-wound` | Clean | hold 2 s | any | Needs a wound kit from the supply closet |
+| `task.stitches` | Stitches | timingBar (5 hits) | any | Needs a stitch kit from the supply closet |
 | `task.bandage` | Bandage | tapWait 1.5 s | any | |
 | `task.ice-pack` | Ice | tapWait 1 s | any | |
 | `task.wrap` | Wrap | alternate (12) | any | |
@@ -145,6 +146,16 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.dressing-change` | Dressing change | hold 3 s | any | |
 | `task.radio-alert` | Radio ahead | hold 1 s | radio | Bonus for time-critical patients |
 | `task.bandage-kit` | Hand a bandage kit | carry | | Walking wounded patch themselves |
+
+### Trips still to choose (pending medical review)
+
+The ED-A tasks above have their trips (playtest #8). These tasks in the other built levels (CL-A, ED-E) have none yet. Proposed:
+
+| Task | Proposed trip |
+|---|---|
+| `task.listen-lungs` | None: an assessment at the bedside, like asking questions (the stethoscope is around your neck) |
+| `task.iv` | IV kit from the supply closet |
+| `task.intubate` | Airway kit from the crash cart, like adrenaline |
 
 ### Codes
 
@@ -226,7 +237,7 @@ Every surgery: `task.pre-op-check` → `task.time-out` → `task.intubate` → `
 | `task.vaccine` | Shot | tapWait 1 s | Vaccine from the fridge |
 | `task.observe` | Watch | seat patient in an observation chair; 20 s wait | Clinic shots, allergic reactions |
 | `task.prescription` | Prescription | hold 1.5 s at computer | |
-| `task.headache-med` | Headache med | tapWait 1 s | Not dosed |
+| `task.headache-med` | Headache med | tapWait 1 s | Not dosed. From the med cabinet |
 | `task.dark-room` | Dark room | escort to dark room | Migraine |
 | `task.sugar-iv` | Sugar IV | tapWait 1.5 s | Needs an IV first |
 | `task.inhaler` | Inhaler | tapWait 1 s | |

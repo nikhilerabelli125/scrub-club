@@ -34,7 +34,7 @@ export interface TicketModel {
   patient: number;
   label: string;
   acuity: Acuity;
-  bed: string | null;
+  place: string; // their bed, the waiting room, or where they're walking to
   patience: number; // 0 to 1
   chips: { label: string; state: ChipState; repeats: number }[];
 }
@@ -70,7 +70,7 @@ function ticketFor(patient: Patient, ctx: SimContext): TicketModel {
     patient: patient.id,
     label: shown?.label ?? patient.condition,
     acuity: shown?.acuity ?? patient.acuity,
-    bed: patient.location.kind === 'bed' ? bedName(patient.location.bed) : null,
+    place: placeName(patient, ctx),
     patience: patient.patienceMaxTicks > 0 ? patient.patienceTicks / patient.patienceMaxTicks : 0,
     chips: patient.tasks.map((entry) => ({
       label: ctx.content.tasks.get(entry.task)?.label ?? entry.task,
@@ -78,6 +78,26 @@ function ticketFor(patient: Patient, ctx: SimContext): TicketModel {
       repeats: entry.remaining,
     })),
   };
+}
+
+// Where a patient is, for their ticket.
+export function placeName(patient: Patient, ctx: SimContext): string {
+  const location = patient.location;
+  switch (location.kind) {
+    case 'bed':
+      return bedName(location.bed);
+    case 'waiting':
+      return 'Waiting room';
+    case 'escorted': {
+      const type = ctx.content.tasks.get(location.task)?.station;
+      const label = type === undefined ? undefined : ctx.content.stations.get(type)?.label;
+      return label ? `Walking to ${label.toLowerCase()}` : 'Walking';
+    }
+    case 'station': {
+      const station = ctx.map.stations.find((s) => s.id === location.station);
+      return (station && ctx.content.stations.get(station.type)?.label) ?? location.station;
+    }
+  }
 }
 
 // "bay-1" reads as "Bay 1" on a ticket.

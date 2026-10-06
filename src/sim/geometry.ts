@@ -48,10 +48,69 @@ export function buildColliders(map: MapDef): Box[] {
   return [...map.walls.map(wallBox), ...map.stations.map(stationBox), ...map.beds.map(bedBox)];
 }
 
+// Wheeled equipment (vitals cart, EKG machine) is about 0.8 m wide and 0.6 m deep.
+export const CART_SIZE: Point = [0.8, 0.6];
+
+export function cartBox(pos: Point, facing: number): Box {
+  // Facing along x turns the cart sideways.
+  const sideways = Math.abs(Math.sin(facing)) > Math.SQRT1_2;
+  return boxAround(pos, CART_SIZE, sideways ? 90 : 0);
+}
+
 export function distanceToBox(box: Box, [x, z]: Point): number {
   const dx = Math.max(box.x0 - x, 0, x - box.x1);
   const dz = Math.max(box.z0 - z, 0, z - box.z1);
   return Math.hypot(dx, dz);
+}
+
+// The nearest spot to `pos` where a circle fits clear of every box and inside the map.
+// Pushing out of one box can push into another, so when that fails it searches rings
+// around `pos` (in a fixed order, so replays match).
+export function freeSpotNear(
+  pos: Point,
+  radius: number,
+  boxes: readonly Box[],
+  size: Point,
+): [number, number] {
+  const fits = (spot: Point) => boxes.every((box) => distanceToBox(box, spot) >= radius - 1e-9);
+  const pushed = resolveCircle(pos, radius, boxes, size);
+  if (fits(pushed)) return pushed;
+  for (let ring = 1; ring <= 8; ring++) {
+    for (let step = 0; step < 16; step++) {
+      const angle = (step / 16) * Math.PI * 2;
+      const spot: [number, number] = [
+        clamp(pos[0] + Math.sin(angle) * ring * 0.25, radius, size[0] - radius),
+        clamp(pos[1] + Math.cos(angle) * ring * 0.25, radius, size[1] - radius),
+      ];
+      if (fits(spot)) return spot;
+    }
+  }
+  return pushed;
+}
+
+// How far a ray from `origin` along the unit vector `dir` travels before entering one of
+// the boxes, up to `max`. Boxes the ray starts inside don't count.
+export function rayDistance(origin: Point, dir: Point, max: number, boxes: readonly Box[]): number {
+  let nearest = max;
+  for (const box of boxes) {
+    let enter = 0;
+    let exit = nearest;
+    for (const [o, d, lo, hi] of [
+      [origin[0], dir[0], box.x0, box.x1],
+      [origin[1], dir[1], box.z0, box.z1],
+    ] as const) {
+      if (Math.abs(d) < 1e-9) {
+        if (o < lo || o > hi) exit = -1;
+        continue;
+      }
+      const a = (lo - o) / d;
+      const b = (hi - o) / d;
+      enter = Math.max(enter, Math.min(a, b));
+      exit = Math.min(exit, Math.max(a, b));
+    }
+    if (enter <= exit && enter > 0) nearest = Math.min(nearest, enter);
+  }
+  return nearest;
 }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));

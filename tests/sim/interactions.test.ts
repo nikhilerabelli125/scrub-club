@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  availableTasks,
   patientArea,
   secondsToTicks,
   stationBox,
@@ -8,13 +7,15 @@ import {
   type PlayerSlot,
   type SimContext,
   type SimEvent,
-  type TickInput,
   type World,
 } from '../../src/sim';
+import { buttonOnlyTeam } from './bot';
 import {
   commands,
   eventsOf,
+  hand,
   IDLE,
+  parkBeside,
   playerIn,
   players,
   press,
@@ -125,6 +126,7 @@ describe('working on a patient', () => {
     const { ctx, world } = withPatient('ed.wheezing');
     skip(world, ctx, 'task.ask-questions', 'task.check-vitals', 'task.oxygen');
     besidePatient(world, ctx);
+    hand(world, 1, 'item.nebulizer');
     const start = [...playerIn(world, 1).pos];
     stepWorld(world, ctx, players(press(1, { use: 'pressed' })));
     expect(playerIn(world, 1).activity?.task).toBe('task.breathing-treatment');
@@ -188,9 +190,54 @@ describe('items', () => {
   });
 });
 
+describe('what stations hand out', () => {
+  it('the supply closet gives what a patient needs, skipping what is already carried', () => {
+    const { ctx, world } = withPatient('ed.wheezing');
+    skip(world, ctx, 'task.ask-questions', 'task.check-vitals');
+    besideStation(world, ctx, 1, 'station.supply');
+    besideStation(world, ctx, 2, 'station.supply');
+    stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
+    stepWorld(world, ctx, players(press(2, { pickUp: 'pressed' })));
+    const held = (slot: PlayerSlot) =>
+      world.items.find((i) => i.id === playerIn(world, slot).holding)?.item;
+    expect(held(1)).toBe('item.oxygen-mask');
+    expect(held(2)).toBe('item.nebulizer');
+  });
+
+  it("gives your own patient's needs first: the one you last started a task on", () => {
+    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    stepWorld(
+      world,
+      ctx,
+      commands(
+        { type: 'spawn', condition: 'ed.bad-cut' }, // patient 1 has waited longest
+        { type: 'spawn', condition: 'ed.wheezing' },
+      ),
+    );
+    // Player 1 starts questions with patient 2, then lets go.
+    besidePatient(world, ctx, 1, 2);
+    stepWorld(world, ctx, players(press(1, { use: 'pressed' })));
+    stepWorld(world, ctx, players(press(1, { use: 'released' })));
+    const base = ['task.ask-questions', 'task.check-vitals'];
+    stepWorld(
+      world,
+      ctx,
+      commands(
+        ...[1, 2].flatMap((id) =>
+          base.map((task) => ({ type: 'completeTask' as const, patient: id, task })),
+        ),
+      ),
+    );
+    besideStation(world, ctx, 1, 'station.supply');
+    stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
+    expect(world.items[0]?.item).toBe('item.oxygen-mask'); // not patient 1's wound kit
+  });
+});
+
 describe('sharing a patient', () => {
   it('two players never do the same task: the second gets the next one', () => {
     const { ctx, world } = withPatient('ed.bad-cut');
+    parkBeside(world, 'equipment.vitals-cart', patientArea(world, ctx, patient(world)));
     besidePatient(world, ctx, 1);
     besidePatient(world, ctx, 2);
     stepWorld(world, ctx, players(press(1, { use: 'pressed' }), press(2, { use: 'pressed' })));
@@ -204,6 +251,8 @@ describe('sharing a patient', () => {
     skip(world, ctx, 'task.ask-questions', 'task.check-vitals');
     besidePatient(world, ctx, 1);
     besidePatient(world, ctx, 2);
+    hand(world, 1, 'item.oxygen-mask');
+    hand(world, 2, 'item.nebulizer');
     stepWorld(world, ctx, players(press(1, { use: 'pressed' }), press(2, { use: 'pressed' })));
     expect(playerIn(world, 1).activity?.task).toBe('task.oxygen');
     expect(playerIn(world, 2).activity).toBeNull();
@@ -215,6 +264,7 @@ describe("mechanics that aren't built yet", () => {
     const { ctx, world } = withPatient('ed.bad-cut');
     skip(world, ctx, 'task.ask-questions', 'task.check-vitals', 'task.clean-wound');
     besidePatient(world, ctx);
+    hand(world, 1, 'item.stitch-kit');
     stepWorld(world, ctx, players(press(1, { use: 'pressed' })));
     expect(patient(world).tasks.find((t) => t.task === 'task.stitches')?.step).toMatchObject({
       kind: 'hold',
@@ -229,34 +279,9 @@ describe("mechanics that aren't built yet", () => {
     skip(world, ctx, 'task.ask-questions', 'task.check-vitals', 'task.listen-lungs');
     besideStation(world, ctx, 1, 'station.computer');
     stepWorld(world, ctx, players(press(1, { use: 'pressed' })));
-    expect(playerIn(world, 1).activity).toEqual({ patient: 1, task: 'task.prescription' });
+    expect(playerIn(world, 1).activity).toMatchObject({ patient: 1, task: 'task.prescription' });
   });
 });
-
-// A one-player team that only presses buttons. It teleports instead of walking (movement
-// has its own tests) and works on the longest-waiting patient first.
-function buttonOnlyTeam(world: World, ctx: SimContext): TickInput {
-  const player = playerIn(world, 1);
-  if (player.activity) return players(press(1, { use: 'held' }));
-  const queue = [...world.patients].sort((a, b) => a.arrivedTick - b.arrivedTick);
-  for (const next of queue) {
-    for (const entry of availableTasks(next)) {
-      const task = ctx.content.tasks.get(entry.task);
-      if (!task) continue;
-      const carrying = world.items.find((i) => i.id === player.holding)?.item ?? null;
-      if (task.needsItem && task.needsItem !== carrying) {
-        const sources = ctx.content.items.get(task.needsItem)?.sources ?? [];
-        const shelf = ctx.map.stations.find((s) => sources.includes(s.type));
-        if (!shelf) continue;
-        standNextTo(world, ctx, 1, stationBox(shelf));
-        return players(press(1, { pickUp: 'pressed' }));
-      }
-      standNextTo(world, ctx, 1, patientArea(world, ctx, next));
-      return players(press(1, { use: 'pressed' }));
-    }
-  }
-  return IDLE;
-}
 
 describe('ED-A start to finish', () => {
   it('can be played with button presses alone: no strikes, and stars at the end', () => {

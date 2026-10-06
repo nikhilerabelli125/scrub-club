@@ -84,10 +84,12 @@ scrub-club/
 - Finishing pays the acuity's points plus up to `speedBonusMax` of them for patience left. Every disposition mode behaves like `auto` until M2.
 - Star thresholds scale by player count in both points and time mode.
 - Beds: rooming is automatic. The sickest waiting patient (by the acuity their ticket shows) takes the next free bed, then first come, first served, and the bed is a random free one (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. When every bed is taken, patients wait in the waiting room, where they only get triage (their first and base tasks) until a bed frees up.
-- Pick up: empty-handed at a station, you get the item a patient will need from it (longest-waiting patient first); with an item, Pick up returns it to a station that stocks it, or sets it down in front of you. Items on the floor can be picked back up.
-- Use: beside a patient (within `movement.reach` of their bed), starts the first task you can do there, preferring one that uses the item you carry. At a station, it starts that station's task (an X-ray at the computer) for the longest-waiting patient. One player per task and per bed spot.
+- Pick up: empty-handed, it takes the nearest item on the floor or piece of equipment, or else what a patient needs from a station within reach. Stations hand out needs for tasks that can be done now first, the player's own patient (`Player.lastPatient`) first among those, then the longest waiting, skipping items already carried or set down. With an item, Pick up returns it to a station that stocks it, or sets it down in front of you; with equipment, it parks it.
+- Equipment: each map equipment home starts with one piece (`World.equipment`). A pushed piece rides `PUSH_OFFSET` in front of its pusher, stopping short of walls, and the pusher moves at `movement.pushSpeed`. Parking settles it clear of walls, beds, stations, and other parked equipment. A task with `needsEquipment` starts only with a free piece (or one that `provides` it) within `interaction.equipmentRange` of the patient's bed, and the activity records which piece it uses, so each serves one task at a time.
+- Escorts: an escort task with a `station` starts at the bedside and the patient follows the player's breadcrumb trail. When the player comes within reach of a station of that type, the patient is delivered there (location `station`), their bed frees up, and the task completes.
+- Use: parks any equipment the player is pushing, then, beside a patient (within `movement.reach` of their bed), starts the first task they can do there, preferring one that uses the item they carry. At a station, it starts that station's task (an X-ray at the computer) for the player's own patient first, then the longest waiting. One player per task and per bed spot.
 - Working: players stay rooted while working. Letting go of a hold pauses it and keeps its progress on the patient, so anyone can finish it; pushing a direction for `walkAwaySeconds` walks away. A tap-and-wait locks the player until it drains.
-- Stand-ins until their milestones: minigame types other than hold and tapWait, and the carry/escort/push interactions, run as a `standInSeconds` hold at the bedside. `needsEquipment` is ignored until scarce equipment (M2), bed spots are exclusive but not yet positions on the bed (M3), and dash comes later.
+- Stand-ins until their milestones: minigame types other than hold and tapWait, and the carry, push, and two-person-carry interactions (and escorts with no `station`), run as a `standInSeconds` hold at the bedside. Bed spots are exclusive but not yet positions on the bed (M3), and dash comes later.
 
 ## 4. Data model
 
@@ -275,7 +277,8 @@ interface ItemDef {
   sources: string[];             // station types or equipment that hand it out; [] = only made by a task
 }
 
-// data/equipment.json: scarce wheeled equipment, at most one home per map
+// data/equipment.json: wheeled equipment. Each map equipment home holds one piece; a map can
+// have several of a kind (two vitals carts in the ED)
 interface EquipmentFile { equipment: EquipmentDef[] }
 interface EquipmentDef {
   id: string;                    // 'equipment.crash-cart'
@@ -307,8 +310,8 @@ interface RulesFile {
   speedBonusMax: number;         // 0.5 = up to +50% of a patient's points, by patience left
   outcomes: Record<'leave' | 'rescue' | 'death', { points: number; strikes: number }>;
   playerScaling: { players: 1 | 2 | 3 | 4; spawnInterval: number; census: number; stars: number }[];
-  movement: { speed: number; radius: number; reach: number }; // m/s; player circle; how far a player can interact (m)
-  interaction: { walkAwaySeconds: number; standInSeconds: number }; // 03 §1; hold used for mechanics not built yet
+  movement: { speed: number; radius: number; reach: number; pushSpeed: number }; // m/s; player circle; how far a player can interact (m); speed multiplier while wheeling equipment
+  interaction: { walkAwaySeconds: number; standInSeconds: number; equipmentRange: number }; // 03 §1; hold used for mechanics not built yet; how close (m) equipment must be to a patient's bed
   codes: {
     lostAfterSeconds: number;    // a code not fixed in time is lost (death)
     fix: { flat: string[]; zigzag: string[] }; // task ids for each rhythm (01 §5)
