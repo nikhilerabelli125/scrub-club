@@ -102,3 +102,4 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Rooming | Stays automatic (option B): the sickest waiting patient takes the next free bed, a random one; the waiting room holds the overflow | M1 playtest (#10) |
 | Waiting room | Patients there get triage only (treat-first shots, questions, vitals); the rest of their care waits for a bed | M1 playtest (#10) |
 | Spawning | `maxWaiting` caps the waiting room, as docs/05 words it ("max 4 waiting"); `maxActive` caps tickets for one-at-a-time tutorials (CL-A) | M1 playtest (#10) |
+| Debug panel | Dev builds only, opened with the backquote key: jump to a level, restart with a seed, spawn a condition, skip time, fps and tick time | M1 lane D |

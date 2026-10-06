@@ -389,6 +389,7 @@ Rapier handles thrown items, items sliding on tilted floors (ambulance swerves, 
 ## 12. Debug tools (dev builds)
 
 - Panel: jump to any level, set seed, spawn any condition, set a patient's stage, skip time, toggle each gimmick, slow motion, show colliders and bed spots, show sim tick time and fps.
+- Built so far (`src/debug/`, opened with the backquote key or the Debug pill): jump to a level, restart with a seed, spawn any condition from the level's setting, skip 10 or 30 s, and read fps, sim tick time, and patient counts. Spawns ride in the next tick's commands, so a debug session replays exactly. Production builds leave the panel out.
 - Key-test screen (also in the release settings menu).
 
 ## 13. Performance budget
