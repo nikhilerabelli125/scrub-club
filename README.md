@@ -25,6 +25,8 @@ It starts ED-A (level 2) for two players on one keyboard:
 
 Add `?players=1` to the address to play solo, or `?level=cl-a` for level 1. Press Enter on the results card to play again.
 
+In `npm run dev`, press the backquote key (`` ` ``, left of 1) to open the debug panel: jump to a level, spawn any patient, skip ahead 10 or 30 seconds, or replay a run by its seed.
+
 Before opening a PR, run the same checks CI runs:
 
 ```bash

@@ -1,0 +1,57 @@
+/* Dev-build debug panel (docs/07 §12). Plain and compact: it's a tool, not game UI. */
+.debug {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  max-width: 360px;
+  transform: translateY(-50%);
+  font-size: 13px;
+  pointer-events: auto;
+}
+.debug button,
+.debug select,
+.debug input {
+  font: inherit;
+}
+.debug-pill {
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(29, 43, 47, 0.75);
+  color: #fff;
+  cursor: pointer;
+}
+.debug-pill span {
+  opacity: 0.75;
+}
+.debug-body {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+.debug-body[hidden] {
+  display: none;
+}
+.debug-body label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.debug-body select {
+  max-width: 230px;
+}
+.debug-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.debug-stats {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}

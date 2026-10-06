@@ -1,4 +1,5 @@
 import type { Content } from '../data';
+import type { DebugPanel } from '../debug';
 import {
   createKeyboard,
   emptyMemory,
@@ -43,27 +44,41 @@ export function startGame(
   const keyboard = createKeyboard(window, [...layouts.flatMap(layoutKeys), 'Enter']);
   const clock = createClock();
 
-  const newWorld = (): World => {
-    // Each run gets its own seed (docs/07 §3.3); the debug panel will show it.
-    const seed = crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
-    return createWorld(ctx, { seed, playerCount: options.playerCount });
-  };
-  let world = newWorld();
+  // Each run gets its own seed (docs/07 §3.3), shown in the debug panel.
+  const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
+  let world = createWorld(ctx, { seed: randomSeed(), playerCount: options.playerCount });
   let memories = layouts.map(() => emptyMemory());
   let previous = positions(world);
   let last = performance.now();
+  let debug: DebugPanel | null = null;
+
+  const restart = (seed: number) => {
+    world = createWorld(ctx, { seed, playerCount: options.playerCount });
+    memories = layouts.map(() => emptyMemory());
+    previous = positions(world);
+    overlay.hideResults();
+  };
 
   const frame = (now: number) => {
-    const ticks = takeTicks(clock, (now - last) / 1000);
+    const frameMs = now - last;
+    const ticks = takeTicks(clock, frameMs / 1000);
     last = now;
+    const started = performance.now();
+    let stepped = 0;
+
+    // Skipping time runs the ticks at once, with everyone standing still.
+    const skip = debug?.takeSkipTicks() ?? 0;
+    for (let i = 0; i < skip && world.status === 'running'; i++) {
+      stepWorld(world, ctx, { players: [] });
+      stepped += 1;
+    }
+    if (skip > 0) previous = positions(world);
+    if (world.result) overlay.showResults(world.result);
+
     for (let i = 0; i < ticks; i++) {
       const keys = keyboard.read();
       if (world.status === 'ended') {
-        if (keys.tapped.has('Enter')) {
-          world = newWorld();
-          memories = layouts.map(() => emptyMemory());
-          overlay.hideResults();
-        }
+        if (keys.tapped.has('Enter')) restart(randomSeed());
         continue;
       }
       const players = layouts.map((layout, index) => {
@@ -77,17 +92,26 @@ export function startGame(
         return read.input;
       });
       previous = positions(world);
-      stepWorld(world, ctx, { players });
+      stepWorld(world, ctx, { players, commands: debug?.takeCommands() ?? [] });
+      stepped += 1;
       if (world.result) overlay.showResults(world.result);
     }
     view.render(world, interpolationAlpha(clock), previous);
     overlay.update(world, view.project);
+    debug?.update(world, {
+      frameMs,
+      tickMs: stepped > 0 ? (performance.now() - started) / stepped : 0,
+    });
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
 
-  // Dev builds expose the running game, for poking at it from the browser console.
+  // Dev builds get the debug panel, and the running game on window for poking at it
+  // from the browser console. Production builds leave both out.
   if (import.meta.env.DEV) {
+    void import('../debug').then(({ createDebugPanel }) => {
+      debug = createDebugPanel(uiRoot, content, ctx, restart);
+    });
     Object.assign(window, {
       scrubClub: {
         ctx,
