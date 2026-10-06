@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { secondsToTicks, stepWorld, type SimCommand } from '../../src/sim';
 import { commands, eventsOf, IDLE, run, startLevel, treatEveryone } from './helpers';
 
+// Critical patients never leave (01 §4.5), so they keep their beds for as long as a test needs.
+const critical = (count: number): SimCommand[] =>
+  Array.from({ length: count }, () => ({ type: 'spawn', condition: 'ed.chest-pain' }));
+
 describe('patience', () => {
   it('a low-acuity patient leaves when patience runs out: 1 strike, -10 points', () => {
     const { ctx, world } = startLevel('ed-a');
@@ -55,12 +59,9 @@ describe('beds', () => {
 
   it('when every bed is taken, the next patient waits and gets the first bed that frees up', () => {
     const { ctx, world } = startLevel('ed-a');
-    // Five critical patients fill ED-A's five beds and never leave on their own.
-    const five: SimCommand[] = Array.from({ length: 5 }, () => ({
-      type: 'spawn',
-      condition: 'ed.chest-pain',
-    }));
-    stepWorld(world, ctx, commands(...five, { type: 'spawn', condition: 'ed.bad-cut' }));
+    // Six critical patients: five fill ED-A's five beds, and none leave on their own.
+    // Pool patients can't jump the queue: none is sicker, and all arrive later.
+    stepWorld(world, ctx, commands(...critical(6)));
     expect(world.patients.find((p) => p.id === 6)?.location).toEqual({ kind: 'waiting' });
     const firstBed = world.beds.find((b) => b.patient === 1)?.id;
 
@@ -79,14 +80,40 @@ describe('beds', () => {
     });
   });
 
+  it('gives the next free bed to the sickest waiting patient, not the longest waiting', () => {
+    const { ctx, world } = startLevel('ed-a');
+    // Five critical patients hold the beds. Four more fill the waiting room, which pauses
+    // the pool, so no newcomer can jump the queue.
+    stepWorld(
+      world,
+      ctx,
+      commands(
+        ...critical(5),
+        { type: 'spawn', condition: 'ed.bad-cut' }, // green, patient 6
+        { type: 'spawn', condition: 'ed.wheezing' }, // yellow, patient 7
+        { type: 'spawn', condition: 'ed.headache' }, // green, patient 8
+        { type: 'spawn', condition: 'ed.bad-cut' }, // green, patient 9
+      ),
+    );
+    expect(world.patients.filter((p) => p.location.kind === 'waiting').map((p) => p.id)).toEqual([
+      6, 7, 8, 9,
+    ]);
+    const freed = world.beds.find((b) => b.patient === 1)?.id;
+    // Each command sees the tasks the previous ones unlocked, so patient 1 finishes this tick.
+    const tasks = ['task.ask-questions', 'task.check-vitals', 'task.ekg', 'task.aspirin'];
+    stepWorld(
+      world,
+      ctx,
+      commands(...tasks.map((task) => ({ type: 'completeTask' as const, patient: 1, task }))),
+    );
+    expect(world.patients.find((p) => p.id === 7)?.location).toEqual({ kind: 'bed', bed: freed });
+    expect(world.patients.find((p) => p.id === 6)?.location).toEqual({ kind: 'waiting' });
+  });
+
   it('keeps beds named by scripted spawns free for those arrivals', () => {
     // ED-E's collapsed patient rolls into resus, so walk-ins never take it.
     const { ctx, world } = startLevel('ed-e');
-    const six: SimCommand[] = Array.from({ length: 6 }, () => ({
-      type: 'spawn',
-      condition: 'ed.chest-pain',
-    }));
-    stepWorld(world, ctx, commands(...six));
+    stepWorld(world, ctx, commands(...critical(6)));
     expect(world.beds.find((b) => b.id === 'resus')?.patient).toBeNull();
   });
 

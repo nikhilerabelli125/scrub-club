@@ -3,18 +3,21 @@ import { removePatient } from './patients';
 
 // The tasks a player can start right now. Tasks marked "first" (like the allergy shot)
 // come before the base tasks, the base tasks gate everything else (01 §4.3), and
-// `after` waits for every repeat of the named tasks.
+// `after` waits for every repeat of the named tasks. The waiting room only gets triage,
+// the first and base tasks; the rest of a patient's care waits for a bed (issue #10).
 export function availableTasks(patient: Patient): PatientTask[] {
   const pending = (phase: PatientTask['phase']) =>
     patient.tasks.some((t) => t.phase === phase && t.remaining > 0);
   const firstPending = pending('first');
   const basePending = pending('base');
+  const waiting = patient.location.kind === 'waiting';
   const done = (taskId: string) => {
     const entries = patient.tasks.filter((t) => t.task === taskId);
     return entries.length > 0 && entries.every((t) => t.remaining === 0);
   };
   return patient.tasks.filter((t) => {
     if (t.remaining === 0) return false;
+    if (t.phase === 'main' && waiting) return false;
     if (t.phase === 'base' && firstPending) return false;
     if (t.phase === 'main' && (firstPending || basePending)) return false;
     return t.after.every(done);

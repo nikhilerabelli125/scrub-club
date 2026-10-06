@@ -1,4 +1,4 @@
-import type { ConditionDef } from '../../data';
+import type { Acuity, ConditionDef } from '../../data';
 import { secondsToTicks } from '../clock';
 import type { Patient, PatientTask, SimContext, World } from '../types';
 
@@ -37,6 +37,12 @@ export function admitPatient(
     bed: bed?.id ?? null,
   });
   return patient;
+}
+
+// The acuity the patient's ticket shows: a hidden condition looks as mild as its cover
+// story (01 §4.4) until reveals arrive in M2.
+export function shownAcuity(ctx: SimContext, patient: Patient): Acuity {
+  return ctx.content.conditions.get(patient.condition)?.hidden?.showsAs.acuity ?? patient.acuity;
 }
 
 function patienceSeconds(ctx: SimContext, condition: ConditionDef): number {

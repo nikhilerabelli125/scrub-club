@@ -78,12 +78,12 @@ scrub-club/
 
 **Rules the M1 core follows** (where the docs leave room):
 
-- Spawning: the first patient arrives at the start. `maxWaiting` caps active patients (tickets on the rail), and the spawn timer pauses at the cap. Scripted spawn events ignore the cap, so guaranteed patients always arrive.
+- Spawning: the first patient arrives at the start. The spawn timer pauses while the waiting room holds `maxWaiting` patients, or while `maxActive` patients are on the rail (one-at-a-time tutorials like CL-A). Scripted spawn events ignore both caps, so guaranteed patients always arrive.
 - Patience counts from arrival until the patient is finished. Acuity 3 to 5 patients leave when it runs out; acuity 1 to 2 never leave, and wait at zero until escalation arrives in M2.
 - Tasks: "first" tasks (`before: 'base'`) come before the setting's base tasks, the base tasks gate everything else, and `after` waits for every repeat of a counted task.
 - Finishing pays the acuity's points plus up to `speedBonusMax` of them for patience left. Every disposition mode behaves like `auto` until M2.
 - Star thresholds scale by player count in both points and time mode.
-- Beds: arriving patients are roomed first come, first served, each in a random free bed (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. Who rooms patients, and what the waiting room is for, is an open decision (issue #10).
+- Beds: rooming is automatic. The sickest waiting patient (by the acuity their ticket shows) takes the next free bed, then first come, first served, and the bed is a random free one (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. When every bed is taken, patients wait in the waiting room, where they only get triage (their first and base tasks) until a bed frees up.
 - Pick up: empty-handed at a station, you get the item a patient will need from it (longest-waiting patient first); with an item, Pick up returns it to a station that stocks it, or sets it down in front of you. Items on the floor can be picked back up.
 - Use: beside a patient (within `movement.reach` of their bed), starts the first task you can do there, preferring one that uses the item you carry. At a station, it starts that station's task (an X-ray at the computer) for the longest-waiting patient. One player per task and per bed spot.
 - Working: players stay rooted while working. Letting go of a hold pauses it and keeps its progress on the patient, so anyone can finish it; pushing a direction for `walkAwaySeconds` walks away. A tap-and-wait locks the player until it drains.
@@ -196,7 +196,8 @@ interface LevelDef {
     pool: { condition: string; weight: number }[];
     sequence?: string[];         // fixed order instead of weighted pool (tutorials)
     intervalSeconds: [number, number];
-    maxWaiting: number;          // cap on active patients (tickets on the rail); the spawn timer pauses at the cap
+    maxWaiting: number;          // cap on patients in the waiting room; the spawn timer pauses while it's full
+    maxActive?: number;          // cap on active patients (tickets on the rail), for one-at-a-time tutorials
   };
   endAfterPatients?: number;     // untimed levels end after this many patients
   census?: { condition: string; bed: string }[];
