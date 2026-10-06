@@ -9,8 +9,8 @@ import {
   players,
   press,
   run,
-  startLevel,
   standNextTo,
+  startED,
 } from './helpers';
 
 const EAST = Math.PI / 2; // facing +x
@@ -24,7 +24,7 @@ function itemNamed(world: World, item: string) {
 
 describe('stethoscopes', () => {
   it('two start on the ED map, and checking vitals keeps yours in hand', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     const stethoscopes = world.items.filter((i) => i.item === 'item.stethoscope');
     expect(stethoscopes).toHaveLength(2);
     expect(stethoscopes.every((i) => i.place.kind === 'floor')).toBe(true);
@@ -59,7 +59,7 @@ describe('stethoscopes', () => {
 
 describe('throwing', () => {
   it('Use with nothing to use it on throws what you hold, about 5 m', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     const player = playerIn(world, 1);
     player.pos = [3, 10]; // an open hallway
     player.facing = EAST;
@@ -75,7 +75,7 @@ describe('throwing', () => {
   });
 
   it('walls stop a throw', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     const player = playerIn(world, 1);
     player.pos = [1.5, 10];
     player.facing = WEST;
@@ -88,7 +88,7 @@ describe('throwing', () => {
   });
 
   it('a teammate with free hands catches it on the way', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 2 });
+    const { ctx, world } = startED({ playerCount: 2 });
     const thrower = playerIn(world, 1);
     thrower.pos = [3, 10];
     thrower.facing = EAST;
@@ -103,7 +103,7 @@ describe('throwing', () => {
 
 describe('bumping', () => {
   it("players can't walk through each other", () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 2 });
+    const { ctx, world } = startED({ playerCount: 2 });
     playerIn(world, 1).pos = [4, 10];
     playerIn(world, 2).pos = [5.5, 10];
     run(world, ctx, secondsToTicks(1), () => players(press(1, { move: { x: 1, z: 0 } })));
@@ -114,7 +114,7 @@ describe('bumping', () => {
   });
 
   it('nobody can shove a player who is working', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 2 });
+    const { ctx, world } = startED({ playerCount: 2 });
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.bad-cut' }));
     const patient = world.patients.find((p) => p.id === 1);
     if (!patient) throw new Error('no patient');

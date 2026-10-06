@@ -7,7 +7,7 @@
   "format": "inflow",
   "lengthSeconds": 300,
   "camera": "fixed",
-  "map": "ed-main",
+  "map": "ed-a",
   "strikeLimit": 9,
   "ticketMode": "full",
   "disposition": "auto",
@@ -47,7 +47,8 @@
       "jitter": 15,
       "type": "spawn",
       "condition": "ed.chest-pain",
-      "via": "ambulance"
+      "via": "ambulance",
+      "bed": "resus"
     }
   ],
   "starMode": "points",

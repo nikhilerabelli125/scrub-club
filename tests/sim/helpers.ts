@@ -19,6 +19,7 @@ import {
   type TickInput,
   type World,
 } from '../../src/sim';
+import { buildColliders, wallBox } from '../../src/sim/geometry';
 import { loadDataDir } from '../../tools/load-data';
 
 let cached: Content | undefined;
@@ -38,14 +39,35 @@ export function content(): Content {
 
 export function startLevel(
   levelId: string,
-  options: { seed?: number; playerCount?: PlayerCount } = {},
+  options: { seed?: number; playerCount?: PlayerCount; map?: string } = {},
 ): { ctx: SimContext; world: World } {
-  const ctx = createContext(content(), levelId);
+  let ctx = createContext(content(), levelId);
+  if (options.map !== undefined) {
+    // The level's rules on another map, for tests about rules rather than layout.
+    const map = content().maps.get(options.map);
+    if (!map) throw new Error(`no map ${options.map}`);
+    ctx = {
+      ...ctx,
+      level: { ...ctx.level, map: map.id },
+      map,
+      colliders: buildColliders(map),
+      walls: map.walls.map(wallBox),
+    };
+  }
   const world = createWorld(ctx, {
     seed: options.seed ?? 1,
     playerCount: options.playerCount ?? 2,
   });
   return { ctx, world };
+}
+
+// ED-A's rules on the full ED map, which has every ED station. Most sim tests use it, so
+// they test rules and not ED-A's own small layout (data/maps/ed-a.json).
+export function startED(options: { seed?: number; playerCount?: PlayerCount } = {}): {
+  ctx: SimContext;
+  world: World;
+} {
+  return startLevel('ed-a', { ...options, map: 'ed-main' });
 }
 
 export const IDLE: TickInput = { players: [] };

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { secondsToTicks } from '../../src/sim';
-import { playerIn, players, press, run, startLevel } from './helpers';
+import { playerIn, players, press, run, startED } from './helpers';
 
 const walk = (x: number, z: number) => () => players(press(1, { move: { x, z } }));
 
 describe('movement', () => {
   it('walks at the speed in data/rules.json on open floor', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     const player = playerIn(world, 1);
     player.pos = [12, 11.5];
     run(world, ctx, secondsToTicks(0.5), walk(1, 0));
@@ -15,7 +15,7 @@ describe('movement', () => {
   });
 
   it('is no faster on a diagonal', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     const player = playerIn(world, 1);
     player.pos = [10.5, 6.6]; // the hallway in front of the bays, clear in this direction
     run(world, ctx, secondsToTicks(0.5), walk(1, -1));
@@ -23,7 +23,7 @@ describe('movement', () => {
   });
 
   it('stops at the edge of a bed instead of walking through it', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     const player = playerIn(world, 1);
     player.pos = [10.5, 6]; // in the hallway below bay 2, whose bed ends at z = 3.6
     run(world, ctx, secondsToTicks(2), walk(0, -1));
@@ -31,7 +31,7 @@ describe('movement', () => {
   });
 
   it('stays inside the outer walls', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     const player = playerIn(world, 1);
     player.pos = [3, 12.5];
     run(world, ctx, secondsToTicks(2), walk(-1, 0));

@@ -47,12 +47,6 @@
   ],
   "stations": [
     {
-      "id": "triage-desk",
-      "type": "station.triage-desk",
-      "pos": [2.5, 8.5],
-      "size": [3, 1]
-    },
-    {
       "id": "waiting",
       "type": "station.waiting-chairs",
       "pos": [2.5, 3],
@@ -71,12 +65,6 @@
       "size": [3, 1]
     },
     {
-      "id": "outlet",
-      "type": "station.outlet",
-      "pos": [14, 10.5],
-      "size": [1, 0.5]
-    },
-    {
       "id": "lab-tube",
       "type": "station.lab",
       "pos": [7, 14.6],
@@ -90,12 +78,6 @@
       "size": [1, 0.8]
     },
     {
-      "id": "imaging",
-      "type": "station.imaging",
-      "pos": [11, 14.2],
-      "size": [4, 2.5]
-    },
-    {
       "id": "supply",
       "type": "station.supply",
       "pos": [15.5, 14.6],
@@ -106,12 +88,6 @@
       "type": "station.dark-room",
       "pos": [19, 14.2],
       "size": [2.5, 2.5]
-    },
-    {
-      "id": "sink",
-      "type": "station.sink",
-      "pos": [2.5, 14.5],
-      "size": [2, 1]
     },
     {
       "id": "observation",

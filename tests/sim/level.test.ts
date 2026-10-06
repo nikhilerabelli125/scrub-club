@@ -1,10 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { secondsToTicks, starsFor, stepWorld, type SimCommand } from '../../src/sim';
-import { commands, content, eventsOf, IDLE, run, startLevel, treatEveryone } from './helpers';
+import {
+  commands,
+  content,
+  eventsOf,
+  IDLE,
+  run,
+  startED,
+  startLevel,
+  treatEveryone,
+} from './helpers';
 
 describe('ending a level', () => {
   it('ends when the clock runs out, with stars from the score', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 2, seed: 3 });
+    const { ctx, world } = startED({ playerCount: 2, seed: 3 });
     run(world, ctx, secondsToTicks(400), treatEveryone);
     expect(world.result).toMatchObject({ outcome: 'timeUp', seconds: 300, strikes: 0 });
     expect(world.result?.stars).toBe(starsFor(ctx.level, ctx.content.rules, 2, world.score, 300));
@@ -12,7 +21,7 @@ describe('ending a level', () => {
   });
 
   it('ends at once with no stars when the strike limit is hit', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     // Nine bad cuts (75 s of patience each) all walk out together: ED-A's limit is 9.
     const nine: SimCommand[] = Array.from({ length: 9 }, () => ({
       type: 'spawn',
@@ -37,7 +46,7 @@ describe('ending a level', () => {
   });
 
   it('without any treatment, patients walk out or go to another team, all with strikes', () => {
-    const { ctx, world } = startLevel('ed-a', { seed: 8 });
+    const { ctx, world } = startED({ seed: 8 });
     const log = run(world, ctx, secondsToTicks(300));
     const left = eventsOf(log, 'patientLeft');
     const transferred = eventsOf(log, 'patientTransferred');
@@ -62,7 +71,7 @@ describe('stars', () => {
   const rules = content().rules;
 
   it('scale point thresholds by player count', () => {
-    const { ctx } = startLevel('ed-a'); // 150 / 250 / 350 for one player
+    const { ctx } = startED(); // 150 / 250 / 350 for one player
     expect(starsFor(ctx.level, rules, 1, 349, 300)).toBe(2);
     expect(starsFor(ctx.level, rules, 1, 350, 300)).toBe(3);
     expect(starsFor(ctx.level, rules, 2, 350, 300)).toBe(2); // two players need 437.5

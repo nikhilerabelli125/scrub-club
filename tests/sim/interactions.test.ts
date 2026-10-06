@@ -19,13 +19,16 @@ import {
   players,
   press,
   run,
-  startLevel,
   standNextTo,
+  startED,
+  startLevel,
 } from './helpers';
 
 // Patient 1 with the given condition, auto-seated in bay 1 of ED-A.
+// Patient 1 with this condition. ED-A runs on the full ED map, which has every station.
 function withPatient(condition: string, levelId = 'ed-a') {
-  const { ctx, world } = startLevel(levelId, { playerCount: 2 });
+  const { ctx, world } =
+    levelId === 'ed-a' ? startED({ playerCount: 2 }) : startLevel(levelId, { playerCount: 2 });
   stepWorld(world, ctx, commands({ type: 'spawn', condition }));
   return { ctx, world };
 }
@@ -207,7 +210,7 @@ describe('what stations hand out', () => {
   });
 
   it("gives your own patient's needs first: the one you last started a task on", () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     stepWorld(
       world,
       ctx,
@@ -288,7 +291,7 @@ describe("mechanics that aren't built yet", () => {
 
 describe('ED-A start to finish', () => {
   it('can be played with button presses alone: no strikes, and stars at the end', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1, seed: 3 });
+    const { ctx, world } = startED({ playerCount: 1, seed: 3 });
     const log = run(world, ctx, secondsToTicks(301), (w) => buttonOnlyTeam(w, ctx));
     expect(world.result?.outcome).toBe('timeUp');
     expect(world.strikes).toBe(0);

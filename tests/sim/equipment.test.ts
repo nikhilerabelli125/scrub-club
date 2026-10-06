@@ -12,16 +12,7 @@ import {
   type SimCommand,
   type World,
 } from '../../src/sim';
-import {
-  commands,
-  eventsOf,
-  playerIn,
-  players,
-  press,
-  run,
-  startLevel,
-  standNextTo,
-} from './helpers';
+import { commands, eventsOf, playerIn, players, press, run, standNextTo, startED } from './helpers';
 
 function first(world: World, equipment: string): EquipmentInstance {
   const cart = world.equipment.find((e) => e.equipment === equipment);
@@ -34,7 +25,7 @@ const walk = (x: number, z: number) => () => players(press(1, { move: { x, z } }
 
 describe('wheeled equipment', () => {
   it('starts parked on its homes', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     expect(world.equipment.map((e) => [e.equipment, e.pos])).toEqual(
       ctx.map.equipmentHomes.map((home) => [home.equipment, home.pos]),
     );
@@ -42,7 +33,7 @@ describe('wheeled equipment', () => {
   });
 
   it('Pick up beside it grabs it, and it rolls along in front, a little slower than walking', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     const cart = first(world, 'equipment.ekg');
     standNextTo(world, ctx, 1, cartBox(cart.pos, cart.facing));
     stepWorld(world, ctx, pickUp());
@@ -64,7 +55,7 @@ describe('wheeled equipment', () => {
   });
 
   it('stops short of walls instead of passing through them', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     const cart = first(world, 'equipment.ekg');
     cart.pos = [3, 10];
     playerIn(world, 1).pos = [3.8, 10];
@@ -76,7 +67,7 @@ describe('wheeled equipment', () => {
   });
 
   it('Pick up again parks it, clear of beds and of other parked equipment', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     const bay = ctx.map.beds.find((b) => b.id === 'bay-1');
     if (!bay) throw new Error('no bay-1');
     const [a, b] = [first(world, 'equipment.ekg'), first(world, 'equipment.ultrasound')];
@@ -92,7 +83,7 @@ describe('wheeled equipment', () => {
   });
 
   it('a task that needs it starts only once it is beside the bed; Use parks it and starts', () => {
-    const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+    const { ctx, world } = startED({ playerCount: 1 });
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
     const tasks = ['task.ask-questions', 'task.check-vitals'];
     stepWorld(
@@ -128,7 +119,7 @@ describe('wheeled equipment', () => {
 
   it('serves one task at a time', () => {
     // Two chest pains in neighboring bays, with the EKG machine parked between them.
-    const { ctx, world } = startLevel('ed-a', { playerCount: 2 });
+    const { ctx, world } = startED({ playerCount: 2 });
     const done = ['task.ask-questions', 'task.check-vitals'];
     stepWorld(
       world,
@@ -161,7 +152,7 @@ describe('wheeled equipment', () => {
   });
 
   it('counts the crash cart as the defibrillator it carries', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     const crash = first(world, 'equipment.crash-cart');
     expect(equipmentAt(world, ctx, 'equipment.defib', boxAround(crash.pos, [1, 1]))).toBe(crash);
     expect(equipmentAt(world, ctx, 'equipment.ekg', boxAround(crash.pos, [0.1, 0.1]))).toBeNull();

@@ -340,6 +340,7 @@ Starter files: `data/tasks.json` (full task library), `data/roles.json`, the reg
 - Every task order can finish: `after` only names tasks the patient can get, with no loops.
 - Critical patients (acuity 1 to 2) escalate to a code or rescue transfer, since they never leave.
 - Each level against its own map: every station, piece of equipment, item source, entrance, bed, and exit its patients can need is on the map, including tasks added by escalation and, from level 10, code tasks. In `sign` mode, planned transfers are exempt from the exit check because NPC staff take them.
+- Maps carry only what their levels' patients can use: every station type, equipment home, and placed item must be usable by a patient in some level on that map (the waiting room always counts).
 - Levels 1 to 9 set `maxEscalation: 'rescue'` and spawn nobody who arrives in a code; untimed levels set `endAfterPatients`; star thresholds are in order; each role is unlocked by at most one level.
 
 The same checks run in `npm run test`, and a test compiles the block above against `src/data/schema.ts`, so the two can't drift apart.

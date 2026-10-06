@@ -8,11 +8,11 @@ import {
   placeName,
   ticketModels,
 } from '../../src/ui/model';
-import { commands, players, press, run, startLevel, standNextTo } from '../sim/helpers';
+import { commands, players, press, run, standNextTo, startED, startLevel } from '../sim/helpers';
 
 describe('tickets', () => {
   it("hide a new patient's problem, color, and timer until someone asks questions", () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
     const ticket = () => ticketModels(world, ctx).find((t) => t.patient === 1);
     const bed = world.beds.find((b) => b.patient === 1)?.id ?? '';
@@ -59,7 +59,7 @@ describe('tickets', () => {
   });
 
   it('show a patient getting worse, even before anyone has asked', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
     const patient = world.patients.find((p) => p.id === 1);
     if (!patient) throw new Error('no patient');
@@ -71,7 +71,7 @@ describe('tickets', () => {
   });
 
   it('time the sick against getting worse and the rest against walking out', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(
       world,
       ctx,
@@ -91,7 +91,7 @@ describe('tickets', () => {
   });
 
   it('say when a patient came by ambulance', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(
       world,
       ctx,
@@ -101,7 +101,7 @@ describe('tickets', () => {
   });
 
   it('walk a med through order, wait, and pick up', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
     const done = ['task.ask-questions', 'task.check-vitals', 'task.ekg'];
     stepWorld(
@@ -126,7 +126,7 @@ describe('tickets', () => {
   });
 
   it('send a lab sample to the lab, then count down to its result', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.belly-pain' }));
     const entry = world.patients[0]?.tasks.find((t) => t.task === 'task.blood-draw');
     if (!entry) throw new Error('no blood test');
@@ -150,7 +150,7 @@ describe('tickets', () => {
 
 describe('HUD', () => {
   it('counts a timed level down and an untimed one up', () => {
-    const timed = startLevel('ed-a');
+    const timed = startED();
     run(timed.world, timed.ctx, secondsToTicks(10));
     expect(hudModel(timed.world, timed.ctx).clock).toBe('4:50');
     const untimed = startLevel('cl-a');
@@ -166,7 +166,7 @@ describe('HUD', () => {
   });
 
   it('say where the patient is: a bed, the waiting room, a walk, or a station', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.headache' }));
     const patient = world.patients[0];
     if (!patient) throw new Error('no patient');
@@ -186,7 +186,7 @@ describe('HUD', () => {
 
 describe('progress panels', () => {
   it('show what a player is working on and how far along it is', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.bad-cut' }));
     const patient = world.patients.find((p) => p.id === 1);
     if (!patient) throw new Error('no patient');

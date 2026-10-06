@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { secondsToTicks, stepWorld, type SimCommand } from '../../src/sim';
-import { commands, eventsOf, IDLE, keepStable, run, startLevel, treatEveryone } from './helpers';
+import {
+  commands,
+  eventsOf,
+  IDLE,
+  keepStable,
+  run,
+  startED,
+  startLevel,
+  treatEveryone,
+} from './helpers';
 
 // Critical patients never leave (01 §4.5); with keepStable they hold their beds for good.
 const critical = (count: number): SimCommand[] =>
@@ -8,7 +17,7 @@ const critical = (count: number): SimCommand[] =>
 
 describe('patience', () => {
   it('a low-acuity patient leaves when patience runs out: 1 strike, -10 points', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     // The command runs before the pool spawns, so this bad cut (acuity 4, 75 s) is patient 1.
     const log = run(world, ctx, secondsToTicks(80), (w) =>
       w.tick === 0 ? commands({ type: 'spawn', condition: 'ed.bad-cut' }) : IDLE,
@@ -24,7 +33,7 @@ describe('patience', () => {
   });
 
   it('critical patients never walk out, even with no patience left', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
     keepStable(world);
     run(world, ctx, secondsToTicks(120));
@@ -35,7 +44,7 @@ describe('patience', () => {
 describe('getting worse', () => {
   it('an untreated chest pain shows a sign, then a badge, then goes to another team', () => {
     // ED-A caps escalation at a rescue transfer (levels 1 to 9 come before codes).
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     const log = run(world, ctx, secondsToTicks(90), (w) =>
       w.tick === 0 ? commands({ type: 'spawn', condition: 'ed.chest-pain' }) : IDLE,
     );
@@ -70,7 +79,7 @@ describe('getting worse', () => {
   });
 
   it('treatment that slows the illness holds its clock, like oxygen for wheezing', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.wheezing' }));
     const done = ['task.ask-questions', 'task.check-vitals', 'task.oxygen'];
     stepWorld(
@@ -83,7 +92,7 @@ describe('getting worse', () => {
   });
 
   it('a later stage can add a task, like a breathing tube for wheezing', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.wheezing' }));
     const patient = world.patients.find((p) => p.id === 1);
     if (!patient) throw new Error('no patient');
@@ -104,7 +113,7 @@ describe('getting worse', () => {
 describe('beds', () => {
   it('arriving patients each get a random free bed, the same one on every replay', () => {
     const rooms = (seed: number) => {
-      const { ctx, world } = startLevel('ed-a', { seed });
+      const { ctx, world } = startED({ seed });
       stepWorld(
         world,
         ctx,
@@ -126,14 +135,15 @@ describe('beds', () => {
   });
 
   it('when every bed is taken, the next patient waits and gets the first bed that frees up', () => {
-    const { ctx, world } = startLevel('ed-a');
-    // Six critical patients: five fill ED-A's five beds, and none leave on their own.
-    // Pool patients can't jump the queue: none is sicker, and all arrive later.
-    stepWorld(world, ctx, commands(...critical(6)));
-    expect(world.patients.find((p) => p.id === 6)?.location).toEqual({ kind: 'waiting' });
+    const { ctx, world } = startED();
+    // Five critical patients: four fill the walk-in beds (ED-A keeps resus for its
+    // ambulance), and none leave on their own. Pool patients can't jump the queue: none
+    // is sicker, and all arrive later.
+    stepWorld(world, ctx, commands(...critical(5)));
+    expect(world.patients.find((p) => p.id === 5)?.location).toEqual({ kind: 'waiting' });
     const firstBed = world.beds.find((b) => b.patient === 1)?.id;
 
-    // Finish patient 1; patient 6 moves into their bed.
+    // Finish patient 1; patient 5 moves into their bed.
     for (let i = 0; i < 4; i++) {
       const input = treatEveryone(world);
       stepWorld(world, ctx, {
@@ -142,26 +152,26 @@ describe('beds', () => {
       });
     }
     expect(world.patients.some((p) => p.id === 1)).toBe(false);
-    expect(world.patients.find((p) => p.id === 6)?.location).toEqual({
+    expect(world.patients.find((p) => p.id === 5)?.location).toEqual({
       kind: 'bed',
       bed: firstBed,
     });
   });
 
   it('gives free beds to known sick patients first, then unknown ones, then mild ones', () => {
-    const { ctx, world } = startLevel('ed-a');
-    stepWorld(world, ctx, commands(...critical(5))); // they take the five beds
+    const { ctx, world } = startED();
+    stepWorld(world, ctx, commands(...critical(4))); // they take the walk-in beds
     keepStable(world);
     stepWorld(
       world,
       ctx,
       commands(
-        { type: 'spawn', condition: 'ed.bad-cut' }, // 6: asked, so known green
-        { type: 'spawn', condition: 'ed.wheezing' }, // 7: nobody has asked yet
-        { type: 'spawn', condition: 'ed.wheezing' }, // 8: asked, so known yellow
-        { type: 'spawn', condition: 'ed.headache' }, // 9: nobody has asked yet
-        { type: 'completeTask', patient: 6, task: 'task.ask-questions' },
-        { type: 'completeTask', patient: 8, task: 'task.ask-questions' },
+        { type: 'spawn', condition: 'ed.bad-cut' }, // 5: asked, so known green
+        { type: 'spawn', condition: 'ed.wheezing' }, // 6: nobody has asked yet
+        { type: 'spawn', condition: 'ed.wheezing' }, // 7: asked, so known yellow
+        { type: 'spawn', condition: 'ed.headache' }, // 8: nobody has asked yet
+        { type: 'completeTask', patient: 5, task: 'task.ask-questions' },
+        { type: 'completeTask', patient: 7, task: 'task.ask-questions' },
       ),
     );
     const roomOf = (id: number) => world.patients.find((p) => p.id === id)?.location;
@@ -174,10 +184,10 @@ describe('beds', () => {
       );
     };
     finish(1);
-    expect(roomOf(8)).toMatchObject({ kind: 'bed' }); // known yellow beats everyone waiting
+    expect(roomOf(7)).toMatchObject({ kind: 'bed' }); // known yellow beats everyone waiting
     finish(2);
-    expect(roomOf(7)).toMatchObject({ kind: 'bed' }); // unknown beats known green
-    expect(roomOf(6)).toEqual({ kind: 'waiting' });
+    expect(roomOf(6)).toMatchObject({ kind: 'bed' }); // unknown beats known green
+    expect(roomOf(5)).toEqual({ kind: 'waiting' });
   });
 
   it('keeps beds named by scripted spawns free for those arrivals', () => {
@@ -188,7 +198,7 @@ describe('beds', () => {
   });
 
   it('can move a patient to another free bed, and refuses a taken one', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(
       world,
       ctx,
@@ -212,7 +222,7 @@ describe('beds', () => {
   });
 
   it('lets a spawn go straight into a named bed, like an ambulance into resus', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain', bed: 'resus' }));
     expect(world.patients[0]?.location).toEqual({ kind: 'bed', bed: 'resus' });
     expect(world.events).toContainEqual(
@@ -221,7 +231,7 @@ describe('beds', () => {
   });
 
   it('turns unknown conditions into rejected commands instead of errors', () => {
-    const { ctx, world } = startLevel('ed-a');
+    const { ctx, world } = startED();
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.not-a-thing' }));
     expect(world.events).toContainEqual(
       expect.objectContaining({

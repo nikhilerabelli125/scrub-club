@@ -127,6 +127,16 @@ describe('validate-data', () => {
     );
   });
 
+  it('flags anything on a map that no patient in its levels can use', () => {
+    const problems = problemsAfter((file) => {
+      const map = file<MapDef>('maps/ed-a.json');
+      map.stations.push({ id: 'sink', type: 'station.sink', pos: [9, 9], size: [1.5, 0.8] });
+    });
+    expect(problems).toContain(
+      `maps/ed-a.json stations[${7}]: no patient in ed-a can use a station.sink, so leave it off the map (issue #23)`,
+    );
+  });
+
   it('counts tools a map places, like the stethoscopes, as available', () => {
     const problems = problemsAfter((file) => {
       const map = file<MapDef>('maps/ed-main.json');
