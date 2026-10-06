@@ -110,6 +110,10 @@ How a finished patient leaves depends on the level's disposition mode:
 
 **Planned vs. rescue transfers.** A planned transfer happens because the condition calls for it (a heart attack goes to the heart lab). It's a success and earns full points. A rescue transfer happens because a patient was neglected and got worse, so another team takes them. It costs points and 2 strikes.
 
+### 4.8 Beds and the waiting room
+
+Patients are roomed automatically: the sickest waiting patient (by the color their ticket shows) takes the next free bed, and the bed is a random one, so players criss-cross the floor. When every bed is taken, patients wait in the waiting room. There they only get triage (questions, vitals, and any treat-first shot); everything else waits for a bed, so finishing patients to free their beds is part of the pressure.
+
 ## 5. Codes
 
 When a patient's heart stops, the monitor shows one of two lines:

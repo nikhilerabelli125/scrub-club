@@ -31,7 +31,8 @@
     "pool": [],
     "sequence": ["cl.sore-throat", "cl.cough", "cl.twisted-ankle", "cl.sore-throat", "cl.bp-check"],
     "intervalSeconds": [3, 3],
-    "maxWaiting": 1
+    "maxWaiting": 1,
+    "maxActive": 1
   },
   "endAfterPatients": 5,
   "events": [],

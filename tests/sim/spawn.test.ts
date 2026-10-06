@@ -5,11 +5,10 @@ import { commands, eventsOf, IDLE, run, startLevel, treatEveryone } from './help
 const walkIns = (log: Parameters<typeof eventsOf>[0]) =>
   eventsOf(log, 'patientArrived').filter(({ event }) => event.entrance === 'walk-in');
 
-// Critical patients never leave (01 §4.5), so four of them hold every slot.
-const fillWaitingRoom: SimCommand[] = Array.from({ length: 4 }, () => ({
-  type: 'spawn',
-  condition: 'ed.chest-pain',
-}));
+// Critical patients never leave (01 §4.5), so they hold beds and waiting-room seats for
+// good. ED-A has five beds and room for four to wait (maxWaiting).
+const critical = (count: number): SimCommand[] =>
+  Array.from({ length: count }, () => ({ type: 'spawn', condition: 'ed.chest-pain' }));
 
 describe('spawning: ED-A pool', () => {
   it('admits the first patient at the start, then one per player-scaled interval', () => {
@@ -28,19 +27,30 @@ describe('spawning: ED-A pool', () => {
     for (const { event } of arrivals) expect(pool.has(event.condition)).toBe(true);
   });
 
-  it('pauses the spawn timer while maxWaiting patients are active', () => {
+  it('keeps admitting patients into the waiting room while every bed is taken', () => {
     const { ctx, world } = startLevel('ed-a');
     const log = run(world, ctx, secondsToTicks(100), (w) =>
-      w.tick === 0 ? commands(...fillWaitingRoom) : IDLE,
+      w.tick === 0 ? commands(...critical(5)) : IDLE,
     );
-    // Patients 1 to 4 are the fillers; any later walk-in would be a pool spawn.
-    expect(walkIns(log).map(({ event }) => event.patient)).toEqual([1, 2, 3, 4]);
+    // Patients 1 to 5 hold the beds, so every pool patient after them waits.
+    const pool = walkIns(log).filter(({ event }) => event.patient > 5);
+    expect(pool.length).toBeGreaterThanOrEqual(2);
+    expect(eventsOf(log, 'patientSeated').some(({ event }) => event.patient > 5)).toBe(false);
+  });
+
+  it('pauses the spawn timer while the waiting room is full', () => {
+    const { ctx, world } = startLevel('ed-a');
+    const log = run(world, ctx, secondsToTicks(100), (w) =>
+      w.tick === 0 ? commands(...critical(9)) : IDLE,
+    );
+    // Patients 1 to 9 are the fillers; any later walk-in would be a pool spawn.
+    expect(walkIns(log).map(({ event }) => event.patient)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
   it('still delivers scripted patients when the waiting room is full', () => {
     const { ctx, world } = startLevel('ed-a');
     const log = run(world, ctx, secondsToTicks(100), (w) =>
-      w.tick === 0 ? commands(...fillWaitingRoom) : IDLE,
+      w.tick === 0 ? commands(...critical(9)) : IDLE,
     );
     const ambulance = eventsOf(log, 'patientArrived').filter(
       ({ event }) => event.entrance === 'ambulance',

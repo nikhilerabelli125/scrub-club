@@ -216,6 +216,7 @@ export const LevelDefSchema = z.strictObject({
       sequence: z.array(ConditionId).optional(),
       intervalSeconds: z.tuple([Seconds, Seconds]),
       maxWaiting: z.number().int().positive(),
+      maxActive: z.number().int().positive().optional(),
     })
     .optional(),
   endAfterPatients: z.number().int().positive().optional(),

@@ -4,16 +4,19 @@ import type { SimContext, World } from '../types';
 import { admitPatient } from './patients';
 
 // Inflow spawning (docs/05): a fixed sequence or a weighted pool, one patient per
-// interval (scaled by player count), with at most `maxWaiting` active patients. The
-// first patient arrives at the start. At the cap the timer pauses, so a freed slot
-// fills after the rest of the interval rather than instantly. Scripted spawn events
-// ignore the cap, so "guaranteed" patients always arrive.
+// interval (scaled by player count). The first patient arrives at the start. The timer
+// pauses while the waiting room holds `maxWaiting` patients, or while `maxActive`
+// patients are on the rail (one-at-a-time tutorials), so a freed place fills after the
+// rest of the interval rather than instantly. Scripted spawn events ignore both caps, so
+// "guaranteed" patients always arrive.
 export function spawnSystem(world: World, ctx: SimContext): void {
   const spawn = ctx.level.spawn;
   if (!spawn) return;
   const sequence = spawn.sequence ?? [];
   if (sequence.length > 0 && world.spawn.sequenceIndex >= sequence.length) return;
-  if (world.patients.length >= spawn.maxWaiting) return;
+  const waiting = world.patients.filter((p) => p.location.kind === 'waiting').length;
+  if (waiting >= spawn.maxWaiting) return;
+  if (spawn.maxActive !== undefined && world.patients.length >= spawn.maxActive) return;
 
   world.spawn.timerTicks -= 1;
   if (world.spawn.timerTicks > 0) return;
