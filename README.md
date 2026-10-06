@@ -20,7 +20,7 @@ It starts ED-A (level 2) for two players on one keyboard:
 
 | Player | Move | Pick up / put down | Use (hold for tasks) |
 |---|---|---|---|
-| 1 | W A S D | F | G |
+| 1 | W A S D | F | E |
 | 2 | Arrow keys | K | L |
 
 Add `?players=1` to the address to play solo, or `?level=cl-a` for level 1. Press Enter on the results card to play again.

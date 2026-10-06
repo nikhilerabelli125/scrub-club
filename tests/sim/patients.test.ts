@@ -30,18 +30,27 @@ describe('patience', () => {
 });
 
 describe('beds', () => {
-  it('arriving patients take free beds in map order', () => {
-    const { ctx, world } = startLevel('ed-a');
-    stepWorld(
-      world,
-      ctx,
-      commands(
-        { type: 'spawn', condition: 'ed.bad-cut' },
-        { type: 'spawn', condition: 'ed.headache' },
-      ),
-    );
-    // Patients 1 and 2 come from the commands; 3 is ED-A's first pool spawn.
-    expect(world.beds.slice(0, 3).map((b) => b.patient)).toEqual([1, 2, 3]);
+  it('arriving patients each get a random free bed, the same one on every replay', () => {
+    const rooms = (seed: number) => {
+      const { ctx, world } = startLevel('ed-a', { seed });
+      stepWorld(
+        world,
+        ctx,
+        commands(
+          { type: 'spawn', condition: 'ed.bad-cut' },
+          { type: 'spawn', condition: 'ed.headache' },
+        ),
+      );
+      // Patients 1 and 2 come from the commands; 3 is ED-A's first pool spawn.
+      return world.patients.map((p) => (p.location.kind === 'bed' ? p.location.bed : 'waiting'));
+    };
+    expect(new Set(rooms(1)).size).toBe(3);
+    expect(rooms(1)).not.toContain('waiting');
+    expect(rooms(1)).toEqual(rooms(1));
+    // Not always left to right (playtest issue #7).
+    const leftToRight = ['bay-1', 'bay-2', 'bay-3'].join();
+    const seeds = Array.from({ length: 10 }, (_, i) => rooms(i + 1).join());
+    expect(seeds.some((order) => order !== leftToRight)).toBe(true);
   });
 
   it('when every bed is taken, the next patient waits and gets the first bed that frees up', () => {
@@ -53,6 +62,7 @@ describe('beds', () => {
     }));
     stepWorld(world, ctx, commands(...five, { type: 'spawn', condition: 'ed.bad-cut' }));
     expect(world.patients.find((p) => p.id === 6)?.location).toEqual({ kind: 'waiting' });
+    const firstBed = world.beds.find((b) => b.patient === 1)?.id;
 
     // Finish patient 1; patient 6 moves into their bed.
     for (let i = 0; i < 4; i++) {
@@ -63,7 +73,10 @@ describe('beds', () => {
       });
     }
     expect(world.patients.some((p) => p.id === 1)).toBe(false);
-    expect(world.patients.find((p) => p.id === 6)?.location).toEqual({ kind: 'bed', bed: 'bay-1' });
+    expect(world.patients.find((p) => p.id === 6)?.location).toEqual({
+      kind: 'bed',
+      bed: firstBed,
+    });
   });
 
   it('keeps beds named by scripted spawns free for those arrivals', () => {
@@ -87,18 +100,17 @@ describe('beds', () => {
         { type: 'spawn', condition: 'ed.headache' },
       ),
     );
+    const oldBed = world.beds.find((b) => b.patient === 1)?.id;
+    const free = world.beds.find((b) => b.patient === null)?.id ?? 'none free';
     stepWorld(
       world,
       ctx,
-      commands(
-        { type: 'seat', patient: 1, bed: 'resus' },
-        { type: 'seat', patient: 2, bed: 'resus' },
-      ),
+      commands({ type: 'seat', patient: 1, bed: free }, { type: 'seat', patient: 2, bed: free }),
     );
-    expect(world.patients.find((p) => p.id === 1)?.location).toEqual({ kind: 'bed', bed: 'resus' });
-    expect(world.beds.find((b) => b.id === 'bay-1')?.patient).toBeNull();
+    expect(world.patients.find((p) => p.id === 1)?.location).toEqual({ kind: 'bed', bed: free });
+    expect(world.beds.find((b) => b.id === oldBed)?.patient).toBeNull();
     expect(world.events).toContainEqual(
-      expect.objectContaining({ type: 'commandRejected', reason: 'bed "resus" is taken' }),
+      expect.objectContaining({ type: 'commandRejected', reason: `bed "${free}" is taken` }),
     );
   });
 

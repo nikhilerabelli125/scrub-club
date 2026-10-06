@@ -12,7 +12,7 @@ describe('keyboard input', () => {
   it('goes up, pressed, held, released, up', () => {
     let memory = emptyMemory();
     const states: ButtonState[] = [];
-    for (const snapshot of [keys(), keys(['KeyG'], ['KeyG']), keys(['KeyG']), keys(), keys()]) {
+    for (const snapshot of [keys(), keys(['KeyE'], ['KeyE']), keys(['KeyE']), keys(), keys()]) {
       const result = readKeyboard(1, KEYBOARD_LEFT, snapshot, memory);
       states.push(result.input.use);
       memory = result.memory;

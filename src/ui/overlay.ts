@@ -25,7 +25,7 @@ export interface Overlay {
 }
 
 const CONTROLS: Record<PlayerSlot, string> = {
-  1: 'W A S D to move, F to pick up, G to use',
+  1: 'W A S D to move, F to pick up, E to use',
   2: 'arrow keys to move, K to pick up, L to use',
   3: '',
   4: '',

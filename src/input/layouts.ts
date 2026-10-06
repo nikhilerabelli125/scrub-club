@@ -21,7 +21,7 @@ export const KEYBOARD_LEFT: KeyboardLayout = {
   left: 'KeyA',
   right: 'KeyD',
   pickUp: 'KeyF',
-  use: 'KeyG',
+  use: 'KeyE',
   dash: 'ShiftLeft',
   ability: 'KeyR',
   swap: 'Tab',
