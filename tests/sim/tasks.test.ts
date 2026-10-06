@@ -87,6 +87,12 @@ describe('the waiting room', () => {
           type: 'spawn' as const,
           condition: 'ed.chest-pain',
         })),
+      ),
+    );
+    stepWorld(
+      world,
+      ctx,
+      commands(
         { type: 'spawn', condition: 'ed.allergic-reaction' },
         { type: 'spawn', condition: 'ed.bad-cut' },
       ),

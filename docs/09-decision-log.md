@@ -114,3 +114,7 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Results | A scan, lab test, or observation is done when its result arrives (X-ray 10 s, brain scan 15 s, blood test 18 s after the tube reaches the lab, observation 20 s); tasks after it wait for the result | M1 playtest (#9) |
 | Tutorial waits | CL-A skips orders and result waits (`skipWaits`): one patient at a time leaves nothing to juggle | M1 playtest (#9) |
 | Field meds | On maps without a computer, meds need no order, as under a standing order | M1 playtest (#9) |
+| Asking questions | A new patient is a "?": no complaint, color, or timer until someone asks questions; patients plainly in trouble are known at once | M2 playtest (#19) |
+| Escalation | Built: stages with a sign, then a badge, then the outcome; signs show before anyone asks; codes act as rescue transfers until M3 | M2 playtest (#19) |
+| Timer bar | Shows the sooner of walking out (acuity 3 to 5) and the end of the escalation path | M2 playtest (#19) |
+| Rooming | Known sick (shown acuity 1 to 3) first, then patients nobody has asked about, then known acuity 4 to 5 | M2 playtest (#19) |

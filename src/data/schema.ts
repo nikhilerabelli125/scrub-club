@@ -80,6 +80,7 @@ export const TaskDefSchema = z.strictObject({
   result: z.strictObject({ at: StationTypeId, delaySeconds: Seconds }).optional(),
   order: z.strictObject({ at: StationTypeId, readySeconds: Seconds }).optional(),
   dosing: z.boolean().optional(),
+  reveals: z.boolean().optional(),
   perkTags: z.array(Text).optional(),
 });
 

@@ -4,7 +4,7 @@ import type { Patient, PatientTask, Player, SimContext, TickInput, World } from 
 import { controlsFor } from './controls';
 import { carriedItem, stopTask } from './interactions';
 import { finishSteps, placeOrder } from './orders';
-import { discardItems } from './patients';
+import { discardItems } from './roster';
 
 // Advances every player's task by one tick through its mechanic steps (docs/07 §6), and
 // finishes the task after the last one. Placing an order is a short hold at the order

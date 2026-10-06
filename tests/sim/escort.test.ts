@@ -56,10 +56,12 @@ describe('walking a patient to a station', () => {
     });
     expect(playerIn(world, 1).activity).toBeNull(); // free to walk
 
+    // Out into the open hallway, so the walk isn't stopped by a wall.
+    playerIn(world, 1).pos = [12, 6.5];
     const path: [number, number][] = [];
     run(world, ctx, 40, (w) => {
       path.push([...playerIn(w, 1).pos]);
-      return players(press(1, { move: { x: 0, z: 1 } }));
+      return players(press(1, { move: { x: 1, z: 0 } }));
     });
     const [x, z] = patientSpot(world, ctx, patientOne(world));
     const player = playerIn(world, 1).pos;

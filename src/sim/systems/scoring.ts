@@ -15,6 +15,10 @@ export function scoringSystem(world: World, ctx: SimContext): void {
       addPoints(world, rules.outcomes.leave.points, 'left', event.patient);
       world.strikes += rules.outcomes.leave.strikes;
       world.events.push({ type: 'strike', strikes: world.strikes, reason: 'left' });
+    } else if (event.type === 'patientTransferred') {
+      addPoints(world, rules.outcomes.rescue.points, 'rescue', event.patient);
+      world.strikes += rules.outcomes.rescue.strikes;
+      world.events.push({ type: 'strike', strikes: world.strikes, reason: 'rescue' });
     }
   }
 }
@@ -22,7 +26,7 @@ export function scoringSystem(world: World, ctx: SimContext): void {
 function addPoints(
   world: World,
   points: number,
-  reason: 'finished' | 'left',
+  reason: 'finished' | 'left' | 'rescue',
   patient: number,
 ): void {
   world.score += points;

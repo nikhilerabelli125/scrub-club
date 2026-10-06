@@ -1,6 +1,9 @@
-import type { Acuity, ConditionDef } from '../../data';
+import type { ConditionDef } from '../../data';
 import { secondsToTicks } from '../clock';
-import type { ItemInstance, Patient, PatientTask, SimContext, World } from '../types';
+import type { Patient, PatientTask, SimContext, World } from '../types';
+import { stageDue } from './escalation';
+import { knownOnArrival } from './knowledge';
+import { removePatient } from './roster';
 
 // Brings a patient into the level: into the waiting room, or straight into a bed when
 // one is named and free (an ambulance rolling into the resus bay). Returns null for an
@@ -15,6 +18,8 @@ export function admitPatient(
   if (!condition) return null;
   const patience = secondsToTicks(patienceSeconds(ctx, condition));
   const bed = world.beds.find((b) => b.id === arrival.bed && b.patient === null);
+  const firstStage = condition.escalation[0];
+  const firstDue = firstStage ? stageDue(world, firstStage) : world.tick;
   const patient: Patient = {
     id: world.nextPatientId,
     condition: condition.id,
@@ -25,6 +30,8 @@ export function admitPatient(
     patienceTicks: patience,
     patienceMaxTicks: patience,
     tasks: buildTasks(condition, ctx.content.baseTasks.get(condition.setting) ?? []),
+    known: knownOnArrival(condition),
+    escalation: { stage: 0, dueTick: firstDue, firstTicks: firstDue - world.tick },
   };
   world.nextPatientId += 1;
   if (bed) bed.patient = patient.id;
@@ -37,12 +44,6 @@ export function admitPatient(
     bed: bed?.id ?? null,
   });
   return patient;
-}
-
-// The acuity the patient's ticket shows: a hidden condition looks as mild as its cover
-// story (01 §4.4) until reveals arrive in M2.
-export function shownAcuity(ctx: SimContext, patient: Patient): Acuity {
-  return ctx.content.conditions.get(patient.condition)?.hidden?.showsAs.acuity ?? patient.acuity;
 }
 
 function patienceSeconds(ctx: SimContext, condition: ConditionDef): number {
@@ -97,28 +98,9 @@ export function seatPatient(world: World, patientId: number, bedId: string): str
   return null;
 }
 
-// Takes a patient out of the level, frees their bed, and counts them as resolved. Their
-// ordered meds and samples go with them.
-export function removePatient(world: World, patientId: number): void {
-  world.patients = world.patients.filter((p) => p.id !== patientId);
-  for (const bed of world.beds) if (bed.patient === patientId) bed.patient = null;
-  discardItems(world, (item) => item.for?.patient === patientId);
-  world.resolved += 1;
-}
-
-// Removes items from the world, and from the hands of whoever held them.
-export function discardItems(world: World, discard: (item: ItemInstance) => boolean): void {
-  const gone = new Set(world.items.filter(discard).map((item) => item.id));
-  if (gone.size === 0) return;
-  world.items = world.items.filter((item) => !gone.has(item.id));
-  for (const player of world.players) {
-    if (player.holding !== null && gone.has(player.holding)) player.holding = null;
-  }
-}
-
 // Patience drains until a patient is finished. Low-acuity patients who run out leave;
-// critical patients (acuity 1 to 2) never leave (01 §4.5). They escalate instead,
-// which arrives in M2, so for now they wait at zero.
+// critical patients (acuity 1 to 2) never leave (01 §4.5): they escalate instead
+// (escalation.ts), and their patience only sets the speed bonus.
 export function patienceSystem(world: World): void {
   for (const patient of [...world.patients]) {
     // A patient's first tick is their arrival, so everyone gets exactly their full patience.

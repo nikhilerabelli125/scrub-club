@@ -36,12 +36,15 @@ describe('ending a level', () => {
     expect(world.resolved).toBe(5);
   });
 
-  it('without any treatment, every non-critical patient walks out with a strike', () => {
+  it('without any treatment, patients walk out or go to another team, all with strikes', () => {
     const { ctx, world } = startLevel('ed-a', { seed: 8 });
-    const left = eventsOf(run(world, ctx, secondsToTicks(300)), 'patientLeft');
-    expect(left.length).toBeGreaterThan(0);
-    expect(world.strikes).toBe(left.length);
-    expect(world.score).toBe(-10 * left.length);
+    const log = run(world, ctx, secondsToTicks(300));
+    const left = eventsOf(log, 'patientLeft');
+    const transferred = eventsOf(log, 'patientTransferred');
+    expect(left.length + transferred.length).toBeGreaterThan(0);
+    // A walkout costs 1 strike and 10 points; a rescue transfer 2 and 20 (data/rules.json).
+    expect(world.strikes).toBe(left.length + 2 * transferred.length);
+    expect(world.score).toBe(-10 * left.length - 20 * transferred.length);
     expect(left.some(({ event }) => event.condition === 'ed.chest-pain')).toBe(false);
     expect(world.status).toBe('ended');
   });

@@ -5,7 +5,7 @@ import type { TaskDef } from '../../data';
 import { secondsToTicks } from '../clock';
 import { distanceToBox, stationBox } from '../geometry';
 import type { ItemInstance, Patient, PatientTask, Player, SimContext, World } from '../types';
-import { discardItems } from './patients';
+import { discardItems } from './roster';
 import { completeTask } from './tasks';
 
 // Whether a task has to be ordered before it's given. Tutorials skip the waits, and in

@@ -19,8 +19,8 @@ Scrub Club is a local co-op hospital game for 1 to 4 players. Patients come in l
 
 ## 3. Core loop
 
-1. A patient arrives (or is already in a bed) and a ticket appears.
-2. Players read the cue and the ticket, decide priority, and split up.
+1. A patient arrives (or is already in a bed) and a ticket appears, but nobody knows what's wrong yet.
+2. Players go and ask questions, which reveals the complaint, the acuity color, and the timer. Then they read the cue and the ticket, decide priority, and split up.
 3. Players do tasks: walk to stations, grab items, hold or play short minigames at the bedside.
 4. Some tasks start a wait (labs, scans). Results can change the plan.
 5. When the patient's tasks are done, players finish the patient (discharge, sign, or transport, depending on tier).
@@ -31,20 +31,24 @@ Scrub Club is a local co-op hospital game for 1 to 4 players. Patients come in l
 
 ### 4.1 Tickets
 
-Every patient has a ticket in the ticket rail (clipboard style, see `06-art-audio-ui.md`) showing the simplified complaint, an acuity color strip, the task chips, and a patience bar.
+Every patient has a ticket in the ticket rail (clipboard style, see `06-art-audio-ui.md`) showing the simplified complaint, an acuity color strip, the task chips, and a timer bar.
+
+**Ask questions first (M2 playtest #19).** A new patient's ticket says only "New patient" (plus "ambulance" if they came by ambulance), with a grey strip, the triage chips, and no timer; their tag over the bed is a "?". Asking questions reveals their complaint, acuity color, timer, and the rest of their tasks, so talking to every new patient early is how a team finds the sick ones. Patients plainly in trouble are known at once: those who need treatment before they can talk (the allergy shot, the seizure med, the reversal shot), those arriving in a code, and those who come in for something with no triage (a shot, a car crash). A patient getting worse shows it whether or not anyone has asked (§4.5).
+
+The timer bar shows the time left before the next bad thing: walking out for acuity 3 to 5, or the end of the escalation path for those who escalate, whichever comes first.
 
 **Ticket modes (set per level):**
 
 | Mode | What the ticket shows | Used in |
 |---|---|---|
-| `full` | Every task from the start | Tier 1 and early tier 2 |
+| `full` | Every task, once someone has asked questions | Tier 1 and early tier 2 |
 | `assess` | Only the complaint, plus "Ask questions" and "Check vitals." Doing those reveals the rest of the tasks | From ED-B (level 6) onward |
 
 In full-floor levels, routine needs (scheduled meds, sugar checks) appear as tickets, but judgment events (a patient suddenly turning blue, a hidden clot) do not. Players read them from the patient's cues, which every briefing teaches.
 
 ### 4.2 Acuity
 
-Acuity runs 1 (most critical) to 5 (least urgent). In game it is only a color and a patience timer; the number never shows.
+Acuity runs 1 (most critical) to 5 (least urgent). In game it is only a color and a timer, both hidden until someone asks questions; the number never shows.
 
 | Acuity | Color | Default patience (s) | Example |
 |---|---|---|---|

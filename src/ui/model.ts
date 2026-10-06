@@ -4,6 +4,7 @@ import type { Acuity } from '../data';
 import {
   availableTasks,
   needsOrder,
+  secondsToTicks,
   starsFor,
   ticksToSeconds,
   type Patient,
@@ -21,6 +22,9 @@ export const ACUITY_COLORS: Record<Acuity, string> = {
   4: '#3BB273',
   5: '#3E8BD6',
 };
+
+// A patient nobody has asked about yet (issue #19).
+export const UNKNOWN_COLOR = '#9AA6A9';
 
 // Player identity colors (docs/02 §1).
 export const PLAYER_COLORS: Record<PlayerSlot, string> = {
@@ -44,10 +48,16 @@ export interface Chip {
 
 export interface TicketModel {
   patient: number;
-  label: string;
-  acuity: Acuity;
+  label: string; // "New patient" until someone asks questions, then their complaint
+  acuity: Acuity | null; // null (a grey strip) until someone asks
   place: string; // their bed, the waiting room, or where they're walking to
-  patience: number; // 0 to 1
+  // 0 to 1: time left before they walk out or get worse, whichever comes first. Hidden
+  // (null) until someone asks questions (issue #19).
+  timer: number | null;
+  // Getting worse (01 §4.5): a sign on the patient, then a badge. Both show before anyone
+  // has asked, since anyone can see a patient getting worse.
+  warning: 'none' | 'sign' | 'badge';
+  badge: string | null;
   chips: Chip[];
 }
 
@@ -76,16 +86,55 @@ export function ticketModels(world: World, ctx: SimContext): TicketModel[] {
 
 function ticketFor(world: World, patient: Patient, ctx: SimContext): TicketModel {
   const condition = ctx.content.conditions.get(patient.condition);
-  const shown = condition?.hidden?.showsAs ?? condition;
+  const shown = patient.known === 'all' ? condition : (condition?.hidden?.showsAs ?? condition);
   const ready = new Set(availableTasks(patient));
+  const stage = condition?.escalation[patient.escalation.stage - 1];
+  // Until the real problem is known, or in assess mode until triage is done, the ticket
+  // only lists triage (and treat-first) tasks, so it can't give the diagnosis away.
+  const triageDone = patient.tasks.every((t) => t.phase === 'main' || t.remaining === 0);
+  const showAll = patient.known === 'all' && (ctx.level.ticketMode === 'full' || triageDone);
   return {
     patient: patient.id,
-    label: shown?.label ?? patient.condition,
-    acuity: shown?.acuity ?? patient.acuity,
+    label: patient.known === 'nothing' ? 'New patient' : (shown?.label ?? patient.condition),
+    acuity: patient.known === 'nothing' ? null : (shown?.acuity ?? patient.acuity),
     place: placeName(patient, ctx),
-    patience: patient.patienceMaxTicks > 0 ? patient.patienceTicks / patient.patienceMaxTicks : 0,
-    chips: patient.tasks.map((entry) => chipFor(world, ctx, patient, entry, ready.has(entry))),
+    timer: patient.known === 'nothing' ? null : timerFor(world, ctx, patient),
+    warning: patient.escalation.stage === 0 ? 'none' : stage?.badge ? 'badge' : 'sign',
+    badge: stage?.badge ?? null,
+    chips: patient.tasks
+      .filter((entry) => showAll || entry.phase !== 'main')
+      .map((entry) => chipFor(world, ctx, patient, entry, ready.has(entry))),
   };
+}
+
+// Time left before the next bad thing: walking out (acuity 3 to 5) or the end of their
+// escalation path. Each is measured against its own full length, and the sooner one wins.
+function timerFor(world: World, ctx: SimContext, patient: Patient): number {
+  const clocks: { left: number; total: number }[] = [];
+  if (patient.acuity >= 3 || patient.known !== 'all') {
+    clocks.push({ left: patient.patienceTicks, total: patient.patienceMaxTicks });
+  }
+  const stages = ctx.content.conditions.get(patient.condition)?.escalation ?? [];
+  const end = stages.findIndex((stage) => stage.outcome !== undefined);
+  if (patient.known === 'all' && end >= patient.escalation.stage) {
+    const after = (from: number) =>
+      stages
+        .slice(from, end + 1)
+        .reduce((sum, stage) => sum + secondsToTicks(stage.afterSeconds), 0);
+    const { stage, dueTick, firstTicks } = patient.escalation;
+    // The first stage's length includes its seeded jitter; later ones are as written.
+    clocks.push({
+      left: Math.max(0, dueTick - world.tick) + after(stage + 1),
+      total: firstTicks + after(1),
+    });
+  }
+  // Past the last stage that could end badly, only patience is left to show.
+  if (clocks.length === 0) {
+    clocks.push({ left: patient.patienceTicks, total: patient.patienceMaxTicks });
+  }
+  const soonest = clocks.sort((a, b) => a.left - b.left)[0];
+  if (!soonest || soonest.total <= 0) return 0;
+  return Math.max(0, Math.min(1, soonest.left / soonest.total));
 }
 
 function chipFor(
@@ -143,6 +192,11 @@ export function readyAt(world: World, ctx: SimContext, stationType: string): num
 
 // Where a patient is, for their ticket.
 export function placeName(patient: Patient, ctx: SimContext): string {
+  const where = locationName(patient, ctx);
+  return patient.entrance === 'ambulance' ? `${where} · ambulance` : where;
+}
+
+function locationName(patient: Patient, ctx: SimContext): string {
   const location = patient.location;
   switch (location.kind) {
     case 'bed':
