@@ -78,6 +78,7 @@ export const TaskDefSchema = z.strictObject({
   needsEquipment: EquipmentId.optional(),
   producesItem: ItemId.optional(),
   result: z.strictObject({ at: StationTypeId, delaySeconds: Seconds }).optional(),
+  order: z.strictObject({ at: StationTypeId, readySeconds: Seconds }).optional(),
   dosing: z.boolean().optional(),
   perkTags: z.array(Text).optional(),
 });
@@ -206,6 +207,7 @@ export const LevelDefSchema = z.strictObject({
   ticketMode: z.enum(['full', 'assess']),
   disposition: z.enum(['auto', 'sign', 'transport']),
   maxEscalation: z.literal('rescue').optional(),
+  skipWaits: z.boolean().optional(),
   gimmicks: z.array(GimmickId),
   hazards: z.array(HazardId),
   introduces: z.array(Text),
@@ -379,6 +381,7 @@ export const RulesFileSchema = z.strictObject({
     walkAwaySeconds: z.number().positive(),
     standInSeconds: z.number().positive(),
     equipmentRange: z.number().positive(),
+    orderSeconds: z.number().positive(),
   }),
   codes: z.strictObject({
     lostAfterSeconds: z.number().positive(),

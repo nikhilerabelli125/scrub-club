@@ -1,11 +1,11 @@
 // The escort interaction (docs/03 §2): Use beside a patient whose next task is a walk
 // (the dark room, the observation chairs) and they get up and follow you. Bring them
-// within reach of the destination and they go in: the task is done, and their bed is
-// free for the next patient.
+// within reach of the destination and they go in: the task is done (or, in the
+// observation chairs, its wait starts), and their bed is free for the next patient.
 import { distanceToBox, stationBox } from '../geometry';
 import { patientArea } from '../places';
 import type { Patient, Player, SimContext, World } from '../types';
-import { completeTask } from './tasks';
+import { finishSteps } from './orders';
 
 // The patient follows the player's path a step behind: breadcrumbs every CRUMB meters,
 // and the patient stands on the oldest of the last TRAIL_CRUMBS.
@@ -66,6 +66,9 @@ export function escortSystem(world: World, ctx: SimContext): void {
       task: location.task,
       station: station.id,
     });
-    completeTask(world, ctx, patient.id, location.task, player.slot);
+    const entry = patient.tasks.find((t) => t.task === location.task);
+    const task = ctx.content.tasks.get(location.task);
+    // Done, or seated to wait out the observation chairs' result.
+    if (entry && task) finishSteps(world, ctx, player, patient, entry, task);
   }
 }

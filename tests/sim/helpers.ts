@@ -145,7 +145,12 @@ export function standNextTo(world: World, ctx: SimContext, slot: PlayerSlot, box
 // Test setup: puts an item straight into a player's hands, as if fetched.
 export function hand(world: World, slot: PlayerSlot, item: string): void {
   const player = playerIn(world, slot);
-  world.items.push({ id: world.nextItemId, item, place: { kind: 'held', player: slot } });
+  world.items.push({
+    id: world.nextItemId,
+    item,
+    place: { kind: 'held', player: slot },
+    for: null,
+  });
   player.holding = world.nextItemId;
   world.nextItemId += 1;
 }

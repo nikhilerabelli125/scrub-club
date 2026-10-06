@@ -73,8 +73,8 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.quick-check` | Quick check | hold 1.5 s | any | Marathon base task |
 | `task.scene-check` | Scene check | hold 1.5 s | any | Ambulance and Mass Casualty base task |
 | `task.listen-lungs` | Listen to lungs | hold 2 s | chest | |
-| `task.blood-draw` | Blood test | tapWait 3 s | arm | Makes a tube; carry to the lab tube; result after 18 s |
-| `task.throat-swab` | Throat swab | tapWait 2 s | head | Result after 12 s |
+| `task.blood-draw` | Blood test | tapWait 3 s | arm | Makes a tube; carry it to the lab; result 18 s after it arrives |
+| `task.throat-swab` | Throat swab | tapWait 2 s | head | Makes a swab; carry it to the lab; result 12 s after it arrives |
 | `task.sugar-check` | Sugar check | tapWait 1.5 s | arm | Instant result |
 | `task.salt-check` | Salt check | tapWait 2 s | arm | Result after 8 s (marathon machine) |
 | `task.ekg` | EKG | hold 3 s | chest | Needs the EKG machine at the bed (one per map) |
@@ -96,14 +96,14 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.iv` | IV | tapWait 3 s | arm | |
 | `task.iv-fluids` | IV fluids | tapWait 1.5 s | arm | Bag from supply |
 | `task.transfusion` | Blood transfusion | choice (bag color) + tapWait 2 s | arm | Bag from blood fridge must match the wristband color |
-| `task.aspirin` | Aspirin | tapWait 1 s | arm | From med cabinet |
-| `task.pain-med` | Pain med | timingBar dosing | arm | Too much = overdose |
-| `task.antibiotics` | Antibiotics | tapWait 1.5 s | arm | |
+| `task.aspirin` | Aspirin | tapWait 1 s | arm | Order at the computer; ready at the med cabinet in 8 s |
+| `task.pain-med` | Pain med | timingBar dosing | arm | Order; ready in 10 s. Too much = overdose |
+| `task.antibiotics` | Antibiotics | tapWait 1.5 s | arm | Order; ready in 12 s |
 | `task.allergy-shot` | Allergy shot | tapWait 1 s | arm | Given before questions |
 | `task.seizure-med` | Seizure med | timingBar dosing | arm | |
 | `task.reversal-shot` | Reversal shot | tapWait 1 s | arm | Fixes overdoses |
 | `task.adrenaline` | Adrenaline | tapWait 1 s | arm | From crash cart (codes) |
-| `task.clot-buster` | Clot-buster | timingBar dosing | arm | After brain scan |
+| `task.clot-buster` | Clot-buster | timingBar dosing | arm | After brain scan. Order; ready in 15 s |
 | `task.insulin` | Insulin | timingBar dosing | arm | Too much = low sugar |
 | `task.water-pill` | Water pill | tapWait 1 s | arm | |
 | `task.withdrawal-med` | Withdrawal med | timingBar dosing | arm | |
@@ -156,6 +156,10 @@ The ED-A tasks above have their trips (playtest #8). These tasks in the other bu
 | `task.listen-lungs` | None: an assessment at the bedside, like asking questions (the stethoscope is around your neck) |
 | `task.iv` | IV kit from the supply closet |
 | `task.intubate` | Airway kit from the crash cart, like adrenaline |
+
+**Ordered meds** (playtest #9) so far: aspirin, headache med, antibiotics, pain med, and clot-buster. Given at once, without an order: the emergency shots given before questions (allergy shot, seizure med, reversal shot) and adrenaline from the crash cart. The other meds are sorted when their settings are converted (M4, M6).
+
+**Waiting on results** (pending medical review): anything listed "after" a lab test now waits for its result. That fits strep (antibiotics after the swab result), the ankle and arm X-rays, and the stroke scan. For fever and confusion (sepsis), the IV fluids and antibiotics now wait about 18 s for the blood test; for the hidden internal bleed, so does the IV. Should those start once the blood is drawn instead?
 
 ### Codes
 
@@ -237,7 +241,7 @@ Every surgery: `task.pre-op-check` → `task.time-out` → `task.intubate` → `
 | `task.vaccine` | Shot | tapWait 1 s | Vaccine from the fridge |
 | `task.observe` | Watch | seat patient in an observation chair; 20 s wait | Clinic shots, allergic reactions |
 | `task.prescription` | Prescription | hold 1.5 s at computer | |
-| `task.headache-med` | Headache med | tapWait 1 s | Not dosed. From the med cabinet |
+| `task.headache-med` | Headache med | tapWait 1 s | Not dosed. Order; ready in 8 s |
 | `task.dark-room` | Dark room | escort to dark room | Migraine |
 | `task.sugar-iv` | Sugar IV | tapWait 1.5 s | Needs an IV first |
 | `task.inhaler` | Inhaler | tapWait 1 s | |

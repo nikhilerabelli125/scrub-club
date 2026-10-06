@@ -12,6 +12,7 @@
   "ticketMode": "full",
   "disposition": "auto",
   "maxEscalation": "rescue",
+  "skipWaits": true,
   "gimmicks": [],
   "hazards": [],
   "introduces": [

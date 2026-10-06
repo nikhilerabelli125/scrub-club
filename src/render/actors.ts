@@ -22,9 +22,15 @@ const SKINS = ['#F2C9A5', '#E0A97E', '#C68863', '#8D5A3B', '#5C3A26', '#F5D7BE',
 const ITEM_COLORS: Record<string, string> = {
   'item.med': '#E2483D',
   'item.blood-bag': '#A62B2B',
+  'item.blood-tube': '#7A1F2B',
+  'item.swab': '#F4F6F5',
   'item.fluid-bag': '#BFE3F5',
   'item.cast': '#F4F6F5',
   'item.splint': '#C9A15A',
+  'item.oxygen-mask': '#7FD1C7',
+  'item.nebulizer': '#9C7BD4',
+  'item.wound-kit': '#F2A65A',
+  'item.stitch-kit': '#5B6770',
 };
 
 export interface ActorView {

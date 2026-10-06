@@ -56,6 +56,7 @@ Times marked ± shift every run (seeded jitter) so replays feel different.
 - **Tier 1, Clinic, inflow, untimed.** Fixed camera. No strikes. Tickets `full`, disposition `auto`.
 - **New:** movement, pick up and put down, check-in, ask questions, check vitals, prescription at the computer, splint.
 - **Patients:** one at a time, 5 total: `cl.sore-throat`, `cl.cough`, `cl.twisted-ankle`, `cl.sore-throat`, `cl.bp-check`.
+- **Waits:** none (`skipWaits`): meds need no order and results come at once, since one patient at a time leaves nothing to juggle. Orders and result waits start in ED-A.
 - **Stars:** by finish time (draft): 1 star for finishing, 2 under 3:00, 3 under 2:15 (scaled up for more players since each patient is solo work).
 - **Briefing:** "Welcome to Scrub Club. Walk up to a patient and hold Use to ask questions and check vitals. Their ticket tells you what's next."
 

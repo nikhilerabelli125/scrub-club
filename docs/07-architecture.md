@@ -86,7 +86,8 @@ scrub-club/
 - Beds: rooming is automatic. The sickest waiting patient (by the acuity their ticket shows) takes the next free bed, then first come, first served, and the bed is a random free one (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. When every bed is taken, patients wait in the waiting room, where they only get triage (their first and base tasks) until a bed frees up.
 - Pick up: empty-handed, it takes the nearest item on the floor or piece of equipment, or else what a patient needs from a station within reach. Stations hand out needs for tasks that can be done now first, the player's own patient (`Player.lastPatient`) first among those, then the longest waiting, skipping items already carried or set down. With an item, Pick up returns it to a station that stocks it, or sets it down in front of you; with equipment, it parks it.
 - Equipment: each map equipment home starts with one piece (`World.equipment`). A pushed piece rides `PUSH_OFFSET` in front of its pusher, stopping short of walls, and the pusher moves at `movement.pushSpeed`. Parking settles it clear of walls, beds, stations, and other parked equipment. A task with `needsEquipment` starts only with a free piece (or one that `provides` it) within `interaction.equipmentRange` of the patient's bed, and the activity records which piece it uses, so each serves one task at a time.
-- Escorts: an escort task with a `station` starts at the bedside and the patient follows the player's breadcrumb trail. When the player comes within reach of a station of that type, the patient is delivered there (location `station`), their bed frees up, and the task completes.
+- Escorts: an escort task with a `station` starts at the bedside and the patient follows the player's breadcrumb trail. When the player comes within reach of a station of that type, the patient is delivered there (location `station`), their bed frees up, and the task's steps are done.
+- Orders and results (`src/sim/systems/orders.ts`): each repeat of a task has a `stage`. A task with `order` starts by being ordered: Use at a station of `order.at` holds for `interaction.orderSeconds`, then the stage is `ordered` until `dueTick`, then `ready`, when Pick up at a source of its `needsItem` hands out that item labeled for the patient's task (`ItemInstance.for`), which only that task accepts. When a task's steps are done, a `producesItem` with a `result` becomes a labeled sample (stage `sample`) that Pick up or Use hands in at a station of `result.at`; a `result` then waits until `dueTick` (stage `result`) and completes the task with no player. A level with `skipWaits`, or a map without the order station, needs no orders, and `skipWaits` results arrive at once. Removing a patient discards their labeled items.
 - Use: parks any equipment the player is pushing, then, beside a patient (within `movement.reach` of their bed), starts the first task they can do there, preferring one that uses the item they carry. At a station, it starts that station's task (an X-ray at the computer) for the player's own patient first, then the longest waiting. One player per task and per bed spot.
 - Working: players stay rooted while working. Letting go of a hold pauses it and keeps its progress on the patient, so anyone can finish it; pushing a direction for `walkAwaySeconds` walks away. A tap-and-wait locks the player until it drains.
 - Stand-ins until their milestones: minigame types other than hold and tapWait, and the carry, push, and two-person-carry interactions (and escorts with no `station`), run as a `standInSeconds` hold at the bedside. Bed spots are exclusive but not yet positions on the bed (M3), and dash comes later.
@@ -120,7 +121,8 @@ interface TaskDef {
   needsItem?: string;            // item that must be carried in
   needsEquipment?: string;       // scarce equipment that must be at the bed
   producesItem?: string;         // e.g. 'item.blood-tube'
-  result?: { at: string; delaySeconds: number }; // lab or scan result
+  result?: { at: string; delaySeconds: number }; // lab, scan, or observation result; the task completes when it arrives
+  order?: { at: string; readySeconds: number }; // ordered at a station first; its needsItem is ready to pick up after readySeconds
   dosing?: boolean;              // timingBar with overshoot → overdose
   perkTags?: string[];           // e.g. ['assessment'] for attending speedup
 }
@@ -190,6 +192,7 @@ interface LevelDef {
   ticketMode: 'full' | 'assess';
   disposition: 'auto' | 'sign' | 'transport';
   maxEscalation?: 'rescue';      // levels 1 to 9
+  skipWaits?: boolean;           // tutorials: meds need no order, and results arrive at once
   gimmicks: string[];
   hazards: string[];
   introduces: string[];
@@ -311,7 +314,7 @@ interface RulesFile {
   outcomes: Record<'leave' | 'rescue' | 'death', { points: number; strikes: number }>;
   playerScaling: { players: 1 | 2 | 3 | 4; spawnInterval: number; census: number; stars: number }[];
   movement: { speed: number; radius: number; reach: number; pushSpeed: number }; // m/s; player circle; how far a player can interact (m); speed multiplier while wheeling equipment
-  interaction: { walkAwaySeconds: number; standInSeconds: number; equipmentRange: number }; // 03 §1; hold used for mechanics not built yet; how close (m) equipment must be to a patient's bed
+  interaction: { walkAwaySeconds: number; standInSeconds: number; equipmentRange: number; orderSeconds: number }; // 03 §1; hold used for mechanics not built yet; how close (m) equipment must be to a patient's bed; hold to place an order
   codes: {
     lostAfterSeconds: number;    // a code not fixed in time is lost (death)
     fix: { flat: string[]; zigzag: string[] }; // task ids for each rhythm (01 §5)

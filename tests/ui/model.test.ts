@@ -6,6 +6,7 @@ import {
   formatClock,
   hudModel,
   placeName,
+  readyAt,
   ticketModels,
 } from '../../src/ui/model';
 import { commands, players, press, run, startLevel, standNextTo } from '../sim/helpers';
@@ -23,11 +24,60 @@ describe('tickets', () => {
       patience: 1,
     });
     expect(ticket?.chips).toEqual([
-      { label: 'Ask questions', state: 'ready', repeats: 1 },
-      { label: 'Check vitals', state: 'ready', repeats: 1 },
-      { label: 'EKG', state: 'later', repeats: 1 },
-      { label: 'Aspirin', state: 'later', repeats: 1 },
+      { label: 'Ask questions', state: 'ready', repeats: 1, note: null },
+      { label: 'Check vitals', state: 'ready', repeats: 1, note: null },
+      { label: 'EKG', state: 'later', repeats: 1, note: null },
+      { label: 'Aspirin', state: 'later', repeats: 1, note: null },
     ]);
+  });
+
+  it('walk a med through order, wait, and pick up, and count it on the med cabinet', () => {
+    const { ctx, world } = startLevel('ed-a');
+    stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
+    const done = ['task.ask-questions', 'task.check-vitals', 'task.ekg'];
+    stepWorld(
+      world,
+      ctx,
+      commands(...done.map((task) => ({ type: 'completeTask' as const, patient: 1, task }))),
+    );
+    const aspirin = () =>
+      ticketModels(world, ctx)
+        .find((t) => t.patient === 1)
+        ?.chips.find((c) => c.label === 'Aspirin');
+    expect(aspirin()).toMatchObject({ state: 'ready', note: 'order' });
+
+    const entry = world.patients[0]?.tasks.find((t) => t.task === 'task.aspirin');
+    if (!entry) throw new Error('no aspirin');
+    entry.stage = 'ordered';
+    entry.dueTick = world.tick + secondsToTicks(7.5);
+    expect(aspirin()).toMatchObject({ state: 'waiting', note: '8 s' });
+    expect(readyAt(world, ctx, 'station.med-cabinet')).toBe(0);
+
+    entry.stage = 'ready';
+    expect(aspirin()).toMatchObject({ state: 'ready', note: 'pick up' });
+    expect(readyAt(world, ctx, 'station.med-cabinet')).toBe(1);
+  });
+
+  it('send a lab sample to the lab, then count down to its result', () => {
+    const { ctx, world } = startLevel('ed-a');
+    stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.belly-pain' }));
+    const entry = world.patients[0]?.tasks.find((t) => t.task === 'task.blood-draw');
+    if (!entry) throw new Error('no blood test');
+    const done = ['task.ask-questions', 'task.check-vitals'];
+    stepWorld(
+      world,
+      ctx,
+      commands(...done.map((task) => ({ type: 'completeTask' as const, patient: 1, task }))),
+    );
+    const chip = () =>
+      ticketModels(world, ctx)
+        .find((t) => t.patient === 1)
+        ?.chips.find((c) => c.label === 'Blood test');
+    entry.stage = 'sample';
+    expect(chip()).toMatchObject({ state: 'ready', note: 'to lab' });
+    entry.stage = 'result';
+    entry.dueTick = world.tick + secondsToTicks(18);
+    expect(chip()).toMatchObject({ state: 'waiting', note: '18 s' });
   });
 
   it('show a hidden condition as its milder complaint', () => {

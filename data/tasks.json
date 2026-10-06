@@ -367,6 +367,10 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
+      "order": {
+        "at": "station.computer",
+        "readySeconds": 8
+      },
       "perkTags": ["med"]
     },
     {
@@ -382,6 +386,10 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
+      "order": {
+        "at": "station.computer",
+        "readySeconds": 12
+      },
       "perkTags": ["med"]
     },
     {
@@ -502,6 +510,10 @@
       ],
       "spot": "any",
       "needsItem": "item.med",
+      "order": {
+        "at": "station.computer",
+        "readySeconds": 8
+      },
       "perkTags": ["med"]
     },
     {
@@ -565,6 +577,10 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
+      "order": {
+        "at": "station.computer",
+        "readySeconds": 10
+      },
       "dosing": true,
       "perkTags": ["med"]
     },
@@ -603,6 +619,10 @@
       ],
       "spot": "arm",
       "needsItem": "item.med",
+      "order": {
+        "at": "station.computer",
+        "readySeconds": 15
+      },
       "dosing": true,
       "perkTags": ["med"]
     },
@@ -1141,7 +1161,11 @@
       "steps": [],
       "interaction": "escort",
       "spot": "any",
-      "station": "station.observation"
+      "station": "station.observation",
+      "result": {
+        "at": "station.observation",
+        "delaySeconds": 20
+      }
     },
     {
       "id": "task.bedpan",
