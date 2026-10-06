@@ -20,6 +20,7 @@ const STATION_LOOK: Record<string, { height: number; color: string }> = {
   'station.observation': { height: 0.45, color: '#A9B9C7' },
   'station.imaging': { height: 1.3, color: '#AFBDB9' },
   'station.dark-room': { height: 1.3, color: '#7C8A96' },
+  'station.tube': { height: 1.5, color: '#8FB3C9' },
 };
 // Each kind of equipment has its own color so players spot it instantly (docs/06 §4).
 // Its home spot gets a floor marker in the same color; actors.ts draws the equipment.

@@ -60,7 +60,9 @@ function finishTask(
   task: TaskDef,
 ): void {
   const carried = carriedItem(world, player);
-  if (task.needsItem && carried?.item === task.needsItem) {
+  // Tools like the stethoscope stay in hand; everything else is used up.
+  const tool = ctx.content.items.get(task.needsItem ?? '')?.tool === true;
+  if (task.needsItem && carried?.item === task.needsItem && !tool) {
     discardItems(world, (item) => item.id === carried.id);
     world.events.push({
       type: 'itemUsed',

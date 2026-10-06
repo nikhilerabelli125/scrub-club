@@ -16,6 +16,7 @@ import type {
 import { controlsFor } from './controls';
 import { equipmentAt, grabbableEquipment, grabEquipment, parkEquipment } from './equipment';
 import { escorting, startEscort } from './escort';
+import { throwItem } from './flight';
 import { deliverSample, needsOrder } from './orders';
 import { availableTasks } from './tasks';
 
@@ -70,13 +71,17 @@ export function stopTask(world: World, player: Player, entry: PatientTask | null
 
 // Use needs both hands, so wheeled equipment is parked first (beside the bed, if that's
 // where the player is). A sample in hand goes into the lab. Otherwise it starts the best
-// task here, an order at the computer, or a walk to a station.
+// task here, an order at the computer, or a walk to a station; with nothing to do here,
+// whatever the player holds is thrown (docs/02 §3).
 function useHere(world: World, ctx: SimContext, player: Player): void {
   if (player.pushing !== null) parkEquipment(world, ctx, player);
   const carried = carriedItem(world, player);
   if (carried && deliverSample(world, ctx, player, carried)) return;
   const choice = findTask(world, ctx, player);
-  if (!choice) return;
+  if (!choice) {
+    if (carried) throwItem(world, ctx, player, carried);
+    return;
+  }
   const { patient, entry, task, ordering } = choice;
   player.lastPatient = patient.id;
   if (!ordering && task.interaction === 'escort' && task.station) {
@@ -211,8 +216,8 @@ function takenByOther(
 
 // Pick up / put down. Wheeling equipment: let go of it. Carrying something: hand it back
 // to a station that stocks it, or set it down in front of you. Empty-handed: take the
-// nearest item on the floor or piece of equipment, or what a patient will need from a
-// station that stocks it.
+// nearest item on the floor, or else the nearest piece of equipment, or else what a
+// patient will need from a station that stocks it.
 function pickUpOrPutDown(world: World, ctx: SimContext, player: Player): void {
   if (player.pushing !== null) {
     parkEquipment(world, ctx, player);
@@ -241,8 +246,10 @@ function pickUpOrPutDown(world: World, ctx: SimContext, player: Player): void {
     )
     .filter(({ distance }) => distance <= reach)
     .sort((a, b) => a.distance - b.distance || a.item.id - b.item.id)[0];
+  // A small item within reach wins over equipment: carts are big and easy to reach from
+  // another side, while a dropped stethoscope is easy to miss.
   const cart = grabbableEquipment(world, ctx, player)[0];
-  if (cart && (!onFloor || cart.distance < onFloor.distance)) {
+  if (cart && !onFloor) {
     grabEquipment(world, player, cart.cart);
     return;
   }
@@ -286,9 +293,11 @@ function putDown(world: World, ctx: SimContext, player: Player, carried: ItemIns
   if (deliverSample(world, ctx, player, carried)) return;
   const { reach } = ctx.content.rules.movement;
   player.holding = null;
-  const shelf = stationsInReach(ctx, player.pos, reach).find((s) =>
-    stocks(ctx, s.type, carried.item),
-  );
+  // A med labeled for a patient is never put back on a shelf, so it can't get lost.
+  const shelf =
+    carried.for === null
+      ? stationsInReach(ctx, player.pos, reach).find((s) => stocks(ctx, s.type, carried.item))
+      : undefined;
   if (shelf) {
     world.items = world.items.filter((i) => i.id !== carried.id);
     world.events.push({
@@ -310,12 +319,12 @@ function putDown(world: World, ctx: SimContext, player: Player, carried: ItemIns
   });
 }
 
-// What a station hands out. First a ready order, labeled for its patient: the player's
-// own patient (the last one they started a task on) first, then whoever has waited
-// longest. Then an item a patient needs from it that isn't already carried or set down:
-// needs for tasks that can be done now first, in the same patient order, so one button
-// usually grabs the right thing. Meds still to be ordered aren't handed out. With every
-// need covered it hands out the most needed item again, and with none, nothing.
+// What a station hands out: an item a patient needs from it that isn't already carried
+// or set down. Needs for tasks that can be done now come first, and among them the
+// player's own patient (the last one they started a task on), then whoever has waited
+// longest, so one button usually grabs the right thing. Ordered meds aren't handed out:
+// they arrive by tube. With every need covered it hands out the most needed item again,
+// and with none, nothing.
 function itemToHandOut(
   world: World,
   ctx: SimContext,
@@ -326,18 +335,6 @@ function itemToHandOut(
     .filter((item) => item.sources.includes(stationType))
     .map((item) => item.id);
   const patients = patientsFor(world, player);
-  for (const patient of patients) {
-    for (const entry of patient.tasks) {
-      const need = ctx.content.tasks.get(entry.task)?.needsItem;
-      if (entry.stage !== 'ready' || !need || !stocked.includes(need)) continue;
-      const owner = { patient: patient.id, task: entry.task };
-      const taken = world.items.some(
-        (i) => i.for?.patient === owner.patient && i.for.task === owner.task,
-      );
-      if (!taken) return { item: need, for: owner };
-    }
-  }
-
   const now: string[] = [];
   const later: string[] = [];
   for (const patient of patients) {

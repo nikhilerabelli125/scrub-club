@@ -1,12 +1,18 @@
-// Order, wait, deliver (issue #9, docs/01 §7). A med is ordered at the computer and is
-// ready to pick up after a wait; a lab sample is carried to the lab; a scan or the
-// observation chairs wait for a result. The waits are when players go help someone else.
+// Order, wait, deliver (issue #9, docs/01 §7). A med is ordered at the computer; when it's
+// ready it shoots out of a random tube station, labeled for its patient (issue #21). A lab
+// sample is carried to the lab; a scan or the observation chairs wait for a result. The
+// waits are when players go help someone else.
 import type { TaskDef } from '../../data';
 import { secondsToTicks } from '../clock';
 import { distanceToBox, stationBox } from '../geometry';
+import { pickOne } from '../rng';
 import type { ItemInstance, Patient, PatientTask, Player, SimContext, World } from '../types';
+import { launch } from './flight';
 import { discardItems } from './roster';
 import { completeTask } from './tasks';
+
+// How far a delivered med flies out of its tube.
+const TUBE_SHOT = 1.2;
 
 // Whether a task has to be ordered before it's given. Tutorials skip the waits, and in
 // the field (a map without the order station, like a marathon tent) meds come straight
@@ -111,6 +117,7 @@ export function ordersSystem(world: World, ctx: SimContext): void {
         entry.stage = 'ready';
         const item = ctx.content.tasks.get(entry.task)?.needsItem ?? '';
         world.events.push({ type: 'orderReady', patient: patient.id, task: entry.task, item });
+        deliver(world, ctx, patient, entry);
         continue;
       }
       world.events.push({ type: 'resultArrived', patient: patient.id, task: entry.task });
@@ -119,6 +126,44 @@ export function ordersSystem(world: World, ctx: SimContext): void {
       if (!world.patients.includes(patient)) break;
     }
   }
+}
+
+// The ready med shoots out of a random delivery station (seeded, so replays match), toward
+// the open floor, labeled for its patient.
+function deliver(world: World, ctx: SimContext, patient: Patient, entry: PatientTask): void {
+  const task = ctx.content.tasks.get(entry.task);
+  const tubes = ctx.map.stations.filter((s) => s.type === task?.order?.deliveredTo);
+  if (!task?.needsItem || tubes.length === 0) return;
+  const tube = pickOne(world.rng, tubes);
+  const box = stationBox(tube);
+  const [cx, cz] = [(box.x0 + box.x1) / 2, (box.z0 + box.z1) / 2];
+  const [width, depth] = ctx.map.size;
+  // Out of the side facing the middle of the map.
+  const toMiddle = [width / 2 - cx, depth / 2 - cz] as const;
+  const dir: [number, number] =
+    Math.abs(toMiddle[0]) >= Math.abs(toMiddle[1])
+      ? [Math.sign(toMiddle[0]) || 1, 0]
+      : [0, Math.sign(toMiddle[1]) || 1];
+  const mouth: [number, number] = [
+    cx + dir[0] * ((box.x1 - box.x0) / 2 + 0.05),
+    cz + dir[1] * ((box.z1 - box.z0) / 2 + 0.05),
+  ];
+  const item: ItemInstance = {
+    id: world.nextItemId,
+    item: task.needsItem,
+    place: { kind: 'floor', pos: mouth },
+    for: { patient: patient.id, task: task.id },
+  };
+  world.nextItemId += 1;
+  launch(item, mouth, dir, TUBE_SHOT, null);
+  world.items.push(item);
+  world.events.push({
+    type: 'orderDelivered',
+    patient: patient.id,
+    task: task.id,
+    itemId: item.id,
+    station: tube.id,
+  });
 }
 
 function awaitResult(

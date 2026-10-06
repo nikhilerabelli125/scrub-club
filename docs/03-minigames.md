@@ -69,10 +69,10 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | Task | Label | Mechanic | Spot / station | Notes |
 |---|---|---|---|---|
 | `task.ask-questions` | Ask questions | hold 3 s | any | Reveals tasks in `assess` mode |
-| `task.check-vitals` | Check vitals | hold 2.5 s | arm | Needs a vitals cart at the bed (two in the ED). Nurse 50% faster |
+| `task.check-vitals` | Check vitals | hold 2.5 s | arm | Needs a stethoscope (two per ED; not used up). Nurse 50% faster |
 | `task.quick-check` | Quick check | hold 1.5 s | any | Marathon base task |
 | `task.scene-check` | Scene check | hold 1.5 s | any | Ambulance and Mass Casualty base task |
-| `task.listen-lungs` | Listen to lungs | hold 2 s | chest | |
+| `task.listen-lungs` | Listen to lungs | hold 2 s | chest | Needs a stethoscope (pending medical review) |
 | `task.blood-draw` | Blood test | tapWait 3 s | arm | Makes a tube; carry it to the lab; result 18 s after it arrives |
 | `task.throat-swab` | Throat swab | tapWait 2 s | head | Makes a swab; carry it to the lab; result 12 s after it arrives |
 | `task.sugar-check` | Sugar check | tapWait 1.5 s | arm | Instant result |
@@ -96,7 +96,7 @@ Task IDs match `data/tasks.json`. "Spot" is the bed spot used (any = no specific
 | `task.iv` | IV | tapWait 3 s | arm | |
 | `task.iv-fluids` | IV fluids | tapWait 1.5 s | arm | Bag from supply |
 | `task.transfusion` | Blood transfusion | choice (bag color) + tapWait 2 s | arm | Bag from blood fridge must match the wristband color |
-| `task.aspirin` | Aspirin | tapWait 1 s | arm | Order at the computer; ready at the med cabinet in 8 s |
+| `task.aspirin` | Aspirin | tapWait 1 s | arm | Order at the computer; arrives by tube in 8 s |
 | `task.pain-med` | Pain med | timingBar dosing | arm | Order; ready in 10 s. Too much = overdose |
 | `task.antibiotics` | Antibiotics | tapWait 1.5 s | arm | Order; ready in 12 s |
 | `task.allergy-shot` | Allergy shot | tapWait 1 s | arm | Given before questions |
@@ -153,7 +153,6 @@ The ED-A tasks above have their trips (playtest #8). These tasks in the other bu
 
 | Task | Proposed trip |
 |---|---|
-| `task.listen-lungs` | None: an assessment at the bedside, like asking questions (the stethoscope is around your neck) |
 | `task.iv` | IV kit from the supply closet |
 | `task.intubate` | Airway kit from the crash cart, like adrenaline |
 

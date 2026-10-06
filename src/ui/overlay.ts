@@ -12,7 +12,6 @@ import {
   activityModels,
   hudModel,
   PLAYER_COLORS,
-  readyAt,
   ticketModels,
   type HudModel,
   type TicketModel,
@@ -27,8 +26,8 @@ export interface Overlay {
 }
 
 const CONTROLS: Record<PlayerSlot, string> = {
-  1: 'W A S D to move, F to pick up, E to use',
-  2: 'arrow keys to move, K to pick up, L to use',
+  1: 'W A S D to move, F to pick up, E to use or throw',
+  2: 'arrow keys to move, K to pick up, L to use or throw',
   3: '',
   4: '',
 };
@@ -192,10 +191,9 @@ function floatingTags(
   for (const station of ctx.map.stations) {
     const label = ctx.content.stations.get(station.type)?.label;
     if (!label) continue;
-    const ready = readyAt(world, ctx, station.type);
     tags.set(`station:${station.id}`, {
       className: 'tag station',
-      html: `${escape(label)}${ready > 0 ? ` <b>· ${ready} ready</b>` : ''}`,
+      html: escape(label),
       point: project(station.pos[0], stationHeight(station.type) + 0.1, station.pos[1]),
     });
   }
@@ -210,6 +208,18 @@ function floatingTags(
       // Equipment homes sit closer together than their labels are wide, so every other
       // label floats higher.
       point: project(cart.pos[0], cart.id % 2 === 0 ? 1.45 : 1.05, cart.pos[1]),
+    });
+  }
+
+  // Items on the floor say what they are, so a med that shot out of a tube is easy to spot.
+  for (const item of world.items) {
+    if (item.place.kind !== 'floor') continue;
+    const label = carriedLabel(ctx, item);
+    if (!label) continue;
+    tags.set(`item:${item.id}`, {
+      className: `tag item${item.for ? ' labeled' : ''}`,
+      html: escape(label),
+      point: project(item.place.pos[0], 0.55, item.place.pos[1]),
     });
   }
 

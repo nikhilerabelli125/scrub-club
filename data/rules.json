@@ -25,6 +25,7 @@
     "equipmentRange": 1.5,
     "orderSeconds": 1
   },
+  "throwing": { "speed": 10, "distance": 5, "catchRadius": 0.6 },
   "codes": {
     "lostAfterSeconds": 45,
     "fix": {

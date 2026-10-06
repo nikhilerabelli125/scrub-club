@@ -88,8 +88,10 @@ scrub-club/
 - Beds: rooming is automatic. Waiting patients the team knows are sick (acuity 1 to 3 as shown) take free beds first, sickest first, then those nobody has asked about yet, then known acuity 4 to 5; first come, first served within each. The bed is a random free one (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. When every bed is taken, patients wait in the waiting room, where they only get triage (their first and base tasks) until a bed frees up.
 - Pick up: empty-handed, it takes the nearest item on the floor or piece of equipment, or else what a patient needs from a station within reach. Stations hand out needs for tasks that can be done now first, the player's own patient (`Player.lastPatient`) first among those, then the longest waiting, skipping items already carried or set down. With an item, Pick up returns it to a station that stocks it, or sets it down in front of you; with equipment, it parks it.
 - Equipment: each map equipment home starts with one piece (`World.equipment`). A pushed piece rides `PUSH_OFFSET` in front of its pusher, stopping short of walls, and the pusher moves at `movement.pushSpeed`. Parking settles it clear of walls, beds, stations, and other parked equipment. A task with `needsEquipment` starts only with a free piece (or one that `provides` it) within `interaction.equipmentRange` of the patient's bed, and the activity records which piece it uses, so each serves one task at a time.
+- Tools and throwing: items with `tool` aren't used up by tasks; maps place them with `items`. Use with nothing to use the held item on throws it `throwing.distance` at `throwing.speed`, over stations and beds but not through walls; a player with free hands within `throwing.catchRadius` catches it (never the thrower), and anything still flying lands where it runs out. Items can rest on counters and beds.
+- Bumping: after moving, overlapping players push apart half each, or entirely onto whoever isn't working.
 - Escorts: an escort task with a `station` starts at the bedside and the patient follows the player's breadcrumb trail. When the player comes within reach of a station of that type, the patient is delivered there (location `station`), their bed frees up, and the task's steps are done.
-- Orders and results (`src/sim/systems/orders.ts`): each repeat of a task has a `stage`. A task with `order` starts by being ordered: Use at a station of `order.at` holds for `interaction.orderSeconds`, then the stage is `ordered` until `dueTick`, then `ready`, when Pick up at a source of its `needsItem` hands out that item labeled for the patient's task (`ItemInstance.for`), which only that task accepts. When a task's steps are done, a `producesItem` with a `result` becomes a labeled sample (stage `sample`) that Pick up or Use hands in at a station of `result.at`; a `result` then waits until `dueTick` (stage `result`) and completes the task with no player. A level with `skipWaits`, or a map without the order station, needs no orders, and `skipWaits` results arrive at once. Removing a patient discards their labeled items.
+- Orders and results (`src/sim/systems/orders.ts`): each repeat of a task has a `stage`. A task with `order` starts by being ordered: Use at a station of `order.at` holds for `interaction.orderSeconds`, then the stage is `ordered` until `dueTick`, then `ready`: its `needsItem`, labeled for the patient's task (`ItemInstance.for`, which only that task accepts), shoots out of a random `order.deliveredTo` station (seeded) toward the middle of the map. When a task's steps are done, a `producesItem` with a `result` becomes a labeled sample (stage `sample`) that Pick up or Use hands in at a station of `result.at`; a `result` then waits until `dueTick` (stage `result`) and completes the task with no player. A level with `skipWaits`, or a map without the order station, needs no orders, and `skipWaits` results arrive at once. Removing a patient discards their labeled items.
 - Use: parks any equipment the player is pushing, then, beside a patient (within `movement.reach` of their bed), starts the first task they can do there, preferring one that uses the item they carry. At a station, it starts that station's task (an X-ray at the computer) for the player's own patient first, then the longest waiting. One player per task and per bed spot.
 - Working: players stay rooted while working. Letting go of a hold pauses it and keeps its progress on the patient, so anyone can finish it; pushing a direction for `walkAwaySeconds` walks away. A tap-and-wait locks the player until it drains.
 - Stand-ins until their milestones: minigame types other than hold and tapWait, and the carry, push, and two-person-carry interactions (and escorts with no `station`), run as a `standInSeconds` hold at the bedside. Bed spots are exclusive but not yet positions on the bed (M3), and dash comes later.
@@ -124,7 +126,7 @@ interface TaskDef {
   needsEquipment?: string;       // scarce equipment that must be at the bed
   producesItem?: string;         // e.g. 'item.blood-tube'
   result?: { at: string; delaySeconds: number }; // lab, scan, or observation result; the task completes when it arrives
-  order?: { at: string; readySeconds: number }; // ordered at a station first; its needsItem is ready to pick up after readySeconds
+  order?: { at: string; readySeconds: number; deliveredTo: string }; // ordered at a station first; after readySeconds its needsItem shoots out of a random deliveredTo station
   dosing?: boolean;              // timingBar with overshoot → overdose
   reveals?: boolean;             // finding out what's wrong (ask questions): shows the complaint, acuity, and timer
   perkTags?: string[];           // e.g. ['assessment'] for attending speedup
@@ -232,6 +234,7 @@ interface MapDef {
   // pos is the center in meters from the map's top-left corner; x right, z toward the camera
   beds: { id: string; pos: [number, number]; rot: number }[]; // rot in degrees; 0 = head toward -z
   equipmentHomes: { equipment: string; pos: [number, number] }[];
+  items?: { item: string; pos: [number, number] }[]; // lying on the map at the start, like the stethoscopes
   spawns: [number, number][];    // 4 player spawns
   entrances: { id: string; pos: [number, number] }[]; // where patients arrive
   exits: { id: string; pos: [number, number]; kind: string }[]; // kind: home, heart-lab, or, icu, ambulance...
@@ -280,11 +283,12 @@ interface ItemsFile { items: ItemDef[] }
 interface ItemDef {
   id: string;                    // 'item.med'
   label: string;
-  sources: string[];             // station types or equipment that hand it out; [] = only made by a task
+  sources: string[];             // station types or equipment that hand it out; [] = made by a task or placed on maps
+  tool?: boolean;                // reusable, like a stethoscope: tasks don't use it up
 }
 
 // data/equipment.json: wheeled equipment. Each map equipment home holds one piece; a map can
-// have several of a kind (two vitals carts in the ED)
+// have several of a kind
 interface EquipmentFile { equipment: EquipmentDef[] }
 interface EquipmentDef {
   id: string;                    // 'equipment.crash-cart'
@@ -318,6 +322,7 @@ interface RulesFile {
   playerScaling: { players: 1 | 2 | 3 | 4; spawnInterval: number; census: number; stars: number }[];
   movement: { speed: number; radius: number; reach: number; pushSpeed: number }; // m/s; player circle; how far a player can interact (m); speed multiplier while wheeling equipment
   interaction: { walkAwaySeconds: number; standInSeconds: number; equipmentRange: number; orderSeconds: number }; // 03 §1; hold used for mechanics not built yet; how close (m) equipment must be to a patient's bed; hold to place an order
+  throwing: { speed: number; distance: number; catchRadius: number }; // m/s; how far a throw flies (m); how close (m) a free-handed player must be to catch it
   codes: {
     lostAfterSeconds: number;    // a code not fixed in time is lost (death)
     fix: { flat: string[]; zigzag: string[] }; // task ids for each rhythm (01 §5)
@@ -368,7 +373,7 @@ The same checks run in `npm run test`, and a test compiles the block above again
 
 ## 8. Physics
 
-Rapier handles thrown items, items sliding on tilted floors (ambulance swerves, ship tilt), and the pool-slosh push. Character movement uses simple custom circle-vs-box collision in the sim (as in the style lab) so the sim stays pure and testable; Rapier runs on the render/host side for loose items and reports results back as sim events.
+Throws are simple straight flights in the sim (`src/sim/systems/flight.ts`), so they replay exactly. Rapier will handle items sliding on tilted floors (ambulance swerves, ship tilt) and the pool-slosh push. Character movement uses simple custom circle-vs-box collision in the sim (as in the style lab) so the sim stays pure and testable; Rapier runs on the render/host side for loose items and reports results back as sim events.
 
 ## 9. UI overlay
 

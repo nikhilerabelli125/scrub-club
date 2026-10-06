@@ -15,7 +15,6 @@ import {
   eventsOf,
   hand,
   IDLE,
-  parkBeside,
   playerIn,
   players,
   press,
@@ -162,7 +161,7 @@ describe('items', () => {
     const log = run(world, ctx, secondsToTicks(2), () => IDLE);
     expect(eventsOf(log, 'itemUsed').map(({ event }) => event.item)).toEqual(['item.med']);
     expect(playerIn(world, 1).holding).toBeNull();
-    expect(world.items).toEqual([]);
+    expect(world.items.some((i) => i.item === 'item.med')).toBe(false);
     expect(eventsOf(log, 'taskCompleted').map(({ event }) => event.task)).toEqual([
       'task.allergy-shot',
     ]);
@@ -179,13 +178,13 @@ describe('items', () => {
     expect(tapped(world)).toContainEqual(
       expect.objectContaining({ type: 'itemReturned', item: 'item.wound-kit' }),
     );
-    expect(world.items).toEqual([]);
+    expect(world.items.some((i) => i.item === 'item.wound-kit')).toBe(false);
 
     stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
     playerIn(world, 1).pos = [12, 11.5]; // open floor, nowhere near a shelf
     stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
     expect(tapped(world)).toContainEqual(expect.objectContaining({ type: 'itemDropped' }));
-    expect(world.items[0]?.place.kind).toBe('floor');
+    expect(world.items.find((i) => i.item === 'item.wound-kit')?.place.kind).toBe('floor');
     stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
     expect(tapped(world)).toContainEqual(
       expect.objectContaining({ type: 'itemPickedUp', from: 'floor' }),
@@ -233,14 +232,15 @@ describe('what stations hand out', () => {
     );
     besideStation(world, ctx, 1, 'station.supply');
     stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
-    expect(world.items[0]?.item).toBe('item.oxygen-mask'); // not patient 1's wound kit
+    const held = world.items.find((i) => i.id === playerIn(world, 1).holding);
+    expect(held?.item).toBe('item.oxygen-mask'); // not patient 1's wound kit
   });
 });
 
 describe('sharing a patient', () => {
   it('two players never do the same task: the second gets the next one', () => {
     const { ctx, world } = withPatient('ed.bad-cut');
-    parkBeside(world, 'equipment.vitals-cart', patientArea(world, ctx, patient(world)));
+    hand(world, 2, 'item.stethoscope'); // for the vitals
     besidePatient(world, ctx, 1);
     besidePatient(world, ctx, 2);
     stepWorld(world, ctx, players(press(1, { use: 'pressed' }), press(2, { use: 'pressed' })));

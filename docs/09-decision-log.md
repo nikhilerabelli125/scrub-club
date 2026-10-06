@@ -118,3 +118,8 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Escalation | Built: stages with a sign, then a badge, then the outcome; signs show before anyone asks; codes act as rescue transfers until M3 | M2 playtest (#19) |
 | Timer bar | Shows the sooner of walking out (acuity 3 to 5) and the end of the escalation path | M2 playtest (#19) |
 | Rooming | Known sick (shown acuity 1 to 3) first, then patients nobody has asked about, then known acuity 4 to 5 | M2 playtest (#19) |
+| Vitals | Check vitals needs a stethoscope: two per ED, carried and never used up; vitals carts are gone | M2 playtest (#21) |
+| Meds by tube | Ready orders shoot out of a random pneumatic tube station, labeled for their patient | M2 playtest (#21) |
+| Throwing | Use with nothing to use it on throws, about 5 m, over counters and beds; teammates with free hands catch | M2 playtest (#21) |
+| Bumping | Players push each other apart; nobody can shove a player who is working | M2 playtest (#21) |
+| Pick up | A small item within reach wins over equipment, so a dropped stethoscope beside a cart can be picked up | M2 playtest (#21) |

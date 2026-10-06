@@ -56,6 +56,19 @@
   font-size: 11px;
   font-weight: 700;
 }
+.tag.item {
+  padding: 0 5px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ink);
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+}
+.tag.item.labeled {
+  background: #e2483d;
+  color: #fff;
+}
 .tag.equipment i {
   display: inline-block;
   width: 8px;

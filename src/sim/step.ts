@@ -1,5 +1,6 @@
 import { commandSystem } from './systems/commands';
 import { endSystem } from './systems/end';
+import { flightSystem } from './systems/flight';
 import { escalationSystem } from './systems/escalation';
 import { escortSystem } from './systems/escort';
 import { interactionSystem } from './systems/interactions';
@@ -29,6 +30,7 @@ export function stepWorld(world: World, ctx: SimContext, input: TickInput): void
   interactionSystem(world, ctx, input);
   workSystem(world, ctx, input);
   ordersSystem(world, ctx);
+  flightSystem(world, ctx);
   patienceSystem(world);
   escalationSystem(world, ctx);
   levelEventsSystem(world, ctx);

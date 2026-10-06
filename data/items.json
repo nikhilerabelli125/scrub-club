@@ -23,6 +23,7 @@
     { "id": "item.scale", "label": "Scale", "sources": ["station.scale"] },
     { "id": "item.specimen", "label": "Specimen", "sources": [] },
     { "id": "item.splint", "label": "Splint", "sources": ["station.supply"] },
+    { "id": "item.stethoscope", "label": "Stethoscope", "sources": [], "tool": true },
     { "id": "item.stitch-kit", "label": "Stitch kit", "sources": ["station.supply"] },
     { "id": "item.supplies", "label": "Supplies", "sources": ["station.supply"] },
     { "id": "item.swab", "label": "Swab", "sources": [] },

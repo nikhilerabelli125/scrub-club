@@ -78,7 +78,9 @@ export const TaskDefSchema = z.strictObject({
   needsEquipment: EquipmentId.optional(),
   producesItem: ItemId.optional(),
   result: z.strictObject({ at: StationTypeId, delaySeconds: Seconds }).optional(),
-  order: z.strictObject({ at: StationTypeId, readySeconds: Seconds }).optional(),
+  order: z
+    .strictObject({ at: StationTypeId, readySeconds: Seconds, deliveredTo: StationTypeId })
+    .optional(),
   dosing: z.boolean().optional(),
   reveals: z.boolean().optional(),
   perkTags: z.array(Text).optional(),
@@ -251,6 +253,7 @@ export const MapDefSchema = z.strictObject({
   ),
   beds: z.array(z.strictObject({ id: LocalId, pos: Point, rot: z.number() })),
   equipmentHomes: z.array(z.strictObject({ equipment: EquipmentId, pos: Point })),
+  items: z.array(z.strictObject({ item: ItemId, pos: Point })).optional(),
   spawns: z.array(Point).length(4, 'every map has exactly 4 player spawns (docs/05 §4)'),
   entrances: z.array(z.strictObject({ id: LocalId, pos: Point })),
   exits: z.array(z.strictObject({ id: LocalId, pos: Point, kind: LocalId })),
@@ -322,6 +325,7 @@ export const ItemDefSchema = z.strictObject({
   id: ItemId,
   label: Text,
   sources: z.array(namespaced('station|equipment', 'station.supply')),
+  tool: z.boolean().optional(),
 });
 export const ItemsFileSchema = z.strictObject({ items: z.array(ItemDefSchema) });
 
@@ -383,6 +387,11 @@ export const RulesFileSchema = z.strictObject({
     standInSeconds: z.number().positive(),
     equipmentRange: z.number().positive(),
     orderSeconds: z.number().positive(),
+  }),
+  throwing: z.strictObject({
+    speed: z.number().positive(),
+    distance: z.number().positive(),
+    catchRadius: z.number().positive(),
   }),
   codes: z.strictObject({
     lostAfterSeconds: z.number().positive(),

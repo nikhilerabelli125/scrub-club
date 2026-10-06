@@ -110,7 +110,27 @@ export function buttonOnlyTeam(world: World, ctx: SimContext, slot: PlayerSlot =
         return use();
       }
       if (task.needsItem) {
-        const sources = ctx.content.items.get(task.needsItem)?.sources ?? [];
+        const needed = task.needsItem;
+        // A med that came by tube, labeled for this patient: go and pick it up.
+        const labeled = world.items.find(
+          (i) => i.for?.patient === patient.id && i.for.task === task.id,
+        );
+        if (labeled) {
+          if (labeled.place.kind !== 'floor') continue; // still in the air
+          standAtItem(world, ctx, slot, labeled.place.pos);
+          return pickUp();
+        }
+        if (stage === 'ready') continue;
+        // A tool lying around, like a stethoscope: the nearest one.
+        if (ctx.content.items.get(needed)?.tool === true) {
+          const tool = world.items
+            .flatMap((i) => (i.item === needed && i.place.kind === 'floor' ? [i.place.pos] : []))
+            .sort((a, b) => distance(a, player.pos) - distance(b, player.pos))[0];
+          if (!tool) continue;
+          standAtItem(world, ctx, slot, tool);
+          return pickUp();
+        }
+        const sources = ctx.content.items.get(needed)?.sources ?? [];
         const shelf = ctx.map.stations.find((s) => sources.includes(s.type));
         if (!shelf) continue;
         standNextTo(world, ctx, slot, stationBox(shelf));
@@ -131,6 +151,19 @@ export function buttonOnlyTeam(world: World, ctx: SimContext, slot: PlayerSlot =
     }
   }
   return IDLE;
+}
+
+function standAtItem(
+  world: World,
+  ctx: SimContext,
+  slot: PlayerSlot,
+  [x, z]: readonly [number, number],
+): void {
+  standNextTo(world, ctx, slot, { x0: x, x1: x, z0: z, z1: z });
+}
+
+function distance(a: readonly [number, number], b: readonly [number, number]): number {
+  return Math.hypot(a[0] - b[0], a[1] - b[1]);
 }
 
 // Pick up grabs the nearest equipment, so stand where this cart is nearer than any other.

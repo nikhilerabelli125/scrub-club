@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  distanceToBox,
   needsOrder,
   patientArea,
   secondsToTicks,
@@ -71,6 +72,15 @@ const held = (world: World, slot: PlayerSlot = 1) =>
 
 const AFTER_EKG = ['task.ask-questions', 'task.check-vitals', 'task.ekg'];
 
+// Walks player 1 to an item on the floor and picks it up.
+function pickUpItem(world: World, ctx: SimContext, id: number): void {
+  const item = world.items.find((i) => i.id === id);
+  if (item?.place.kind !== 'floor') throw new Error(`item ${id} isn't on the floor`);
+  const [x, z] = item.place.pos;
+  standNextTo(world, ctx, 1, { x0: x, x1: x, z0: z, z1: z });
+  stepWorld(world, ctx, pickUp());
+}
+
 describe('ordering meds', () => {
   it('Use at the computer orders the aspirin; 8 s later it is ready', () => {
     const { ctx, world } = setUp('ed-a', ['ed.chest-pain'], AFTER_EKG);
@@ -91,31 +101,37 @@ describe('ordering meds', () => {
     expect(entryOf(world, 1, 'task.aspirin').stage).toBe('ready');
   });
 
-  it('the med cabinet hands it out only once ready, labeled for its patient alone', () => {
+  it('when ready it shoots out of a tube station, labeled for its patient alone', () => {
     const { ctx, world } = setUp('ed-a', ['ed.chest-pain', 'ed.chest-pain'], AFTER_EKG);
     const aspirin = entryOf(world, 1, 'task.aspirin');
     aspirin.stage = 'ordered';
     aspirin.dueTick = world.tick + secondsToTicks(8);
+    // Ready in 8 s, then a short flight out of the tube.
+    const log = run(world, ctx, secondsToTicks(8.5), () => IDLE);
+    const delivered = eventsOf(log, 'orderDelivered')[0]?.event;
+    const tube = ctx.map.stations.find((s) => s.id === delivered?.station);
+    expect(tube?.type).toBe('station.tube');
+    const med = world.items.find((i) => i.id === delivered?.itemId);
+    expect(med).toMatchObject({ item: 'item.med', for: { patient: 1, task: 'task.aspirin' } });
+    if (med?.place.kind !== 'floor' || !tube) throw new Error('the med should have landed');
+    expect(distanceToBox(stationBox(tube), med.place.pos)).toBeLessThan(1.5);
 
-    besideStation(world, ctx, 1, 'station.med-cabinet');
-    stepWorld(world, ctx, pickUp());
-    expect(held(world)).toBeUndefined(); // still being prepared
-
-    run(world, ctx, secondsToTicks(8), () => IDLE);
-    stepWorld(world, ctx, pickUp());
-    expect(held(world)).toMatchObject({
-      item: 'item.med',
-      for: { patient: 1, task: 'task.aspirin' },
-    });
-
+    pickUpItem(world, ctx, med.id);
+    expect(held(world)?.id).toBe(med.id);
     besidePatient(world, ctx, 1, 2); // patient 2 needs aspirin too, but this one isn't theirs
     stepWorld(world, ctx, use());
     expect(playerIn(world, 1).activity).toBeNull();
+    // With nothing to do with it here, Use throws it (docs/02 §3). Fetch it back.
+    expect(world.events).toContainEqual(
+      expect.objectContaining({ type: 'itemThrown', itemId: med.id }),
+    );
+    run(world, ctx, 30, () => IDLE);
+    pickUpItem(world, ctx, med.id);
     besidePatient(world, ctx, 1, 1);
     stepWorld(world, ctx, use());
     expect(playerIn(world, 1).activity).toMatchObject({ patient: 1, task: 'task.aspirin' });
-    const log = run(world, ctx, secondsToTicks(1), () => IDLE);
-    expect(eventsOf(log, 'patientFinished').map(({ event }) => event.patient)).toEqual([1]);
+    const given = run(world, ctx, secondsToTicks(1), () => IDLE);
+    expect(eventsOf(given, 'patientFinished').map(({ event }) => event.patient)).toEqual([1]);
   });
 
   it('emergency shots given before questions need no order', () => {
@@ -247,20 +263,22 @@ describe('the tutorial (CL-A) skips the waits', () => {
 
 describe('leaving', () => {
   it("a patient who leaves takes their ordered med out of a player's hands", () => {
-    // A headache (75 s of patience) whose med is ready and in hand.
+    // A headache (75 s of patience) whose med has just come by tube.
     const { ctx, world } = setUp(
       'ed-a',
       ['ed.headache'],
       ['task.ask-questions', 'task.check-vitals'],
     );
     const med = entryOf(world, 1, 'task.headache-med');
-    med.stage = 'ready';
-    besideStation(world, ctx, 1, 'station.med-cabinet');
-    stepWorld(world, ctx, pickUp());
+    med.stage = 'ordered';
+    med.dueTick = world.tick + 1;
+    run(world, ctx, 30, () => IDLE);
+    const delivered = world.items.find((i) => i.for?.patient === 1);
+    pickUpItem(world, ctx, delivered?.id ?? 0);
     expect(held(world)?.for).toEqual({ patient: 1, task: 'task.headache-med' });
     const log = run(world, ctx, secondsToTicks(80), () => IDLE);
     expect(eventsOf(log, 'patientLeft').map(({ event }) => event.patient)).toEqual([1]);
     expect(playerIn(world, 1).holding).toBeNull();
-    expect(world.items).toEqual([]);
+    expect(world.items.some((i) => i.for !== null)).toBe(false);
   });
 });

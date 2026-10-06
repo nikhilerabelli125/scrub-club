@@ -283,6 +283,13 @@ function checkRegistries(
       known('station type', task.result.at, ix.stationTypes, file, `${at}.result.at`);
     if (task.order) {
       known('station type', task.order.at, ix.stationTypes, file, `${at}.order.at`);
+      known(
+        'station type',
+        task.order.deliveredTo,
+        ix.stationTypes,
+        file,
+        `${at}.order.deliveredTo`,
+      );
       if (!task.needsItem) {
         report(file, `${at}.order`, 'an ordered task needs a needsItem: what is ready to pick up');
       }
@@ -301,11 +308,15 @@ function checkRegistries(
         known('station type', source, ix.stationTypes, 'items.json', at);
       else known('equipment', source, ix.equipment, 'items.json', at);
     });
-    if (item.sources.length === 0 && !p.tasks.tasks.some((t) => t.producesItem === item.id)) {
+    const made = p.tasks.tasks.some((t) => t.producesItem === item.id);
+    const placed = p.maps.some(({ data: map }) =>
+      (map.items ?? []).some((m) => m.item === item.id),
+    );
+    if (item.sources.length === 0 && !made && !placed) {
       report(
         'items.json',
         `items[${i}].sources`,
-        `nothing hands out ${item.id} and no task makes it`,
+        `nothing hands out ${item.id}, no task makes it, and no map places it`,
       );
     }
   });
@@ -606,6 +617,9 @@ function checkMaps(p: ParsedData, ix: Index, report: Report, known: Known, uniqu
     map.equipmentHomes.forEach((home, i) =>
       known('equipment', home.equipment, ix.equipment, file, `equipmentHomes[${i}].equipment`),
     );
+    map.items?.forEach((placed, i) =>
+      known('item', placed.item, ix.items, file, `items[${i}].item`),
+    );
     const zoneKinds = new Set([...ix.gimmicks, ...ix.hazards]);
     map.zones?.forEach((zone, i) =>
       known('gimmick or hazard', zone.kind, zoneKinds, file, `zones[${i}].kind`),
@@ -616,6 +630,7 @@ function checkMaps(p: ParsedData, ix: Index, report: Report, known: Known, uniqu
       ...map.stations.map((s, i) => [`stations[${i}].pos`, s.pos] as const),
       ...map.beds.map((b, i) => [`beds[${i}].pos`, b.pos] as const),
       ...map.equipmentHomes.map((h, i) => [`equipmentHomes[${i}].pos`, h.pos] as const),
+      ...(map.items ?? []).map((m, i) => [`items[${i}].pos`, m.pos] as const),
       ...map.spawns.map((pos, i) => [`spawns[${i}]`, pos] as const),
       ...map.entrances.map((e, i) => [`entrances[${i}].pos`, e.pos] as const),
       ...map.exits.map((e, i) => [`exits[${i}].pos`, e.pos] as const),
@@ -799,6 +814,7 @@ function checkLevelAgainstMap(
     ]),
   );
   const exitKinds = new Set(map.exits.map((e) => e.kind));
+  const placedHere = new Set((map.items ?? []).map((m) => m.item));
 
   // Tasks each patient can end up needing, including partial treatments and the
   // tasks their escalation adds.
@@ -848,13 +864,21 @@ function checkLevelAgainstMap(
       if (task.result && !stationTypes.has(task.result.at))
         missing(`a ${task.result.at} for its result`);
       if (task.needsEquipment && !equipment.has(task.needsEquipment)) missing(task.needsEquipment);
+      // Where a map has the order station, the med is ordered there and shoots out of a
+      // delivery station (docs/01 §7); otherwise it comes from its sources.
+      const ordered = task.order && !level.skipWaits && stationTypes.has(task.order.at);
+      if (task.order && ordered && !stationTypes.has(task.order.deliveredTo)) {
+        missing(`a ${task.order.deliveredTo} for its order to arrive at`);
+      }
       const item = task.needsItem ? ix.items.get(task.needsItem) : undefined;
       if (
         item &&
+        !ordered &&
         !madeHere.has(item.id) &&
+        !placedHere.has(item.id) &&
         !item.sources.some((source) => stationTypes.has(source) || equipment.has(source))
       ) {
-        missing(`${item.id} from ${item.sources.join(' or ') || 'a task'}`);
+        missing(`${item.id} from ${item.sources.join(' or ') || 'a task or the map itself'}`);
       }
     }
   }
