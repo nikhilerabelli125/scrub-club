@@ -79,11 +79,13 @@ scrub-club/
 **Rules the M1 core follows** (where the docs leave room):
 
 - Spawning: the first patient arrives at the start. The spawn timer pauses while the waiting room holds `maxWaiting` patients, or while `maxActive` patients are on the rail (one-at-a-time tutorials like CL-A). Scripted spawn events ignore both caps, so guaranteed patients always arrive.
-- Patience counts from arrival until the patient is finished. Acuity 3 to 5 patients leave when it runs out; acuity 1 to 2 never leave, and wait at zero until escalation arrives in M2.
+- Patience counts from arrival until the patient is finished. Acuity 3 to 5 patients leave when it runs out; acuity 1 to 2 never leave, and their patience only sets the speed bonus.
+- What's known (`Patient.known`, `src/sim/systems/knowledge.ts`): `nothing` on arrival, unless the condition has treat-first tasks, arrives in a code, or has no base tasks. Completing a task with `reveals` (ask questions) makes it `complaint` for a hidden condition and `all` otherwise; a hidden condition becomes `all` once every `hidden.revealedBy` task is done.
+- Escalation (`src/sim/systems/escalation.ts`): stage 1 starts `afterSeconds` (with seeded jitter) after arrival and each later stage after the one before. While any `slowedBy` task of the next stage is done, its clock holds still. Entering a stage adds its `addTasks` and, with an `outcome`, ends it: `leave` walks out, and `rescue` and both codes become a rescue transfer (rules.json `outcomes.rescue`) until codes are built (M3).
 - Tasks: "first" tasks (`before: 'base'`) come before the setting's base tasks, the base tasks gate everything else, and `after` waits for every repeat of a counted task.
 - Finishing pays the acuity's points plus up to `speedBonusMax` of them for patience left. Every disposition mode behaves like `auto` until M2.
 - Star thresholds scale by player count in both points and time mode.
-- Beds: rooming is automatic. The sickest waiting patient (by the acuity their ticket shows) takes the next free bed, then first come, first served, and the bed is a random free one (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. When every bed is taken, patients wait in the waiting room, where they only get triage (their first and base tasks) until a bed frees up.
+- Beds: rooming is automatic. Waiting patients the team knows are sick (acuity 1 to 3 as shown) take free beds first, sickest first, then those nobody has asked about yet, then known acuity 4 to 5; first come, first served within each. The bed is a random free one (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. When every bed is taken, patients wait in the waiting room, where they only get triage (their first and base tasks) until a bed frees up.
 - Pick up: empty-handed, it takes the nearest item on the floor or piece of equipment, or else what a patient needs from a station within reach. Stations hand out needs for tasks that can be done now first, the player's own patient (`Player.lastPatient`) first among those, then the longest waiting, skipping items already carried or set down. With an item, Pick up returns it to a station that stocks it, or sets it down in front of you; with equipment, it parks it.
 - Equipment: each map equipment home starts with one piece (`World.equipment`). A pushed piece rides `PUSH_OFFSET` in front of its pusher, stopping short of walls, and the pusher moves at `movement.pushSpeed`. Parking settles it clear of walls, beds, stations, and other parked equipment. A task with `needsEquipment` starts only with a free piece (or one that `provides` it) within `interaction.equipmentRange` of the patient's bed, and the activity records which piece it uses, so each serves one task at a time.
 - Escorts: an escort task with a `station` starts at the bedside and the patient follows the player's breadcrumb trail. When the player comes within reach of a station of that type, the patient is delivered there (location `station`), their bed frees up, and the task's steps are done.
@@ -124,6 +126,7 @@ interface TaskDef {
   result?: { at: string; delaySeconds: number }; // lab, scan, or observation result; the task completes when it arrives
   order?: { at: string; readySeconds: number }; // ordered at a station first; its needsItem is ready to pick up after readySeconds
   dosing?: boolean;              // timingBar with overshoot → overdose
+  reveals?: boolean;             // finding out what's wrong (ask questions): shows the complaint, acuity, and timer
   perkTags?: string[];           // e.g. ['assessment'] for attending speedup
 }
 

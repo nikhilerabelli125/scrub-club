@@ -1,5 +1,6 @@
 import type { Patient, PatientTask, PlayerSlot, SimContext, World } from '../types';
-import { discardItems, removePatient } from './patients';
+import { learn } from './knowledge';
+import { discardItems, removePatient } from './roster';
 
 // The tasks a player can start right now. Tasks marked "first" (like the allergy shot)
 // come before the base tasks, the base tasks gate everything else (01 §4.3), and
@@ -56,6 +57,7 @@ export function completeTask(
     remaining: entry.remaining,
     player: by,
   });
+  learn(world, ctx, patient, taskId);
   if (patient.tasks.every((t) => t.optional || t.remaining === 0)) {
     finishPatient(world, ctx, patient);
   }

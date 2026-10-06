@@ -168,3 +168,18 @@ export function parkBeside(world: World, equipment: string, box: Box): Equipment
   cart.pos = [(box.x0 + box.x1) / 2 + 0.9, box.z1 + 0.5];
   return cart;
 }
+
+// Test setup: the patients here now never get worse, so they hold their beds and seats
+// for as long as a test needs. (Untreated, a chest pain goes to another team in about a
+// minute.)
+export function keepStable(world: World): void {
+  for (const patient of world.patients) patient.escalation.dueTick = Number.MAX_SAFE_INTEGER;
+}
+
+// Input for `run`: spawns these patients on the first tick, then keeps them stable.
+export function spawnStable(...list: SimCommand[]): (world: World) => TickInput {
+  return (world) => {
+    if (world.tick === 1) keepStable(world);
+    return world.tick === 0 ? commands(...list) : IDLE;
+  };
+}

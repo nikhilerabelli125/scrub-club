@@ -83,7 +83,17 @@ export interface Patient {
   patienceTicks: number;
   patienceMaxTicks: number;
   tasks: PatientTask[];
+  known: Knowledge;
+  // Getting worse (01 §4.5): how many escalation stages they've entered, the tick the next
+  // one starts (partial treatment pushes it back), and how long the first stage took to
+  // arrive after its seeded jitter, which the timer bar measures against.
+  escalation: { stage: number; dueTick: number; firstTicks: number };
 }
+
+// What the team knows about a patient (01 §4.1): nothing until someone asks questions,
+// unless they're plainly in trouble; then their complaint, acuity, and timer; and for a
+// hidden condition, the real problem once its revealing tasks are done (01 §4.4).
+export type Knowledge = 'nothing' | 'complaint' | 'all';
 
 export interface Bed {
   id: string;
@@ -208,8 +218,17 @@ export type SimEvent =
       patienceMaxTicks: number;
     }
   | { type: 'patientLeft'; patient: number; condition: string }
-  | { type: 'scored'; points: number; reason: 'finished' | 'left'; patient: number }
-  | { type: 'strike'; strikes: number; reason: 'left' }
+  | { type: 'patientRevealed'; patient: number; known: Knowledge }
+  | {
+      type: 'patientEscalated';
+      patient: number;
+      stage: number; // 1 for the first warning
+      badge: string | null;
+    }
+  // Neglected and taken away by another team (01 §4.7): points off and 2 strikes.
+  | { type: 'patientTransferred'; patient: number; condition: string; reason: 'rescue' }
+  | { type: 'scored'; points: number; reason: 'finished' | 'left' | 'rescue'; patient: number }
+  | { type: 'strike'; strikes: number; reason: 'left' | 'rescue' }
   | { type: 'levelEnded'; result: LevelResult }
   | { type: 'commandRejected'; command: SimCommand; reason: string };
 

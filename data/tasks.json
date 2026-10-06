@@ -12,6 +12,7 @@
         }
       ],
       "spot": "any",
+      "reveals": true,
       "perkTags": ["assessment"]
     },
     {
@@ -41,6 +42,7 @@
         }
       ],
       "spot": "any",
+      "reveals": true,
       "perkTags": ["vitals"]
     },
     {
@@ -55,6 +57,7 @@
         }
       ],
       "spot": "any",
+      "reveals": true,
       "perkTags": ["assessment"]
     },
     {
@@ -245,6 +248,7 @@
         }
       ],
       "spot": "any",
+      "reveals": true,
       "perkTags": ["assessment"]
     },
     {

@@ -1,13 +1,14 @@
 // The DOM overlay above the canvas (docs/06 §6, docs/07 §9): ticket rail, clock, HUD,
 // floating tags, and the results card. It draws what model.ts works out from the world
 // and never changes the world.
-import type { DataIssue } from '../data';
+import type { Acuity, DataIssue } from '../data';
 import type { ScreenPoint } from '../render';
 import { EQUIPMENT_COLORS, stationHeight } from '../render';
 import type { ItemInstance, LevelResult, Patient, PlayerSlot, SimContext, World } from '../sim';
 import { BED_SIZE, patientArea } from '../sim';
 import {
   ACUITY_COLORS,
+  UNKNOWN_COLOR,
   activityModels,
   hudModel,
   PLAYER_COLORS,
@@ -106,7 +107,7 @@ function drawTickets(
   drawn: string,
   remember: (drawn: string) => void,
 ): void {
-  // Rebuild only when a ticket's content changes; patience bars update every frame.
+  // Rebuild only when a ticket's content changes; timer bars update every frame.
   const html = models.map(ticketMarkup).join('');
   if (html !== drawn) {
     container.innerHTML = html;
@@ -114,9 +115,9 @@ function drawTickets(
   }
   for (const ticket of models) {
     const bar = container.querySelector<HTMLElement>(`[data-patient="${ticket.patient}"] .t-bar i`);
-    if (!bar) continue;
-    bar.style.width = `${Math.round(ticket.patience * 100)}%`;
-    bar.style.background = patienceColor(ticket.patience);
+    if (!bar || ticket.timer === null) continue;
+    bar.style.width = `${Math.round(ticket.timer * 100)}%`;
+    bar.style.background = timerColor(ticket.timer);
   }
 }
 
@@ -128,19 +129,31 @@ function ticketMarkup(ticket: TicketModel): string {
       return `<li class="${chip.state}">${escape(chip.label)}${repeats}${note}</li>`;
     })
     .join('');
+  const badge = ticket.badge === null ? '' : `<div class="t-warn">${escape(ticket.badge)}</div>`;
+  // Until someone asks questions there's no timer to show: just a hint to go and ask.
+  const bar =
+    ticket.timer === null
+      ? '<div class="t-ask">Ask questions to learn more</div>'
+      : '<div class="t-bar"><i></i></div>';
   return `
-    <div class="ticket" data-patient="${ticket.patient}">
-      <div class="paper" style="--acuity:${ACUITY_COLORS[ticket.acuity]}">
+    <div class="ticket ${ticket.warning}" data-patient="${ticket.patient}">
+      <div class="paper" style="--acuity:${acuityColor(ticket.acuity)}">
         <div class="t-name">${escape(ticket.label)}</div>
         <div class="t-bed">${escape(ticket.place)}</div>
+        ${badge}
         <ul class="t-steps">${chips}</ul>
-        <div class="t-bar"><i></i></div>
+        ${bar}
       </div>
     </div>`;
 }
 
-// The bar shifts green, then orange, then red as patience runs out (docs/06 §6).
-function patienceColor(left: number): string {
+// Grey until someone asks questions (issue #19).
+function acuityColor(acuity: Acuity | null): string {
+  return acuity === null ? UNKNOWN_COLOR : ACUITY_COLORS[acuity];
+}
+
+// The bar shifts green, then orange, then red as time runs out (docs/06 §6).
+function timerColor(left: number): string {
   if (left > 0.5) return '#3BB273';
   return left > 0.25 ? '#EE8A2B' : '#D9433B';
 }
@@ -204,9 +217,13 @@ function floatingTags(
   for (const patient of world.patients) {
     const ticket = ticketByPatient.get(patient.id);
     if (!ticket) continue;
+    // A question mark until someone asks; a badge once they're visibly getting worse.
+    const text = ticket.badge ?? (ticket.acuity === null ? '?' : ticket.label);
+    const color = ticket.badge === null ? acuityColor(ticket.acuity) : ACUITY_COLORS[1];
+    const sign = ticket.warning === 'sign' ? '<b>!</b> ' : '';
     tags.set(`patient:${patient.id}`, {
-      className: 'tag patient',
-      html: `<span style="background:${ACUITY_COLORS[ticket.acuity]}">${escape(ticket.label)}</span>`,
+      className: `tag patient ${ticket.warning}`,
+      html: `<span style="background:${color}">${sign}${escape(text)}</span>`,
       point: patientTagPoint(world, ctx, patient, project),
     });
   }
