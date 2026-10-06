@@ -83,7 +83,7 @@ scrub-club/
 - Tasks: "first" tasks (`before: 'base'`) come before the setting's base tasks, the base tasks gate everything else, and `after` waits for every repeat of a counted task.
 - Finishing pays the acuity's points plus up to `speedBonusMax` of them for patience left. Every disposition mode behaves like `auto` until M2.
 - Star thresholds scale by player count in both points and time mode.
-- Beds: arriving patients take free beds in map order, first come, first served. Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. Letting players choose who goes first, by escorting patients, arrives with escorts in M2.
+- Beds: arriving patients are roomed first come, first served, each in a random free bed (seeded, so replays match). Beds named by scripted spawns (ED-E's resus) stay free for those arrivals. Who rooms patients, and what the waiting room is for, is an open decision (issue #10).
 - Pick up: empty-handed at a station, you get the item a patient will need from it (longest-waiting patient first); with an item, Pick up returns it to a station that stocks it, or sets it down in front of you. Items on the floor can be picked back up.
 - Use: beside a patient (within `movement.reach` of their bed), starts the first task you can do there, preferring one that uses the item you carry. At a station, it starts that station's task (an X-ray at the computer) for the longest-waiting patient. One player per task and per bed spot.
 - Working: players stay rooted while working. Letting go of a hold pauses it and keeps its progress on the patient, so anyone can finish it; pushing a direction for `walkAwaySeconds` walks away. A tap-and-wait locks the player until it drains.

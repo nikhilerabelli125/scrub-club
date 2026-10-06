@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { createRng, jitter, nextFloat, nextRange, pickWeighted, type Rng } from '../../src/sim';
+import {
+  createRng,
+  jitter,
+  nextFloat,
+  nextRange,
+  pickOne,
+  pickWeighted,
+  type Rng,
+} from '../../src/sim';
 
 describe('seeded random numbers', () => {
   it('repeat exactly for the same seed', () => {
@@ -59,5 +67,16 @@ describe('seeded random numbers', () => {
     expect(Math.abs((counts.a ?? 0) / draws - 1 / 8)).toBeLessThan(0.01);
     expect(Math.abs((counts.b ?? 0) / draws - 2 / 8)).toBeLessThan(0.01);
     expect(Math.abs((counts.c ?? 0) / draws - 5 / 8)).toBeLessThan(0.01);
+  });
+
+  it('pick one item with every item equally likely', () => {
+    const rng = createRng(11);
+    const counts = new Map<string, number>();
+    for (let i = 0; i < 9_000; i++) {
+      const item = pickOne(rng, ['a', 'b', 'c']);
+      counts.set(item, (counts.get(item) ?? 0) + 1);
+    }
+    for (const count of counts.values()) expect(Math.abs(count / 9_000 - 1 / 3)).toBeLessThan(0.02);
+    expect(() => pickOne(rng, [])).toThrow();
   });
 });

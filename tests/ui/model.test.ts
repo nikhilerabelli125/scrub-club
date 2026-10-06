@@ -8,7 +8,13 @@ describe('tickets', () => {
     const { ctx, world } = startLevel('ed-a');
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
     const ticket = ticketModels(world, ctx).find((t) => t.patient === 1);
-    expect(ticket).toMatchObject({ label: 'Chest pain', acuity: 2, bed: 'Bay 1', patience: 1 });
+    const bed = world.beds.find((b) => b.patient === 1)?.id ?? '';
+    expect(ticket).toMatchObject({
+      label: 'Chest pain',
+      acuity: 2,
+      bed: bedName(bed),
+      patience: 1,
+    });
     expect(ticket?.chips).toEqual([
       { label: 'Ask questions', state: 'ready', repeats: 1 },
       { label: 'Check vitals', state: 'ready', repeats: 1 },

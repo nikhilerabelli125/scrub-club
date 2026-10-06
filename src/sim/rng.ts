@@ -29,6 +29,13 @@ export function jitter(rng: Rng, value: number, spread: number): number {
   return spread > 0 ? nextRange(rng, value - spread, value + spread) : value;
 }
 
+// One item, each equally likely.
+export function pickOne<T>(rng: Rng, items: readonly T[]): T {
+  const item = items[Math.floor(nextFloat(rng) * items.length)];
+  if (item === undefined) throw new Error('pickOne needs at least one item');
+  return item;
+}
+
 export function pickWeighted<T>(rng: Rng, items: readonly T[], weightOf: (item: T) => number): T {
   const total = items.reduce((sum, item) => sum + weightOf(item), 0);
   let roll = nextFloat(rng) * total;

@@ -8,6 +8,13 @@ import { matte } from './materials';
 // Players are told apart by the ring under them and the tag above them, not their
 // bodies (docs/02 §1), so both bodies share one neutral color.
 
+// Draw order within the opaque pass: the room first, then player rings, then characters
+// and items. Rings skip the depth test, so they still show when a wall hides their player
+// (docs/02 §1), but characters drawn after them cover the ring's far side, so the ring
+// sits under the player instead of over them.
+const RING_ORDER = 1;
+const CHARACTER_ORDER = 2;
+
 const SCRUBS = '#5E7F8E';
 const GOWN = '#A9C3DD';
 const SKINS = ['#F2C9A5', '#E0A97E', '#C68863', '#8D5A3B', '#5C3A26', '#F5D7BE', '#B87A55'];
@@ -98,6 +105,7 @@ export function createActors(scene: THREE.Scene): ActorView {
         if (!mesh) {
           mesh = new THREE.Mesh(itemGeometry, matte(ITEM_COLORS[item.item] ?? '#E8B321'));
           mesh.castShadow = true;
+          mesh.renderOrder = CHARACTER_ORDER;
           scene.add(mesh);
           items.set(item.id, mesh);
         }
@@ -130,21 +138,18 @@ function playerModel(ringColor: string): THREE.Group {
   // A small visor shows which way the player faces.
   const visor = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.1), matte('#2B3036'));
   visor.position.set(0, 1.18, 0.24);
-  for (const mesh of [body, head, visor]) mesh.castShadow = true;
+  for (const mesh of [body, head, visor]) {
+    mesh.castShadow = true;
+    mesh.renderOrder = CHARACTER_ORDER;
+  }
 
-  // The ring is always visible: drawn on top even when something stands in front (docs/02 §1).
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.5, 0.66, 40),
-    new THREE.MeshBasicMaterial({
-      color: ringColor,
-      transparent: true,
-      opacity: 0.95,
-      depthTest: false,
-    }),
+    new THREE.MeshBasicMaterial({ color: ringColor, depthTest: false, depthWrite: false }),
   );
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.02;
-  ring.renderOrder = 10;
+  ring.renderOrder = RING_ORDER;
   group.add(body, head, visor, ring);
   return group;
 }
@@ -173,7 +178,10 @@ function patientModel(skin: string): {
   face.position.y = 1.12;
   seated.add(torso, face);
 
-  for (const mesh of [body, head, torso, face]) mesh.castShadow = true;
+  for (const mesh of [body, head, torso, face]) {
+    mesh.castShadow = true;
+    mesh.renderOrder = CHARACTER_ORDER;
+  }
   group.add(lying, seated);
   return { group, lying, seated };
 }

@@ -85,7 +85,7 @@ Every player uses movement plus four buttons. Minigames prompt with the same fou
 
 | | Move | Pick up | Use | Dash | Ability |
 |---|---|---|---|---|---|
-| Keyboard P-left | W A S D | F | G | Left Shift | R |
+| Keyboard P-left | W A S D | F | E | Left Shift | R |
 | Keyboard P-right | Arrow keys | K | L | Right Shift | O |
 
 - Laptop keyboards drop some simultaneous key presses. The settings menu includes a key-test screen so players can check their layout.
