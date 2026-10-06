@@ -180,6 +180,18 @@
 .t-steps li.later {
   opacity: 0.55;
 }
+.t-steps li.waiting {
+  background: #fff1d6;
+  color: #7a5200;
+}
+.t-steps li small {
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+.tag.station b {
+  color: var(--teal);
+}
 .t-steps li.done {
   background: #d5eedd;
   color: #1f6b3a;

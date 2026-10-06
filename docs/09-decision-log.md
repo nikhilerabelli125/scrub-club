@@ -109,3 +109,8 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Equipment | Pick up grabs and parks it; it rolls at 85% speed; a task needs it within 1.5 m of the bed; one task per piece at a time | M1 playtest (#8) |
 | Walks | Use starts the walk; the patient follows a step behind and goes in when the player reaches the station, freeing their bed | M1 playtest (#8) |
 | Handouts | Stations hand out needs for tasks that can be done now first, the player's own patient first, skipping items already in play | M1 playtest (#8) |
+| Juggling | Option A, order, wait, deliver: meds are ordered at the computer (1 s), ready at the med cabinet 8 to 15 s later, labeled for their patient | M1 playtest (#9) |
+| Emergency meds | Shots given before questions (allergy shot, seizure med, reversal shot) need no order (pending medical review) | M1 playtest (#9) |
+| Results | A scan, lab test, or observation is done when its result arrives (X-ray 10 s, brain scan 15 s, blood test 18 s after the tube reaches the lab, observation 20 s); tasks after it wait for the result | M1 playtest (#9) |
+| Tutorial waits | CL-A skips orders and result waits (`skipWaits`): one patient at a time leaves nothing to juggle | M1 playtest (#9) |
+| Field meds | On maps without a computer, meds need no order, as under a standing order | M1 playtest (#9) |

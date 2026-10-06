@@ -281,6 +281,12 @@ function checkRegistries(
     if (task.station) known('station type', task.station, ix.stationTypes, file, `${at}.station`);
     if (task.result)
       known('station type', task.result.at, ix.stationTypes, file, `${at}.result.at`);
+    if (task.order) {
+      known('station type', task.order.at, ix.stationTypes, file, `${at}.order.at`);
+      if (!task.needsItem) {
+        report(file, `${at}.order`, 'an ordered task needs a needsItem: what is ready to pick up');
+      }
+    }
     if (task.needsItem) known('item', task.needsItem, ix.items, file, `${at}.needsItem`);
     if (task.producesItem) known('item', task.producesItem, ix.items, file, `${at}.producesItem`);
     if (task.needsEquipment) {

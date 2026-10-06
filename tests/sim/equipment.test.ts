@@ -120,6 +120,7 @@ describe('wheeled equipment', () => {
       patient: 1,
       task: 'task.ekg',
       equipment: ekg.id,
+      ordering: false,
     });
     const log = run(world, ctx, secondsToTicks(3), () => players(press(1, { use: 'held' })));
     expect(eventsOf(log, 'taskCompleted').map(({ event }) => event.task)).toContain('task.ekg');

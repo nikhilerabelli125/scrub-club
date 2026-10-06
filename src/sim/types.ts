@@ -50,7 +50,18 @@ export interface PatientTask {
   params: Record<string, string>; // e.g. { drink: 'juice' }
   stepIndex: number; // which of the task's mechanic steps is next
   step: MinigameState | null; // that step's progress; a hold keeps it when its player walks away
+  stage: TaskStage; // where this repeat is, beyond its minigame steps
+  dueTick: number; // while 'ordered', the tick it's ready; while 'result', the tick it arrives
 }
+
+// Order, wait, deliver (issue #9). A med is ordered at the computer, prepared, then picked
+// up and given; a lab sample goes to the lab; a scan or observation waits for its result.
+// - start: nothing done yet (an ordered task needs ordering first)
+// - ordered: being prepared; ready at dueTick
+// - ready: waiting at its station to be picked up and given
+// - sample: the sample is out; deliver it to the task's result station
+// - result: waiting for the result; the task completes at dueTick
+export type TaskStage = 'start' | 'ordered' | 'ready' | 'sample' | 'result';
 
 export type PatientLocation =
   | { kind: 'waiting' }
@@ -95,12 +106,15 @@ export interface Activity {
   patient: number;
   task: string;
   equipment: number | null; // the equipment this task is using, so nobody else can
+  ordering: boolean; // placing the task's order at a station, not doing it at the bedside
 }
 
 export interface ItemInstance {
   id: number;
   item: string;
   place: { kind: 'held'; player: PlayerSlot } | { kind: 'floor'; pos: [number, number] };
+  // An ordered med or a lab sample belongs to one patient's task; supplies belong to nobody.
+  for: { patient: number; task: string } | null;
 }
 
 // A piece of wheeled equipment (docs/01 §7): a vitals cart, the EKG machine, the crash cart.
@@ -144,8 +158,12 @@ export type SimEvent =
       patient: number;
       task: string;
       remaining: number;
-      player: PlayerSlot | null; // null when a dev or test command did it
+      player: PlayerSlot | null; // null when a result arrived or a dev or test command did it
     }
+  | { type: 'orderPlaced'; player: PlayerSlot; patient: number; task: string }
+  | { type: 'orderReady'; patient: number; task: string; item: string }
+  | { type: 'sampleDelivered'; player: PlayerSlot; patient: number; task: string; station: string }
+  | { type: 'resultArrived'; patient: number; task: string }
   | { type: 'taskStarted'; player: PlayerSlot; patient: number; task: string }
   | {
       type: 'taskStopped';

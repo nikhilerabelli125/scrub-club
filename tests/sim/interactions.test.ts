@@ -144,12 +144,11 @@ describe('working on a patient', () => {
 
 describe('items', () => {
   it('Pick up at a station takes what a patient needs, and the task uses it up', () => {
-    const { ctx, world } = withPatient('ed.chest-pain');
-    skip(world, ctx, 'task.ask-questions', 'task.check-vitals', 'task.ekg');
-
+    // The allergy shot is given first, straight from the med cabinet: no order.
+    const { ctx, world } = withPatient('ed.allergic-reaction');
     besidePatient(world, ctx);
     stepWorld(world, ctx, players(press(1, { use: 'pressed' })));
-    expect(playerIn(world, 1).activity).toBeNull(); // aspirin needs medicine in hand
+    expect(playerIn(world, 1).activity).toBeNull(); // it needs medicine in hand
 
     besideStation(world, ctx, 1, 'station.med-cabinet');
     stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
@@ -159,22 +158,26 @@ describe('items', () => {
 
     besidePatient(world, ctx);
     stepWorld(world, ctx, players(press(1, { use: 'pressed' })));
-    expect(playerIn(world, 1).activity?.task).toBe('task.aspirin');
+    expect(playerIn(world, 1).activity?.task).toBe('task.allergy-shot');
     const log = run(world, ctx, secondsToTicks(2), () => IDLE);
     expect(eventsOf(log, 'itemUsed').map(({ event }) => event.item)).toEqual(['item.med']);
     expect(playerIn(world, 1).holding).toBeNull();
     expect(world.items).toEqual([]);
-    expect(eventsOf(log, 'patientFinished').map(({ event }) => event.patient)).toEqual([1]);
+    expect(eventsOf(log, 'taskCompleted').map(({ event }) => event.task)).toEqual([
+      'task.allergy-shot',
+    ]);
   });
 
   it('Pick up again sets an item down, picks it back up, or returns it to its shelf', () => {
-    const { ctx, world } = withPatient('ed.chest-pain');
-    besideStation(world, ctx, 1, 'station.med-cabinet');
-    stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
-    expect(tapped(world)).toContainEqual(expect.objectContaining({ type: 'itemPickedUp' }));
+    const { ctx, world } = withPatient('ed.bad-cut');
+    besideStation(world, ctx, 1, 'station.supply');
     stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
     expect(tapped(world)).toContainEqual(
-      expect.objectContaining({ type: 'itemReturned', item: 'item.med' }),
+      expect.objectContaining({ type: 'itemPickedUp', item: 'item.wound-kit' }),
+    );
+    stepWorld(world, ctx, players(press(1, { pickUp: 'pressed' })));
+    expect(tapped(world)).toContainEqual(
+      expect.objectContaining({ type: 'itemReturned', item: 'item.wound-kit' }),
     );
     expect(world.items).toEqual([]);
 

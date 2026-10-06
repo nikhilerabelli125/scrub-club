@@ -1,5 +1,5 @@
 import type { Patient, PatientTask, PlayerSlot, SimContext, World } from '../types';
-import { removePatient } from './patients';
+import { discardItems, removePatient } from './patients';
 
 // The tasks a player can start right now. Tasks marked "first" (like the allergy shot)
 // come before the base tasks, the base tasks gate everything else (01 §4.3), and
@@ -45,6 +45,10 @@ export function completeTask(
   // A repeated task (two IVs) starts each repeat from scratch.
   entry.stepIndex = 0;
   entry.step = null;
+  entry.stage = 'start';
+  entry.dueTick = 0;
+  // A dev command can skip a task midway; a med or sample left over from it goes away.
+  discardItems(world, (item) => item.for?.patient === patient.id && item.for.task === taskId);
   world.events.push({
     type: 'taskCompleted',
     patient: patient.id,

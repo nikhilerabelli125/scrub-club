@@ -3,9 +3,11 @@
 import type { Acuity } from '../data';
 import {
   availableTasks,
+  needsOrder,
   starsFor,
   ticksToSeconds,
   type Patient,
+  type PatientTask,
   type PlayerSlot,
   type SimContext,
   type World,
@@ -28,7 +30,17 @@ export const PLAYER_COLORS: Record<PlayerSlot, string> = {
   4: '#3BB273',
 };
 
-export type ChipState = 'done' | 'ready' | 'later';
+// waiting: an order or result is on its way, so there's nothing to do for it yet.
+export type ChipState = 'done' | 'ready' | 'later' | 'waiting';
+
+export interface Chip {
+  label: string;
+  state: ChipState;
+  repeats: number;
+  // The next step when it isn't the bedside part: "order", "pick up", "to lab", or the
+  // seconds left on a wait.
+  note: string | null;
+}
 
 export interface TicketModel {
   patient: number;
@@ -36,7 +48,7 @@ export interface TicketModel {
   acuity: Acuity;
   place: string; // their bed, the waiting room, or where they're walking to
   patience: number; // 0 to 1
-  chips: { label: string; state: ChipState; repeats: number }[];
+  chips: Chip[];
 }
 
 export interface HudModel {
@@ -59,10 +71,10 @@ export interface ActivityModel {
 export function ticketModels(world: World, ctx: SimContext): TicketModel[] {
   return [...world.patients]
     .sort((a, b) => a.arrivedTick - b.arrivedTick || a.id - b.id)
-    .map((patient) => ticketFor(patient, ctx));
+    .map((patient) => ticketFor(world, patient, ctx));
 }
 
-function ticketFor(patient: Patient, ctx: SimContext): TicketModel {
+function ticketFor(world: World, patient: Patient, ctx: SimContext): TicketModel {
   const condition = ctx.content.conditions.get(patient.condition);
   const shown = condition?.hidden?.showsAs ?? condition;
   const ready = new Set(availableTasks(patient));
@@ -72,12 +84,61 @@ function ticketFor(patient: Patient, ctx: SimContext): TicketModel {
     acuity: shown?.acuity ?? patient.acuity,
     place: placeName(patient, ctx),
     patience: patient.patienceMaxTicks > 0 ? patient.patienceTicks / patient.patienceMaxTicks : 0,
-    chips: patient.tasks.map((entry) => ({
-      label: ctx.content.tasks.get(entry.task)?.label ?? entry.task,
-      state: entry.remaining === 0 ? 'done' : ready.has(entry) ? 'ready' : 'later',
-      repeats: entry.remaining,
-    })),
+    chips: patient.tasks.map((entry) => chipFor(world, ctx, patient, entry, ready.has(entry))),
   };
+}
+
+function chipFor(
+  world: World,
+  ctx: SimContext,
+  patient: Patient,
+  entry: PatientTask,
+  unlocked: boolean,
+): Chip {
+  const task = ctx.content.tasks.get(entry.task);
+  const chip = (state: ChipState, note: string | null = null): Chip => ({
+    label: task?.label ?? entry.task,
+    state,
+    repeats: entry.remaining,
+    note,
+  });
+  if (entry.remaining === 0) return chip('done');
+  if (!unlocked || !task) return chip('later');
+  const seconds = `${Math.ceil(ticksToSeconds(Math.max(0, entry.dueTick - world.tick)))} s`;
+  switch (entry.stage) {
+    case 'ordered':
+    case 'result':
+      return chip('waiting', seconds);
+    case 'ready': {
+      const carried = world.items.some(
+        (i) => i.for?.patient === patient.id && i.for.task === entry.task,
+      );
+      return chip('ready', carried ? null : 'pick up');
+    }
+    case 'sample': {
+      const at = task.result ? ctx.content.stations.get(task.result.at)?.label : undefined;
+      return chip('ready', at ? `to ${at.toLowerCase()}` : null);
+    }
+    case 'start':
+      return chip('ready', needsOrder(ctx, task) ? 'order' : null);
+  }
+}
+
+// How many ready orders wait at stations of this type, for its label.
+export function readyAt(world: World, ctx: SimContext, stationType: string): number {
+  let count = 0;
+  for (const patient of world.patients) {
+    for (const entry of patient.tasks) {
+      const need = ctx.content.tasks.get(entry.task)?.needsItem;
+      if (entry.stage !== 'ready' || !need) continue;
+      if (!ctx.content.items.get(need)?.sources.includes(stationType)) continue;
+      const taken = world.items.some(
+        (i) => i.for?.patient === patient.id && i.for.task === entry.task,
+      );
+      if (!taken) count += 1;
+    }
+  }
+  return count;
 }
 
 // Where a patient is, for their ticket.
@@ -133,14 +194,16 @@ export function activityModels(world: World, ctx: SimContext): ActivityModel[] {
     const entry = patient?.tasks.find((t) => t.task === activity.task);
     const task = ctx.content.tasks.get(activity.task);
     if (!entry || !task) return [];
-    const steps = Math.max(1, task.steps.length);
+    // Placing an order is one short hold at the computer.
+    const steps = activity.ordering ? 1 : Math.max(1, task.steps.length);
+    const done = activity.ordering ? 0 : entry.stepIndex;
     const step = entry.step;
     const within = step ? step.progressTicks / step.totalTicks : 0;
     return [
       {
         slot: player.slot,
-        label: task.label,
-        progress: Math.min(1, (entry.stepIndex + within) / steps),
+        label: activity.ordering ? `Order ${task.label.toLowerCase()}` : task.label,
+        progress: Math.min(1, (done + within) / steps),
         waitingForPress: step?.kind === 'tapWait' && !step.started,
       },
     ];

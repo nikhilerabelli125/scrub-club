@@ -1,6 +1,6 @@
 import type { Acuity, ConditionDef } from '../../data';
 import { secondsToTicks } from '../clock';
-import type { Patient, PatientTask, SimContext, World } from '../types';
+import type { ItemInstance, Patient, PatientTask, SimContext, World } from '../types';
 
 // Brings a patient into the level: into the waiting room, or straight into a bed when
 // one is named and free (an ambulance rolling into the resus bay). Returns null for an
@@ -62,6 +62,8 @@ function buildTasks(condition: ConditionDef, baseTasks: readonly string[]): Pati
         params: {},
         stepIndex: 0,
         step: null,
+        stage: 'start',
+        dueTick: 0,
       }))
     : [];
   const rest = condition.tasks.map((ref): PatientTask => ({
@@ -73,6 +75,8 @@ function buildTasks(condition: ConditionDef, baseTasks: readonly string[]): Pati
     params: { ...ref.params },
     stepIndex: 0,
     step: null,
+    stage: 'start',
+    dueTick: 0,
   }));
   return [...base, ...rest];
 }
@@ -93,11 +97,23 @@ export function seatPatient(world: World, patientId: number, bedId: string): str
   return null;
 }
 
-// Takes a patient out of the level, frees their bed, and counts them as resolved.
+// Takes a patient out of the level, frees their bed, and counts them as resolved. Their
+// ordered meds and samples go with them.
 export function removePatient(world: World, patientId: number): void {
   world.patients = world.patients.filter((p) => p.id !== patientId);
   for (const bed of world.beds) if (bed.patient === patientId) bed.patient = null;
+  discardItems(world, (item) => item.for?.patient === patientId);
   world.resolved += 1;
+}
+
+// Removes items from the world, and from the hands of whoever held them.
+export function discardItems(world: World, discard: (item: ItemInstance) => boolean): void {
+  const gone = new Set(world.items.filter(discard).map((item) => item.id));
+  if (gone.size === 0) return;
+  world.items = world.items.filter((item) => !gone.has(item.id));
+  for (const player of world.players) {
+    if (player.holding !== null && gone.has(player.holding)) player.holding = null;
+  }
 }
 
 // Patience drains until a patient is finished. Low-acuity patients who run out leave;

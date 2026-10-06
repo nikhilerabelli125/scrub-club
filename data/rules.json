@@ -19,7 +19,12 @@
     { "players": 4, "spawnInterval": 0.85, "census": 1, "stars": 1.75 }
   ],
   "movement": { "speed": 4.2, "radius": 0.42, "reach": 1, "pushSpeed": 0.85 },
-  "interaction": { "walkAwaySeconds": 0.3, "standInSeconds": 2, "equipmentRange": 1.5 },
+  "interaction": {
+    "walkAwaySeconds": 0.3,
+    "standInSeconds": 2,
+    "equipmentRange": 1.5,
+    "orderSeconds": 1
+  },
   "codes": {
     "lostAfterSeconds": 45,
     "fix": {

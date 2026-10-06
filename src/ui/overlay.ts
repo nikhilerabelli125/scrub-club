@@ -4,13 +4,14 @@
 import type { DataIssue } from '../data';
 import type { ScreenPoint } from '../render';
 import { EQUIPMENT_COLORS, stationHeight } from '../render';
-import type { LevelResult, Patient, PlayerSlot, SimContext, World } from '../sim';
+import type { ItemInstance, LevelResult, Patient, PlayerSlot, SimContext, World } from '../sim';
 import { BED_SIZE, patientArea } from '../sim';
 import {
   ACUITY_COLORS,
   activityModels,
   hudModel,
   PLAYER_COLORS,
+  readyAt,
   ticketModels,
   type HudModel,
   type TicketModel,
@@ -123,7 +124,8 @@ function ticketMarkup(ticket: TicketModel): string {
   const chips = ticket.chips
     .map((chip) => {
       const repeats = chip.repeats > 1 ? ` ×${chip.repeats}` : '';
-      return `<li class="${chip.state}">${escape(chip.label)}${repeats}</li>`;
+      const note = chip.note === null ? '' : ` <small>${escape(chip.note)}</small>`;
+      return `<li class="${chip.state}">${escape(chip.label)}${repeats}${note}</li>`;
     })
     .join('');
   return `
@@ -177,9 +179,10 @@ function floatingTags(
   for (const station of ctx.map.stations) {
     const label = ctx.content.stations.get(station.type)?.label;
     if (!label) continue;
+    const ready = readyAt(world, ctx, station.type);
     tags.set(`station:${station.id}`, {
       className: 'tag station',
-      html: escape(label),
+      html: `${escape(label)}${ready > 0 ? ` <b>· ${ready} ready</b>` : ''}`,
       point: project(station.pos[0], stationHeight(station.type) + 0.1, station.pos[1]),
     });
   }
@@ -213,7 +216,7 @@ function floatingTags(
     const carried = world.items.find((i) => i.id === player.holding);
     const pushed = world.equipment.find((e) => e.id === player.pushing);
     const inHand = carried
-      ? ctx.content.items.get(carried.item)?.label
+      ? carriedLabel(ctx, carried)
       : pushed && ctx.content.equipment.get(pushed.equipment)?.label;
     const name = `P${player.slot}${inHand ? ` · ${escape(inHand)}` : ''}`;
     tags.set(`player:${player.slot}`, {
@@ -234,6 +237,13 @@ function floatingTags(
     }
   }
   return tags;
+}
+
+// An ordered med reads as what it is ("Aspirin"), not just "Medicine".
+function carriedLabel(ctx: SimContext, carried: ItemInstance): string | undefined {
+  const task = carried.for ? ctx.content.tasks.get(carried.for.task) : undefined;
+  if (task?.needsItem === carried.item) return task.label;
+  return ctx.content.items.get(carried.item)?.label;
 }
 
 // Over the head of the bed, so a player working at the bedside never covers it; over the

@@ -22,4 +22,5 @@ export { stepWorld } from './step';
 export { idleControls } from './systems/controls';
 export { availableTasks } from './systems/tasks';
 export { equipmentAt } from './systems/equipment';
+export { needsOrder } from './systems/orders';
 export { starsFor } from './systems/end';
