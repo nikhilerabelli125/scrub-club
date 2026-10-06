@@ -15,7 +15,6 @@ import {
 import {
   commands,
   eventsOf,
-  parkBeside,
   playerIn,
   players,
   press,
@@ -34,22 +33,24 @@ const pickUp = () => players(press(1, { pickUp: 'pressed' }));
 const walk = (x: number, z: number) => () => players(press(1, { move: { x, z } }));
 
 describe('wheeled equipment', () => {
-  it('starts on its homes: two vitals carts in the ED, as decided in issue #8', () => {
-    const { world } = startLevel('ed-a');
-    expect(world.equipment.filter((e) => e.equipment === 'equipment.vitals-cart')).toHaveLength(2);
-    expect(world.equipment.map((e) => e.pushedBy)).toEqual(world.equipment.map(() => null));
+  it('starts parked on its homes', () => {
+    const { ctx, world } = startLevel('ed-a');
+    expect(world.equipment.map((e) => [e.equipment, e.pos])).toEqual(
+      ctx.map.equipmentHomes.map((home) => [home.equipment, home.pos]),
+    );
+    expect(world.equipment.every((e) => e.pushedBy === null)).toBe(true);
   });
 
   it('Pick up beside it grabs it, and it rolls along in front, a little slower than walking', () => {
     const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
-    const cart = first(world, 'equipment.vitals-cart');
+    const cart = first(world, 'equipment.ekg');
     standNextTo(world, ctx, 1, cartBox(cart.pos, cart.facing));
     stepWorld(world, ctx, pickUp());
     expect(world.events).toContainEqual({
       type: 'equipmentGrabbed',
       player: 1,
       equipmentId: cart.id,
-      equipment: 'equipment.vitals-cart',
+      equipment: 'equipment.ekg',
     });
 
     const [x, z] = playerIn(world, 1).pos;
@@ -64,7 +65,7 @@ describe('wheeled equipment', () => {
 
   it('stops short of walls instead of passing through them', () => {
     const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
-    const cart = first(world, 'equipment.vitals-cart');
+    const cart = first(world, 'equipment.ekg');
     cart.pos = [3, 10];
     playerIn(world, 1).pos = [3.8, 10];
     stepWorld(world, ctx, pickUp());
@@ -78,8 +79,7 @@ describe('wheeled equipment', () => {
     const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
     const bay = ctx.map.beds.find((b) => b.id === 'bay-1');
     if (!bay) throw new Error('no bay-1');
-    const [a, b] = world.equipment.filter((e) => e.equipment === 'equipment.vitals-cart');
-    if (!a || !b) throw new Error('need two vitals carts');
+    const [a, b] = [first(world, 'equipment.ekg'), first(world, 'equipment.ultrasound')];
     for (const cart of [a, b]) {
       standNextTo(world, ctx, 1, cartBox(cart.pos, cart.facing));
       stepWorld(world, ctx, pickUp());
@@ -126,54 +126,38 @@ describe('wheeled equipment', () => {
     expect(eventsOf(log, 'taskCompleted').map(({ event }) => event.task)).toContain('task.ekg');
   });
 
-  it('serves one task at a time, so a second cart lets a second player start', () => {
+  it('serves one task at a time', () => {
+    // Two chest pains in neighboring bays, with the EKG machine parked between them.
     const { ctx, world } = startLevel('ed-a', { playerCount: 2 });
-    // Five critical patients fill the beds; two bad cuts wait side by side.
-    const spawns = Array.from({ length: 5 }, (): SimCommand => ({
-      type: 'spawn',
-      condition: 'ed.chest-pain',
-    }));
+    const done = ['task.ask-questions', 'task.check-vitals'];
     stepWorld(
       world,
       ctx,
       commands(
-        ...spawns,
-        { type: 'spawn', condition: 'ed.bad-cut' },
-        { type: 'spawn', condition: 'ed.bad-cut' },
+        { type: 'spawn', condition: 'ed.chest-pain', bed: 'bay-1' },
+        { type: 'spawn', condition: 'ed.chest-pain', bed: 'bay-2' },
+        ...[1, 2].flatMap((patient) =>
+          done.map((task): SimCommand => ({ type: 'completeTask', patient, task })),
+        ),
       ),
     );
-    stepWorld(
-      world,
-      ctx,
-      commands(
-        { type: 'completeTask', patient: 6, task: 'task.ask-questions' },
-        { type: 'completeTask', patient: 7, task: 'task.ask-questions' },
-      ),
-    );
-    const [six, seven] = [6, 7].map((id) => world.patients.find((p) => p.id === id));
-    if (!six || !seven) throw new Error('no waiting patients');
-    const [a, b] = world.equipment.filter((e) => e.equipment === 'equipment.vitals-cart');
-    if (!a || !b) throw new Error('need two vitals carts');
-    // One cart within reach of both seats.
-    const seats = [patientArea(world, ctx, six), patientArea(world, ctx, seven)];
-    a.pos = [(seats[0]!.x1 + seats[1]!.x0) / 2, seats[0]!.z1 + 0.8];
-    standNextTo(world, ctx, 1, seats[0]!);
-    standNextTo(world, ctx, 2, seats[1]!);
-
-    const both = () => players(press(1, { use: 'pressed' }), press(2, { use: 'pressed' }));
-    stepWorld(world, ctx, both());
-    expect(playerIn(world, 1).activity).toMatchObject({
-      task: 'task.check-vitals',
-      equipment: a.id,
-    });
+    const ekg = first(world, 'equipment.ekg');
+    ekg.pos = [8.75, 4.4]; // within reach of both beds
+    const bay = (id: string) => {
+      const bed = ctx.map.beds.find((b) => b.id === id);
+      if (!bed) throw new Error(`no ${id}`);
+      return bedBox(bed);
+    };
+    standNextTo(world, ctx, 1, bay('bay-1'));
+    standNextTo(world, ctx, 2, bay('bay-2'));
+    stepWorld(world, ctx, players(press(1, { use: 'pressed' }), press(2, { use: 'pressed' })));
+    expect(playerIn(world, 1).activity).toMatchObject({ task: 'task.ekg', equipment: ekg.id });
     expect(playerIn(world, 2).activity).toBeNull();
 
-    parkBeside(world, 'equipment.vitals-cart', seats[1]!);
+    // Once the first EKG is done, the second can start.
+    run(world, ctx, secondsToTicks(3), () => players(press(1, { use: 'held' })));
     stepWorld(world, ctx, players(press(2, { use: 'pressed' })));
-    expect(playerIn(world, 2).activity).toMatchObject({
-      task: 'task.check-vitals',
-      equipment: b.id,
-    });
+    expect(playerIn(world, 2).activity).toMatchObject({ task: 'task.ekg', equipment: ekg.id });
   });
 
   it('counts the crash cart as the defibrillator it carries', () => {

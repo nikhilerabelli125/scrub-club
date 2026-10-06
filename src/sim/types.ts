@@ -122,9 +122,24 @@ export interface Activity {
 export interface ItemInstance {
   id: number;
   item: string;
-  place: { kind: 'held'; player: PlayerSlot } | { kind: 'floor'; pos: [number, number] };
+  place:
+    | { kind: 'held'; player: PlayerSlot }
+    | { kind: 'floor'; pos: [number, number] } // or resting on a counter or bed it landed on
+    | Flight;
   // An ordered med or a lab sample belongs to one patient's task; supplies belong to nobody.
   for: { patient: number; task: string } | null;
+}
+
+// Thrown by a player, or shot out of a tube station (by null). It flies straight at
+// rules.json throwing.speed until it has gone `total` meters, hits a wall, or a player with
+// free hands catches it.
+export interface Flight {
+  kind: 'flying';
+  pos: [number, number]; // where it is over the floor
+  dir: [number, number]; // unit vector
+  left: number; // meters still to fly
+  total: number;
+  by: PlayerSlot | null; // the thrower can't catch their own throw
 }
 
 // A piece of wheeled equipment (docs/01 §7): a vitals cart, the EKG machine, the crash cart.
@@ -198,6 +213,16 @@ export type SimEvent =
     }
   | { type: 'itemReturned'; player: PlayerSlot; itemId: number; item: string }
   | { type: 'itemUsed'; player: PlayerSlot; itemId: number; item: string; task: string }
+  | { type: 'itemThrown'; player: PlayerSlot; itemId: number; item: string }
+  | { type: 'itemCaught'; player: PlayerSlot; itemId: number; item: string }
+  | { type: 'itemLanded'; itemId: number; item: string; pos: [number, number] }
+  | {
+      type: 'orderDelivered';
+      patient: number;
+      task: string;
+      itemId: number;
+      station: string; // the tube station it shot out of
+    }
   | { type: 'equipmentGrabbed'; player: PlayerSlot; equipmentId: number; equipment: string }
   | {
       type: 'equipmentParked';

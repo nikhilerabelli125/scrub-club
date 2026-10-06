@@ -110,10 +110,15 @@
       "rot": 0
     }
   ],
-  "equipmentHomes": [
+  "equipmentHomes": [],
+  "items": [
     {
-      "equipment": "equipment.vitals-cart",
-      "pos": [7.2, 7]
+      "item": "item.stethoscope",
+      "pos": [10.4, 7]
+    },
+    {
+      "item": "item.stethoscope",
+      "pos": [11.6, 7]
     }
   ],
   "spawns": [

@@ -6,7 +6,6 @@ import {
   formatClock,
   hudModel,
   placeName,
-  readyAt,
   ticketModels,
 } from '../../src/ui/model';
 import { commands, players, press, run, startLevel, standNextTo } from '../sim/helpers';
@@ -101,7 +100,7 @@ describe('tickets', () => {
     expect(ticketModels(world, ctx).find((t) => t.patient === 1)?.place).toBe('Resus · ambulance');
   });
 
-  it('walk a med through order, wait, and pick up, and count it on the med cabinet', () => {
+  it('walk a med through order, wait, and pick up', () => {
     const { ctx, world } = startLevel('ed-a');
     stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.chest-pain' }));
     const done = ['task.ask-questions', 'task.check-vitals', 'task.ekg'];
@@ -121,11 +120,9 @@ describe('tickets', () => {
     entry.stage = 'ordered';
     entry.dueTick = world.tick + secondsToTicks(7.5);
     expect(aspirin()).toMatchObject({ state: 'waiting', note: '8 s' });
-    expect(readyAt(world, ctx, 'station.med-cabinet')).toBe(0);
 
     entry.stage = 'ready';
     expect(aspirin()).toMatchObject({ state: 'ready', note: 'pick up' });
-    expect(readyAt(world, ctx, 'station.med-cabinet')).toBe(1);
   });
 
   it('send a lab sample to the lab, then count down to its result', () => {

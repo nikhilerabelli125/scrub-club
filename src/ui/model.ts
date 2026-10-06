@@ -159,10 +159,12 @@ function chipFor(
     case 'result':
       return chip('waiting', seconds);
     case 'ready': {
-      const carried = world.items.some(
-        (i) => i.for?.patient === patient.id && i.for.task === entry.task,
+      // Delivered by tube: "pick up" until someone has it in hand.
+      const held = world.items.some(
+        (i) =>
+          i.for?.patient === patient.id && i.for.task === entry.task && i.place.kind === 'held',
       );
-      return chip('ready', carried ? null : 'pick up');
+      return chip('ready', held ? null : 'pick up');
     }
     case 'sample': {
       const at = task.result ? ctx.content.stations.get(task.result.at)?.label : undefined;
@@ -171,23 +173,6 @@ function chipFor(
     case 'start':
       return chip('ready', needsOrder(ctx, task) ? 'order' : null);
   }
-}
-
-// How many ready orders wait at stations of this type, for its label.
-export function readyAt(world: World, ctx: SimContext, stationType: string): number {
-  let count = 0;
-  for (const patient of world.patients) {
-    for (const entry of patient.tasks) {
-      const need = ctx.content.tasks.get(entry.task)?.needsItem;
-      if (entry.stage !== 'ready' || !need) continue;
-      if (!ctx.content.items.get(need)?.sources.includes(stationType)) continue;
-      const taken = world.items.some(
-        (i) => i.for?.patient === patient.id && i.for.task === entry.task,
-      );
-      if (!taken) count += 1;
-    }
-  }
-  return count;
 }
 
 // Where a patient is, for their ticket.

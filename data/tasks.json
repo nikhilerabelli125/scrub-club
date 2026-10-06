@@ -27,7 +27,7 @@
         }
       ],
       "spot": "arm",
-      "needsEquipment": "equipment.vitals-cart",
+      "needsItem": "item.stethoscope",
       "perkTags": ["vitals"]
     },
     {
@@ -72,6 +72,7 @@
         }
       ],
       "spot": "chest",
+      "needsItem": "item.stethoscope",
       "perkTags": ["assessment"]
     },
     {
@@ -373,7 +374,8 @@
       "needsItem": "item.med",
       "order": {
         "at": "station.computer",
-        "readySeconds": 8
+        "readySeconds": 8,
+        "deliveredTo": "station.tube"
       },
       "perkTags": ["med"]
     },
@@ -392,7 +394,8 @@
       "needsItem": "item.med",
       "order": {
         "at": "station.computer",
-        "readySeconds": 12
+        "readySeconds": 12,
+        "deliveredTo": "station.tube"
       },
       "perkTags": ["med"]
     },
@@ -516,7 +519,8 @@
       "needsItem": "item.med",
       "order": {
         "at": "station.computer",
-        "readySeconds": 8
+        "readySeconds": 8,
+        "deliveredTo": "station.tube"
       },
       "perkTags": ["med"]
     },
@@ -583,7 +587,8 @@
       "needsItem": "item.med",
       "order": {
         "at": "station.computer",
-        "readySeconds": 10
+        "readySeconds": 10,
+        "deliveredTo": "station.tube"
       },
       "dosing": true,
       "perkTags": ["med"]
@@ -625,7 +630,8 @@
       "needsItem": "item.med",
       "order": {
         "at": "station.computer",
-        "readySeconds": 15
+        "readySeconds": 15,
+        "deliveredTo": "station.tube"
       },
       "dosing": true,
       "perkTags": ["med"]

@@ -127,6 +127,26 @@ describe('validate-data', () => {
     );
   });
 
+  it('counts tools a map places, like the stethoscopes, as available', () => {
+    const problems = problemsAfter((file) => {
+      const map = file<MapDef>('maps/ed-main.json');
+      map.items = [];
+    });
+    expect(problems.join('\n')).toMatch(
+      /task\.check-vitals, which needs item\.stethoscope from a task or the map itself, but map ed-main has none/,
+    );
+  });
+
+  it('needs a tube station where meds are ordered, for them to arrive at', () => {
+    const problems = problemsAfter((file) => {
+      const map = file<MapDef>('maps/ed-main.json');
+      map.stations = map.stations.filter((s) => s.type !== 'station.tube');
+    });
+    expect(problems.join('\n')).toMatch(
+      /task\.aspirin, which needs a station\.tube for its order to arrive at/,
+    );
+  });
+
   it('counts equipment that rides on other equipment, like the defib on the crash cart', () => {
     const problems = problemsAfter((file) => {
       const map = file<MapDef>('maps/ed-main.json');

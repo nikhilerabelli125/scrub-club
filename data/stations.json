@@ -26,6 +26,7 @@
     { "id": "station.sterilizer", "label": "Sterilizer" },
     { "id": "station.supply", "label": "Supply closet" },
     { "id": "station.triage-desk", "label": "Triage desk" },
+    { "id": "station.tube", "label": "Tube station" },
     { "id": "station.vaccine-fridge", "label": "Vaccine fridge" },
     { "id": "station.waiting-chairs", "label": "Waiting room" },
     { "id": "station.walk-marker", "label": "Hallway marker" }

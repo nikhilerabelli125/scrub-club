@@ -68,8 +68,14 @@ export function createWorld(ctx: SimContext, { seed, playerCount }: WorldOptions
     patients: [],
     beds: ctx.map.beds.map((bed) => ({ id: bed.id, patient: null })),
     players,
-    items: [],
-    nextItemId: 1,
+    // Tools like the stethoscopes start where the map puts them.
+    items: (ctx.map.items ?? []).map((placed, i) => ({
+      id: i + 1,
+      item: placed.item,
+      place: { kind: 'floor' as const, pos: [placed.pos[0], placed.pos[1]] as [number, number] },
+      for: null,
+    })),
+    nextItemId: (ctx.map.items ?? []).length + 1,
     // Each equipment home starts with its piece of equipment parked on it.
     equipment: ctx.map.equipmentHomes.map((home, i) => ({
       id: i + 1,

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import type { Point, PlayerSlot, SimContext, World } from '../sim';
-import { CART_SIZE, patientSpot } from '../sim';
+import { bedBox, CART_SIZE, patientSpot, stationBox } from '../sim';
 import { PLAYER_COLORS } from '../ui/model';
-import { EQUIPMENT_COLORS } from './greybox';
+import { EQUIPMENT_COLORS, stationHeight } from './greybox';
 import { matte } from './materials';
 
 // Greybox stand-ins for characters (M5 ports the style lab's procedural characters).
@@ -31,6 +31,7 @@ const ITEM_COLORS: Record<string, string> = {
   'item.nebulizer': '#9C7BD4',
   'item.wound-kit': '#F2A65A',
   'item.stitch-kit': '#5B6770',
+  'item.stethoscope': '#26547C',
 };
 
 export interface ActorView {
@@ -142,7 +143,16 @@ export function createActors(scene: THREE.Scene): ActorView {
         }
         const place = item.place;
         if (place.kind === 'floor') {
-          mesh.position.set(place.pos[0], 0.11, place.pos[1]);
+          // Items can rest on a counter or a bed they landed on.
+          mesh.position.set(place.pos[0], restingHeight(ctx, place.pos) + 0.11, place.pos[1]);
+        } else if (place.kind === 'flying') {
+          // A short arc from hand height down to the floor.
+          const t = place.total > 0 ? 1 - place.left / place.total : 1;
+          mesh.position.set(
+            place.pos[0],
+            0.85 - 0.74 * t + 0.6 * Math.sin(Math.PI * t),
+            place.pos[1],
+          );
         } else {
           // Carried items float in front of the holder's hands.
           const holder = players.get(place.player);
@@ -158,6 +168,15 @@ export function createActors(scene: THREE.Scene): ActorView {
       }
     },
   };
+}
+
+// The top of whatever an item lies on: a station's counter, a bed, or the floor.
+function restingHeight(ctx: SimContext, pos: Point): number {
+  const within = (box: { x0: number; x1: number; z0: number; z1: number }) =>
+    pos[0] > box.x0 && pos[0] < box.x1 && pos[1] > box.z0 && pos[1] < box.z1;
+  const station = ctx.map.stations.find((s) => within(stationBox(s)));
+  if (station) return stationHeight(station.type);
+  return ctx.map.beds.some((b) => within(bedBox(b))) ? 0.5 : 0;
 }
 
 function playerModel(ringColor: string): THREE.Group {
