@@ -25,7 +25,10 @@ import {
 
 // Patients 1 (and on) with these conditions, with the named tasks already done.
 function setUp(levelId: string, conditions: string[], done: string[], playerCount: 1 | 2 = 1) {
-  const { ctx, world } = startLevel(levelId, { playerCount });
+  const { ctx, world } = startLevel(levelId, {
+    playerCount,
+    ...(levelId === 'ed-a' ? { map: 'ed-main' } : {}),
+  });
   stepWorld(
     world,
     ctx,

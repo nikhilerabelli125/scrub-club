@@ -16,13 +16,13 @@ import {
   players,
   press,
   run,
-  startLevel,
   standNextTo,
+  startED,
 } from './helpers';
 
 // A headache patient (ED-A) with everything done but the walk to the dark room.
 function readyForDarkRoom(): { ctx: SimContext; world: World } {
-  const { ctx, world } = startLevel('ed-a', { playerCount: 1 });
+  const { ctx, world } = startED({ playerCount: 1 });
   stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.headache' }));
   const done = ['task.ask-questions', 'task.check-vitals', 'task.headache-med'];
   stepWorld(

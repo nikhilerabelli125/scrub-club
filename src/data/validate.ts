@@ -644,6 +644,7 @@ function checkMaps(p: ParsedData, ix: Index, report: Report, known: Known, uniqu
 
 function checkLevels(p: ParsedData, ix: Index, report: Report, known: Known, unique: Unique): void {
   const unlockedBy = new Map<string, string>();
+  const uses = new Map<string, { levels: string[]; use: MapUse }>();
 
   for (const { file, data: level } of p.levels) {
     unique('level', level.id, file, 'id');
@@ -737,8 +738,18 @@ function checkLevels(p: ParsedData, ix: Index, report: Report, known: Known, uni
       continue;
     }
     checkLevelEvents(level, file, map, conditions, report, known);
-    checkLevelAgainstMap(level, file, map, conditions, ix, p.rules, report);
+    const use = checkLevelAgainstMap(level, file, map, conditions, ix, p.rules, report);
+    const entry = uses.get(map.id) ?? {
+      levels: [],
+      use: { stations: new Set(), equipment: new Set(), items: new Set() },
+    };
+    entry.levels.push(level.id);
+    for (const key of ['stations', 'equipment', 'items'] as const) {
+      for (const id of use[key]) entry.use[key].add(id);
+    }
+    uses.set(map.id, entry);
   }
+  checkMapsAreLean(p, uses, report);
 }
 
 function checkLevelEvents(
@@ -796,6 +807,13 @@ function checkLevelEvents(
 
 // A level is only playable if its map has every station, piece of equipment, item
 // source, and exit its patients can need, including on their escalation paths.
+// What a level's patients can use on its map, so maps can be kept lean (issue #23).
+interface MapUse {
+  stations: Set<string>; // station types
+  equipment: Set<string>;
+  items: Set<string>; // items the map places
+}
+
 function checkLevelAgainstMap(
   level: LevelDef,
   file: string,
@@ -804,7 +822,7 @@ function checkLevelAgainstMap(
   ix: Index,
   rules: RulesFile,
   report: Report,
-): void {
+): MapUse {
   const capped = level.maxEscalation === 'rescue';
   const stationTypes = new Set(map.stations.map((s) => s.type));
   const equipment = new Set(
@@ -883,6 +901,68 @@ function checkLevelAgainstMap(
     }
   }
   for (const message of problems) report(file, 'map', message);
+
+  // Everything here a patient can use. The waiting room is always in use.
+  const used: MapUse = {
+    stations: new Set(['station.waiting-chairs']),
+    equipment: new Set(),
+    items: new Set(),
+  };
+  const counts = (equipmentId: string, needed: string) =>
+    equipmentId === needed || (ix.equipment.get(equipmentId)?.provides ?? []).includes(needed);
+  for (const taskId of new Set([...reachable.values()].flatMap((tasks) => [...tasks]))) {
+    const task = ix.tasks.get(taskId);
+    if (!task) continue;
+    if (task.station) used.stations.add(task.station);
+    if (task.result) used.stations.add(task.result.at);
+    const ordered = task.order && !level.skipWaits && stationTypes.has(task.order.at);
+    if (task.order && ordered) {
+      used.stations.add(task.order.at).add(task.order.deliveredTo);
+    }
+    const needed = task.needsEquipment;
+    if (needed) {
+      for (const home of map.equipmentHomes) {
+        if (counts(home.equipment, needed)) used.equipment.add(home.equipment);
+      }
+    }
+    const item = task.needsItem ? ix.items.get(task.needsItem) : undefined;
+    if (!item || ordered) continue;
+    if (placedHere.has(item.id)) used.items.add(item.id);
+    for (const source of item.sources) {
+      if (stationTypes.has(source)) used.stations.add(source);
+      for (const home of map.equipmentHomes) {
+        if (home.equipment === source) used.equipment.add(source);
+      }
+    }
+  }
+  return used;
+}
+
+// A map only carries what the patients of the levels on it can use, so nothing on screen
+// is a red herring (issue #23).
+function checkMapsAreLean(
+  p: ParsedData,
+  uses: Map<string, { levels: string[]; use: MapUse }>,
+  report: Report,
+): void {
+  for (const { file, data: map } of p.maps) {
+    const entry = uses.get(map.id);
+    if (!entry) continue;
+    const who = `no patient in ${entry.levels.join(', ')}`;
+    const tidy = 'so leave it off the map (issue #23)';
+    map.stations.forEach((s, i) => {
+      if (!entry.use.stations.has(s.type))
+        report(file, `stations[${i}]`, `${who} can use a ${s.type}, ${tidy}`);
+    });
+    map.equipmentHomes.forEach((h, i) => {
+      if (!entry.use.equipment.has(h.equipment))
+        report(file, `equipmentHomes[${i}]`, `${who} can use ${h.equipment}, ${tidy}`);
+    });
+    (map.items ?? []).forEach((m, i) => {
+      if (!entry.use.items.has(m.item))
+        report(file, `items[${i}]`, `${who} can use ${m.item}, ${tidy}`);
+    });
+  }
 }
 
 // Suggests the closest known id when a reference has a typo.

@@ -6,10 +6,10 @@ import {
   type SimContext,
   type World,
 } from '../../src/sim';
-import { commands, startLevel } from './helpers';
+import { commands, startED } from './helpers';
 
 function admit(condition: string): { ctx: SimContext; world: World; patient: Patient } {
-  const { ctx, world } = startLevel('ed-a');
+  const { ctx, world } = startED();
   stepWorld(world, ctx, commands({ type: 'spawn', condition }));
   const patient = world.patients.find((p) => p.id === 1);
   if (!patient) throw new Error(`${condition} did not spawn`);
@@ -77,8 +77,8 @@ describe('task order', () => {
 
 describe('the waiting room', () => {
   it('gives triage only: treat-first shots, questions, and vitals; the rest waits for a bed', () => {
-    const { ctx, world } = startLevel('ed-a');
-    // Five critical patients fill ED-A's beds, so the next two arrivals wait.
+    const { ctx, world } = startED();
+    // Critical patients fill the walk-in beds, so the next two arrivals wait.
     stepWorld(
       world,
       ctx,

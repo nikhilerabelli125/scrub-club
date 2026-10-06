@@ -65,6 +65,7 @@ Times marked ± shift every run (seeded jitter) so replays feel different.
 - **New:** the ticket rail and acuity colors. Choosing who goes first from the waiting room.
 - **Patients:** `ed.chest-pain` (the orange one to prioritize), `ed.wheezing`, `ed.bad-cut`, `ed.headache`. `ed.broken-arm` waits until level 6, after the dosing meter is taught. Spawn every 22 to 30 s, max 4 waiting. A guaranteed `ed.chest-pain` arrives by ambulance at 1:00 ±15 s, so every run has an orange patient to prioritize.
 - **Hazard:** the waiting room crowd spills into the hallway.
+- **Map:** its own small ED, 18 × 12 m (`data/maps/ed-a.json`, M2 playtest #22): two bays in a cramped alcove behind a narrow door, a third bay beside the supply closet (another narrow door), a fourth by the bottom wall, and resus in a trauma room with the EKG machine and the ambulance door. The nurses' station island in the middle holds the computer and both stethoscopes, and three tube stations sit around the edges. The guaranteed chest pain rolls straight into resus.
 - **Briefing:** "Colors show who's sickest. Red and orange first; green and blue can wait a bit."
 
 ### 3. CL-B Double Booked
@@ -303,9 +304,10 @@ Tiers 1 and 2 stay readable. Gimmicks start at tier 3 and ramp up.
 ## 4. Map rules
 
 - 1 cell = 1 meter. Fixed-camera maps fit about 24 × 16 cells; follow-camera maps can run to about 40 × 30.
-- Tier 1 and 2 maps are tidy and symmetric enough to learn. Chaos lives in tier 3+ gimmicks, not in the base layout.
+- Layouts mix open floor with cramped spots and crossing paths, so the map itself adds pressure, as in kitchen co-op games (M2 playtest #22). Tier 1 and 2 stay readable: no moving gimmicks, and every station easy to find. Chaos gimmicks start at tier 3.
+- A map only carries what its levels' patients can use: no unused sinks or chairs (M2 playtest #23; `validate-data` checks).
 - Beds are 1.1 × 2.4 m. Bed spots: **head** at the pillow corner, **chest** and **side** on the left long side, **arm** on the right long side. Keep 1 m clear on both long sides of any bed that can host a code.
-- Every station must be reachable by two players passing each other (corridors at least 2 m).
+- Every station must be reachable. Most corridors are 2 m or wider; a few chokepoints (doorways down to 1.2 m) are where players bump into each other.
 - Scarce equipment (crash cart, EKG machine, ultrasound cart, C-arm, dialysis machine) starts in a fixed home spot with a floor marker.
 - Player spawn points: four, near the center, in ring-color order.
 - Maps are JSON files in `data/maps/` (format in `07-architecture.md`), built from greybox tiles first.

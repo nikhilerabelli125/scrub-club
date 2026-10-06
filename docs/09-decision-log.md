@@ -123,3 +123,7 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Throwing | Use with nothing to use it on throws, about 5 m, over counters and beds; teammates with free hands catch | M2 playtest (#21) |
 | Bumping | Players push each other apart; nobody can shove a player who is working | M2 playtest (#21) |
 | Pick up | A small item within reach wins over equipment, so a dropped stethoscope beside a cart can be picked up | M2 playtest (#21) |
+| ED-A map | Its own 18 × 12 m map: a cramped two-bay alcove, narrow doors on the supply closet and the trauma room, a nurses' station island, tubes at the edges | M2 playtest (#22) |
+| Map layouts | Open areas and cramped chokepoints (doorways down to 1.2 m) on purpose, so the map adds pressure; still no moving gimmicks before tier 3 | M2 playtest (#22) |
+| Lean maps | A map only carries what its levels' patients can use; validate-data flags the rest | M2 playtest (#23) |
+| ED-A ambulance | The guaranteed chest pain rolls straight into resus, which walk-ins don't use | M2 playtest (#22) |
