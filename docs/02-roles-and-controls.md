@@ -70,7 +70,7 @@ Every player uses movement plus four buttons. Minigames prompt with the same fou
 
 | Button | On the floor | In minigames |
 |---|---|---|
-| 1. Pick up / put down | Grab or drop items, push beds and wheelchairs | Button 1 |
+| 1. Pick up / put down | Grab or drop items; grab or park equipment, beds, and wheelchairs | Button 1 |
 | 2. Use | Hold to do tasks; press while holding an item to throw it | Button 2 |
 | 3. Dash | Short burst of speed | Button 3 |
 | 4. Ability | Role ability | Button 4 |

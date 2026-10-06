@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { patientArea, secondsToTicks, stepWorld } from '../../src/sim';
-import { activityModels, bedName, formatClock, hudModel, ticketModels } from '../../src/ui/model';
+import {
+  activityModels,
+  bedName,
+  formatClock,
+  hudModel,
+  placeName,
+  ticketModels,
+} from '../../src/ui/model';
 import { commands, players, press, run, startLevel, standNextTo } from '../sim/helpers';
 
 describe('tickets', () => {
@@ -12,7 +19,7 @@ describe('tickets', () => {
     expect(ticket).toMatchObject({
       label: 'Chest pain',
       acuity: 2,
-      bed: bedName(bed),
+      place: bedName(bed),
       patience: 1,
     });
     expect(ticket?.chips).toEqual([
@@ -48,6 +55,19 @@ describe('HUD', () => {
     expect(formatClock(59.2, true)).toBe('1:00');
     expect(formatClock(61.9, false)).toBe('1:01');
     expect(formatClock(0, true)).toBe('0:00');
+  });
+
+  it('say where the patient is: a bed, the waiting room, a walk, or a station', () => {
+    const { ctx, world } = startLevel('ed-a');
+    stepWorld(world, ctx, commands({ type: 'spawn', condition: 'ed.headache' }));
+    const patient = world.patients[0];
+    if (!patient) throw new Error('no patient');
+    patient.location = { kind: 'waiting' };
+    expect(placeName(patient, ctx)).toBe('Waiting room');
+    patient.location = { kind: 'escorted', by: 1, task: 'task.dark-room', trail: [[1, 1]] };
+    expect(placeName(patient, ctx)).toBe('Walking to dark room');
+    patient.location = { kind: 'station', station: 'observation' };
+    expect(placeName(patient, ctx)).toBe('Observation chairs');
   });
 
   it('reads bed ids as names', () => {

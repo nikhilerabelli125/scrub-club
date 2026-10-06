@@ -14,18 +14,20 @@ import type {
   World,
 } from '../types';
 import { controlsFor } from './controls';
+import { equipmentAt, grabbableEquipment, grabEquipment, parkEquipment } from './equipment';
+import { escorting, startEscort } from './escort';
 import { availableTasks } from './tasks';
 
 // Pick up / put down, and starting or walking away from tasks (docs/02 §4, docs/03 §1).
-// M1 simplifications until their milestones: a player works on a patient from anywhere
-// within reach of their bed (exact bed spots arrive with codes in M3), and needsEquipment
-// is ignored (scarce equipment arrives in M2). One player per task and per bed spot holds.
+// Simplifications until their milestones: a player works on a patient from anywhere
+// within reach of their bed (exact bed spots arrive with codes in M3). One player per
+// task and per bed spot holds.
 export function interactionSystem(world: World, ctx: SimContext, input: TickInput): void {
   for (const player of world.players) {
     const controls = controlsFor(input, player.slot);
     if (player.activity) checkActivity(world, ctx, player, controls);
     else if (controls.pickUp === 'pressed') pickUpOrPutDown(world, ctx, player);
-    else if (controls.use === 'pressed') startTask(world, ctx, player);
+    else if (controls.use === 'pressed') useHere(world, ctx, player);
   }
 }
 
@@ -65,32 +67,47 @@ export function stopTask(world: World, player: Player, entry: PatientTask | null
   });
 }
 
-function startTask(world: World, ctx: SimContext, player: Player): void {
+// Use needs both hands, so wheeled equipment is parked first (beside the bed, if that's
+// where the player is). Then it starts the best task here, or a walk to a station.
+function useHere(world: World, ctx: SimContext, player: Player): void {
+  if (player.pushing !== null) parkEquipment(world, ctx, player);
   const choice = findTask(world, ctx, player);
   if (!choice) return;
-  player.activity = { patient: choice.patient.id, task: choice.entry.task };
+  const { patient, entry, task } = choice;
+  player.lastPatient = patient.id;
+  if (task.interaction === 'escort' && task.station) {
+    startEscort(world, ctx, player, patient, entry.task);
+    return;
+  }
+  const equipment = task.needsEquipment
+    ? equipmentAt(world, ctx, task.needsEquipment, patientArea(world, ctx, patient))
+    : null;
+  player.activity = { patient: patient.id, task: entry.task, equipment: equipment?.id ?? null };
   player.walkAwayTicks = 0;
   world.events.push({
     type: 'taskStarted',
     player: player.slot,
-    patient: choice.patient.id,
-    task: choice.entry.task,
+    patient: patient.id,
+    task: entry.task,
   });
+}
+
+interface TaskChoice {
+  patient: Patient;
+  entry: PatientTask;
+  task: TaskDef;
 }
 
 // What Use does here. The nearest patient within reach gets the first task a player can
 // do at their bedside, preferring one that uses the carried item. Failing that, a
 // station within reach runs its task (an X-ray at the computer) for whoever has waited
 // longest.
-function findTask(
-  world: World,
-  ctx: SimContext,
-  player: Player,
-): { patient: Patient; entry: PatientTask } | null {
+function findTask(world: World, ctx: SimContext, player: Player): TaskChoice | null {
   const { reach } = ctx.content.rules.movement;
   const carried = carriedItem(world, player)?.item ?? null;
 
   const nearby = world.patients
+    .filter((patient) => patient.location.kind !== 'escorted')
     .map((patient) => ({
       patient,
       distance: distanceToBox(patientArea(world, ctx, patient), player.pos),
@@ -98,14 +115,14 @@ function findTask(
     .filter(({ distance }) => distance <= reach)
     .sort((a, b) => a.distance - b.distance || a.patient.id - b.patient.id);
   for (const { patient } of nearby) {
-    const entry = pickTask(world, ctx, player, patient, carried, null);
-    if (entry) return { patient, entry };
+    const choice = pickTask(world, ctx, player, patient, carried, null);
+    if (choice) return choice;
   }
 
   for (const station of stationsInReach(ctx, player.pos, reach)) {
-    for (const patient of longestWaitingFirst(world)) {
-      const entry = pickTask(world, ctx, player, patient, carried, station.type);
-      if (entry) return { patient, entry };
+    for (const patient of patientsFor(world, player)) {
+      const choice = pickTask(world, ctx, player, patient, carried, station.type);
+      if (choice) return choice;
     }
   }
   return null;
@@ -118,18 +135,23 @@ function pickTask(
   patient: Patient,
   carried: string | null,
   atStation: string | null,
-): PatientTask | null {
-  const candidates = availableTasks(patient).filter((entry) => {
+): TaskChoice | null {
+  const candidates = availableTasks(patient).flatMap((entry): TaskChoice[] => {
     const task = ctx.content.tasks.get(entry.task);
-    if (!task) return false;
-    // Interactions (escort, carry, ...) run as stand-in holds at the bedside until built.
+    if (!task) return [];
+    // Escorts start at the bedside and end at their station. Other interactions run as
+    // stand-in holds at the bedside until built.
     const where = task.interaction ? null : (task.station ?? null);
-    if (where !== atStation) return false;
-    if (task.needsItem && task.needsItem !== carried) return false;
-    return !takenByOther(world, ctx, player, patient, task);
+    if (where !== atStation) return [];
+    if (task.needsItem && task.needsItem !== carried) return [];
+    if (task.interaction === 'escort' && task.station && escorting(world, player)) return [];
+    const area = patientArea(world, ctx, patient);
+    if (task.needsEquipment && !equipmentAt(world, ctx, task.needsEquipment, area)) return [];
+    if (takenByOther(world, ctx, player, patient, task)) return [];
+    return [{ patient, entry, task }];
   });
   const usesCarried = candidates.find(
-    (entry) => carried !== null && ctx.content.tasks.get(entry.task)?.needsItem === carried,
+    (choice) => carried !== null && choice.task.needsItem === carried,
   );
   return usesCarried ?? candidates[0] ?? null;
 }
@@ -150,36 +172,19 @@ function takenByOther(
   });
 }
 
-// Pick up / put down. Carrying something: hand it back to a station that stocks it, or
-// set it down in front of you. Empty-handed: grab the nearest item on the floor, or take
-// what a patient will need from a station that stocks it.
+// Pick up / put down. Wheeling equipment: let go of it. Carrying something: hand it back
+// to a station that stocks it, or set it down in front of you. Empty-handed: take the
+// nearest item on the floor or piece of equipment, or what a patient will need from a
+// station that stocks it.
 function pickUpOrPutDown(world: World, ctx: SimContext, player: Player): void {
+  if (player.pushing !== null) {
+    parkEquipment(world, ctx, player);
+    return;
+  }
   const { reach } = ctx.content.rules.movement;
   const carried = carriedItem(world, player);
   if (carried) {
-    player.holding = null;
-    const shelf = stationsInReach(ctx, player.pos, reach).find((s) =>
-      stocks(ctx, s.type, carried.item),
-    );
-    if (shelf) {
-      world.items = world.items.filter((i) => i.id !== carried.id);
-      world.events.push({
-        type: 'itemReturned',
-        player: player.slot,
-        itemId: carried.id,
-        item: carried.item,
-      });
-    } else {
-      const pos = inFront(ctx, player, 0.6);
-      carried.place = { kind: 'floor', pos };
-      world.events.push({
-        type: 'itemDropped',
-        player: player.slot,
-        itemId: carried.id,
-        item: carried.item,
-        pos,
-      });
-    }
+    putDown(world, ctx, player, carried);
     return;
   }
 
@@ -199,6 +204,11 @@ function pickUpOrPutDown(world: World, ctx: SimContext, player: Player): void {
     )
     .filter(({ distance }) => distance <= reach)
     .sort((a, b) => a.distance - b.distance || a.item.id - b.item.id)[0];
+  const cart = grabbableEquipment(world, ctx, player)[0];
+  if (cart && (!onFloor || cart.distance < onFloor.distance)) {
+    grabEquipment(world, player, cart.cart);
+    return;
+  }
   if (onFloor) {
     onFloor.item.place = { kind: 'held', player: player.slot };
     player.holding = onFloor.item.id;
@@ -213,7 +223,7 @@ function pickUpOrPutDown(world: World, ctx: SimContext, player: Player): void {
   }
 
   for (const station of stationsInReach(ctx, player.pos, reach)) {
-    const item = itemToHandOut(world, ctx, station.type);
+    const item = itemToHandOut(world, ctx, player, station.type);
     if (!item) continue;
     const instance: ItemInstance = {
       id: world.nextItemId,
@@ -234,20 +244,67 @@ function pickUpOrPutDown(world: World, ctx: SimContext, player: Player): void {
   }
 }
 
-// What a station hands out: the first item a patient will need from it, longest-waiting
-// patient first, so one button grabs the right thing. Otherwise the station's first item,
-// so players can stock up ahead.
-function itemToHandOut(world: World, ctx: SimContext, stationType: string): string | null {
+function putDown(world: World, ctx: SimContext, player: Player, carried: ItemInstance): void {
+  const { reach } = ctx.content.rules.movement;
+  player.holding = null;
+  const shelf = stationsInReach(ctx, player.pos, reach).find((s) =>
+    stocks(ctx, s.type, carried.item),
+  );
+  if (shelf) {
+    world.items = world.items.filter((i) => i.id !== carried.id);
+    world.events.push({
+      type: 'itemReturned',
+      player: player.slot,
+      itemId: carried.id,
+      item: carried.item,
+    });
+    return;
+  }
+  const pos = inFront(ctx, player, 0.6);
+  carried.place = { kind: 'floor', pos };
+  world.events.push({
+    type: 'itemDropped',
+    player: player.slot,
+    itemId: carried.id,
+    item: carried.item,
+    pos,
+  });
+}
+
+// What a station hands out: an item a patient needs from it that isn't already carried
+// or set down for them. Needs for tasks that can be done now come first, and among them
+// the player's own patient (the last one they started a task on), then whoever has
+// waited longest, so one button usually grabs the right thing. With everything covered,
+// it hands out the most needed item again; with nothing needed, its first item, so
+// players can stock up ahead.
+function itemToHandOut(
+  world: World,
+  ctx: SimContext,
+  player: Player,
+  stationType: string,
+): string | null {
   const stocked = [...ctx.content.items.values()]
     .filter((item) => item.sources.includes(stationType))
     .map((item) => item.id);
-  for (const patient of longestWaitingFirst(world)) {
+  const now: string[] = [];
+  const later: string[] = [];
+  for (const patient of patientsFor(world, player)) {
+    const ready = new Set(availableTasks(patient));
     for (const entry of patient.tasks) {
-      const need = entry.remaining > 0 ? ctx.content.tasks.get(entry.task)?.needsItem : undefined;
-      if (need && stocked.includes(need)) return need;
+      const need = ctx.content.tasks.get(entry.task)?.needsItem;
+      if (!need || !stocked.includes(need)) continue;
+      for (let i = 0; i < entry.remaining; i++) (ready.has(entry) ? now : later).push(need);
     }
   }
-  return stocked[0] ?? null;
+  const needs = [...now, ...later];
+  const inPlay = new Map<string, number>();
+  for (const item of world.items) inPlay.set(item.item, (inPlay.get(item.item) ?? 0) + 1);
+  for (const need of needs) {
+    const covered = inPlay.get(need) ?? 0;
+    if (covered === 0) return need;
+    inPlay.set(need, covered - 1);
+  }
+  return needs[0] ?? stocked[0] ?? null;
 }
 
 function stocks(ctx: SimContext, stationType: string, item: string): boolean {
@@ -266,8 +323,14 @@ function stationsInReach(ctx: SimContext, pos: Point, reach: number) {
     .map(({ station }) => station);
 }
 
-function longestWaitingFirst(world: World): Patient[] {
-  return [...world.patients].sort((a, b) => a.arrivedTick - b.arrivedTick || a.id - b.id);
+// The player's own patient first, then everyone else, longest waiting first.
+function patientsFor(world: World, player: Player): Patient[] {
+  return [...world.patients].sort(
+    (a, b) =>
+      Number(b.id === player.lastPatient) - Number(a.id === player.lastPatient) ||
+      a.arrivedTick - b.arrivedTick ||
+      a.id - b.id,
+  );
 }
 
 // A spot just in front of the player, kept inside the map.

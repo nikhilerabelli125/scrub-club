@@ -1,6 +1,6 @@
 import type { Content } from '../data';
 import { secondsToTicks } from './clock';
-import { buildColliders } from './geometry';
+import { buildColliders, wallBox } from './geometry';
 import { createRng, jitter } from './rng';
 import type { Player, PlayerCount, PlayerSlot, SimContext, World } from './types';
 
@@ -12,7 +12,14 @@ export function createContext(content: Content, levelId: string): SimContext {
   const reservedBeds = level.events.flatMap((event) =>
     event.type === 'spawn' && event.bed ? [event.bed] : [],
   );
-  return { content, level, map, colliders: buildColliders(map), reservedBeds };
+  return {
+    content,
+    level,
+    map,
+    colliders: buildColliders(map),
+    walls: map.walls.map(wallBox),
+    reservedBeds,
+  };
 }
 
 export interface WorldOptions {
@@ -39,6 +46,8 @@ export function createWorld(ctx: SimContext, { seed, playerCount }: WorldOptions
       pos: [spawn[0], spawn[1]],
       facing: 0,
       holding: null,
+      pushing: null,
+      lastPatient: null,
       activity: null,
       walkAwayTicks: 0,
     };
@@ -61,6 +70,14 @@ export function createWorld(ctx: SimContext, { seed, playerCount }: WorldOptions
     players,
     items: [],
     nextItemId: 1,
+    // Each equipment home starts with its piece of equipment parked on it.
+    equipment: ctx.map.equipmentHomes.map((home, i) => ({
+      id: i + 1,
+      equipment: home.equipment,
+      pos: [home.pos[0], home.pos[1]],
+      facing: 0,
+      pushedBy: null,
+    })),
     spawn: { timerTicks: 0, sequenceIndex: 0 },
     scheduled,
     events: [],

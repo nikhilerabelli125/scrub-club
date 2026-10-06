@@ -3,7 +3,7 @@
 // and never changes the world.
 import type { DataIssue } from '../data';
 import type { ScreenPoint } from '../render';
-import { stationHeight } from '../render';
+import { EQUIPMENT_COLORS, stationHeight } from '../render';
 import type { LevelResult, Patient, PlayerSlot, SimContext, World } from '../sim';
 import { BED_SIZE, patientArea } from '../sim';
 import {
@@ -130,7 +130,7 @@ function ticketMarkup(ticket: TicketModel): string {
     <div class="ticket" data-patient="${ticket.patient}">
       <div class="paper" style="--acuity:${ACUITY_COLORS[ticket.acuity]}">
         <div class="t-name">${escape(ticket.label)}</div>
-        <div class="t-bed">${escape(ticket.bed ?? 'Waiting room')}</div>
+        <div class="t-bed">${escape(ticket.place)}</div>
         <ul class="t-steps">${chips}</ul>
         <div class="t-bar"><i></i></div>
       </div>
@@ -184,6 +184,19 @@ function floatingTags(
     });
   }
 
+  for (const cart of world.equipment) {
+    // A pushed cart's name shows on its pusher's tag instead.
+    const label = ctx.content.equipment.get(cart.equipment)?.label;
+    if (!label || cart.pushedBy !== null) continue;
+    tags.set(`equipment:${cart.id}`, {
+      className: 'tag station equipment',
+      html: `<i style="background:${EQUIPMENT_COLORS[cart.equipment] ?? '#8A9199'}"></i>${escape(label)}`,
+      // Equipment homes sit closer together than their labels are wide, so every other
+      // label floats higher.
+      point: project(cart.pos[0], cart.id % 2 === 0 ? 1.45 : 1.05, cart.pos[1]),
+    });
+  }
+
   const ticketByPatient = new Map(tickets.map((t) => [t.patient, t]));
   for (const patient of world.patients) {
     const ticket = ticketByPatient.get(patient.id);
@@ -198,8 +211,11 @@ function floatingTags(
   const working = new Map(activityModels(world, ctx).map((a) => [a.slot, a]));
   for (const player of world.players) {
     const carried = world.items.find((i) => i.id === player.holding);
-    const itemLabel = carried ? ctx.content.items.get(carried.item)?.label : undefined;
-    const name = `P${player.slot}${itemLabel ? ` · ${escape(itemLabel)}` : ''}`;
+    const pushed = world.equipment.find((e) => e.id === player.pushing);
+    const inHand = carried
+      ? ctx.content.items.get(carried.item)?.label
+      : pushed && ctx.content.equipment.get(pushed.equipment)?.label;
+    const name = `P${player.slot}${inHand ? ` · ${escape(inHand)}` : ''}`;
     tags.set(`player:${player.slot}`, {
       className: 'tag player',
       html: `<span style="background:${PLAYER_COLORS[player.slot]}">${name}</span>`,

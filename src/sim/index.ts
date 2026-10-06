@@ -7,6 +7,8 @@ export {
   BED_SIZE,
   bedBox,
   boxAround,
+  CART_SIZE,
+  cartBox,
   distanceToBox,
   resolveCircle,
   stationBox,
@@ -14,9 +16,10 @@ export {
   type Box,
   type Point,
 } from './geometry';
-export { patientArea, waitingSpot } from './places';
+export { patientArea, patientSpot, waitingSpot } from './places';
 export { createContext, createWorld, type WorldOptions } from './world';
 export { stepWorld } from './step';
 export { idleControls } from './systems/controls';
 export { availableTasks } from './systems/tasks';
+export { equipmentAt } from './systems/equipment';
 export { starsFor } from './systems/end';

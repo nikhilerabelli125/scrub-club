@@ -8,6 +8,7 @@ import {
   idleControls,
   stepWorld,
   type Box,
+  type EquipmentInstance,
   type Player,
   type PlayerCount,
   type PlayerInput,
@@ -112,20 +113,20 @@ export function playerIn(world: World, slot: PlayerSlot): Player {
   return player;
 }
 
-// Puts a player on free floor within reach of a bed or station, as a stand-in for
-// walking there (movement has its own tests).
+// Puts a player on free floor within reach of a bed or station, facing it, as a stand-in
+// for walking there (movement has its own tests).
 export function standNextTo(world: World, ctx: SimContext, slot: PlayerSlot, box: Box): void {
   const { radius, reach } = ctx.content.rules.movement;
-  const gap = radius + 0.05;
   const midX = (box.x0 + box.x1) / 2;
   const midZ = (box.z0 + box.z1) / 2;
   const [width, depth] = ctx.map.size;
-  const candidates: [number, number][] = [
+  // Close in first, then farther out, for seats tucked inside a station.
+  const candidates = [radius + 0.05, radius + 0.3, reach].flatMap((gap): [number, number][] => [
     [midX, box.z1 + gap],
     [box.x1 + gap, midZ],
     [box.x0 - gap, midZ],
     [midX, box.z0 - gap],
-  ];
+  ]);
   const spot = candidates.find(
     ([x, z]) =>
       x > radius &&
@@ -136,5 +137,29 @@ export function standNextTo(world: World, ctx: SimContext, slot: PlayerSlot, box
       distanceToBox(box, [x, z]) <= reach,
   );
   if (!spot) throw new Error('no free floor next to that box');
-  playerIn(world, slot).pos = spot;
+  const player = playerIn(world, slot);
+  player.pos = spot;
+  player.facing = Math.atan2(midX - spot[0], midZ - spot[1]);
+}
+
+// Test setup: puts an item straight into a player's hands, as if fetched.
+export function hand(world: World, slot: PlayerSlot, item: string): void {
+  const player = playerIn(world, slot);
+  world.items.push({ id: world.nextItemId, item, place: { kind: 'held', player: slot } });
+  player.holding = world.nextItemId;
+  world.nextItemId += 1;
+}
+
+// Test setup: parks a piece of equipment just past the foot of a bed (or in front of a
+// seat), as if wheeled there.
+export function parkBeside(world: World, equipment: string, box: Box): EquipmentInstance {
+  const cart = world.equipment.find(
+    (e) =>
+      e.equipment === equipment &&
+      e.pushedBy === null &&
+      !world.players.some((p) => p.activity?.equipment === e.id),
+  );
+  if (!cart) throw new Error(`no free ${equipment}`);
+  cart.pos = [(box.x0 + box.x1) / 2 + 0.9, box.z1 + 0.5];
+  return cart;
 }

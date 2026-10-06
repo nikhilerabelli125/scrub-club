@@ -5,7 +5,7 @@ import { createActors } from './actors';
 import { createFixedCamera, fitFixedCamera } from './camera';
 import { buildGreybox } from './greybox';
 
-export { stationHeight } from './greybox';
+export { EQUIPMENT_COLORS, stationHeight } from './greybox';
 
 export interface ScreenPoint {
   x: number; // CSS pixels from the canvas's left edge

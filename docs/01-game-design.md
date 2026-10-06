@@ -169,11 +169,14 @@ Cues never rely on color alone: each has a shape or motion and a text badge.
 
 ## 7. Items, stations, and equipment
 
-- Players carry one item at a time (the tech carries two).
+- **Every task needs a trip.** Except asking questions, every task needs one physical step first: fetch an item, wheel a piece of equipment to the bed, or walk the patient somewhere. Holding Use at the bedside alone is never the whole job (M1 playtest #8).
+- Players carry one item at a time (the tech carries two). Pick up at a station hands out what a patient needs from it: tasks that can be done now first, the player's own patient (the last one they started a task on) first among those, skipping items someone already carries.
 - **Stations** are fixed spots where tasks happen: computer, med cabinet, lab tube, imaging room, supply closet, sink, crash cart, and setting-specific ones (ice bath, scrub sink, organ cooler).
+- **Equipment** is wheeled: Pick up beside it to grab it, and it rolls in front of you at 85% walking speed. Pick up again parks it, and so does Use, since working takes both hands. A task that needs equipment starts only when a piece is parked within 1.5 m of the patient's bed, and each piece serves one task at a time.
+- **Walks.** For tasks that take the patient somewhere (the dark room, the observation chairs), Use beside them and they follow a step behind. Reach the station and they go in; their bed frees up for the next patient.
 - **Item chains.** Some tasks produce items that travel: draw blood → carry the tube to the lab → result arrives at the printer after a delay → the result attaches to the ticket and can change the plan.
 - **Order then wait.** Labs, scans, and similar tasks start a timer (draft: labs 18 s, X-ray 10 s, CT 15 s). Players should do other work meanwhile.
-- **Scarcity.** Key equipment is shared and limited (one crash cart, one EKG machine, one C-arm, one dialysis machine) and has to be wheeled where it's needed and returned or recharged.
+- **Scarcity.** Key equipment is shared and limited (one crash cart, one EKG machine, one C-arm, one dialysis machine) and has to be wheeled where it's needed and returned or recharged. Common equipment comes in pairs so it makes a trip without a bottleneck (two vitals carts in the ED).
 - **Throwing.** Players can throw what they hold:
   - Blood tubes that land badly break: −5 points and a spill to clean.
   - Defib pads thrown onto a coding patient count as placing the pads.

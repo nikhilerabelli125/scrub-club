@@ -373,10 +373,12 @@ export const RulesFileSchema = z.strictObject({
     speed: z.number().positive(),
     radius: z.number().positive(),
     reach: z.number().positive(),
+    pushSpeed: z.number().positive().max(1),
   }),
   interaction: z.strictObject({
     walkAwaySeconds: z.number().positive(),
     standInSeconds: z.number().positive(),
+    equipmentRange: z.number().positive(),
   }),
   codes: z.strictObject({
     lostAfterSeconds: z.number().positive(),

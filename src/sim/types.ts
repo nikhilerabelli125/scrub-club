@@ -52,7 +52,15 @@ export interface PatientTask {
   step: MinigameState | null; // that step's progress; a hold keeps it when its player walks away
 }
 
-export type PatientLocation = { kind: 'waiting' } | { kind: 'bed'; bed: string };
+export type PatientLocation =
+  | { kind: 'waiting' }
+  | { kind: 'bed'; bed: string }
+  // Walking behind a player to a station (the escort interaction). The patient stands on
+  // the oldest breadcrumb of the player's path, so they follow around corners, not
+  // through walls. Their bed stays theirs until they arrive.
+  | { kind: 'escorted'; by: PlayerSlot; task: string; trail: [number, number][] }
+  // Delivered to a station by an escort, like the observation chairs.
+  | { kind: 'station'; station: string };
 
 export interface Patient {
   id: number;
@@ -76,14 +84,32 @@ export interface Player {
   pos: [number, number]; // meters from the map's top-left corner (x right, z toward the camera)
   facing: number; // radians; 0 faces the camera
   holding: number | null; // id of the carried item
-  activity: { patient: number; task: string } | null; // the task this player is working on
+  pushing: number | null; // id of the equipment being wheeled; hands are full either way
+  // The patient this player last started a task on. Stations hand out what they need first.
+  lastPatient: number | null;
+  activity: Activity | null; // the task this player is working on
   walkAwayTicks: number; // how long they have pushed a direction mid-task (docs/03 §1)
+}
+
+export interface Activity {
+  patient: number;
+  task: string;
+  equipment: number | null; // the equipment this task is using, so nobody else can
 }
 
 export interface ItemInstance {
   id: number;
   item: string;
   place: { kind: 'held'; player: PlayerSlot } | { kind: 'floor'; pos: [number, number] };
+}
+
+// A piece of wheeled equipment (docs/01 §7): a vitals cart, the EKG machine, the crash cart.
+export interface EquipmentInstance {
+  id: number;
+  equipment: string;
+  pos: [number, number];
+  facing: number; // radians, the way it was last pushed
+  pushedBy: PlayerSlot | null;
 }
 
 // A level event with its jitter already rolled. `index` points into the level's events.
@@ -144,6 +170,16 @@ export type SimEvent =
     }
   | { type: 'itemReturned'; player: PlayerSlot; itemId: number; item: string }
   | { type: 'itemUsed'; player: PlayerSlot; itemId: number; item: string; task: string }
+  | { type: 'equipmentGrabbed'; player: PlayerSlot; equipmentId: number; equipment: string }
+  | {
+      type: 'equipmentParked';
+      player: PlayerSlot;
+      equipmentId: number;
+      equipment: string;
+      pos: [number, number];
+    }
+  | { type: 'escortStarted'; player: PlayerSlot; patient: number; task: string }
+  | { type: 'escortArrived'; player: PlayerSlot; patient: number; task: string; station: string }
   | {
       type: 'patientFinished';
       patient: number;
@@ -176,6 +212,7 @@ export interface World {
   players: Player[];
   items: ItemInstance[];
   nextItemId: number;
+  equipment: EquipmentInstance[];
   spawn: { timerTicks: number; sequenceIndex: number };
   scheduled: ScheduledEvent[];
   events: SimEvent[]; // this tick's events, cleared at the start of the next tick
@@ -188,5 +225,6 @@ export interface SimContext {
   level: LevelDef;
   map: MapDef;
   colliders: Box[]; // walls, stations, and beds players can't walk through
+  walls: Box[]; // just the walls, which stop wheeled equipment
   reservedBeds: string[]; // beds named by scripted spawns, kept free for them
 }
