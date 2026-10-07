@@ -23,4 +23,5 @@ export { idleControls } from './systems/controls';
 export { availableTasks } from './systems/tasks';
 export { equipmentAt } from './systems/equipment';
 export { needsOrder } from './systems/orders';
+export { shownAcuity } from './systems/knowledge';
 export { starsFor } from './systems/end';

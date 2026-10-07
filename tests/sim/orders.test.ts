@@ -266,7 +266,7 @@ describe('the tutorial (CL-A) skips the waits', () => {
 
 describe('leaving', () => {
   it("a patient who leaves takes their ordered med out of a player's hands", () => {
-    // A headache (75 s of patience) whose med has just come by tube.
+    // A headache (210 s of patience) whose med has just come by tube.
     const { ctx, world } = setUp(
       'ed-a',
       ['ed.headache'],
@@ -279,7 +279,7 @@ describe('leaving', () => {
     const delivered = world.items.find((i) => i.for?.patient === 1);
     pickUpItem(world, ctx, delivered?.id ?? 0);
     expect(held(world)?.for).toEqual({ patient: 1, task: 'task.headache-med' });
-    const log = run(world, ctx, secondsToTicks(80), () => IDLE);
+    const log = run(world, ctx, secondsToTicks(215), () => IDLE);
     expect(eventsOf(log, 'patientLeft').map(({ event }) => event.patient)).toEqual([1]);
     expect(playerIn(world, 1).holding).toBeNull();
     expect(world.items.some((i) => i.for !== null)).toBe(false);

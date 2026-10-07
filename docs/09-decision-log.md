@@ -127,3 +127,8 @@ Source codes: **Q** = original questionnaire, **C** = first clarification round,
 | Map layouts | Open areas and cramped chokepoints (doorways down to 1.2 m) on purpose, so the map adds pressure; still no moving gimmicks before tier 3 | M2 playtest (#22) |
 | Lean maps | A map only carries what its levels' patients can use; validate-data flags the rest | M2 playtest (#23) |
 | ED-A ambulance | The guaranteed chest pain rolls straight into resus, which walk-ins don't use | M2 playtest (#22) |
+| Patience | 60 / 90 / 150 / 210 / 270 s for acuity 1 to 5: mild patients wait far longer than sick ones | M2 playtest (#20) |
+| Escalation pace | Every escalation stage takes twice as long (a neglected chest pain goes to another team after about 2 minutes, not 1) | M2 playtest (#20) |
+| ED-A stars | 150 / 300 / 420 for one player | M2 playtest (#20) |
+| Balance checks | Walking test bots on the real map: a new player alone keeps up with ED-A, and a practiced pair earns 2+ stars | M2 playtest (#20) |
+| Reach | No reaching through walls | M2 playtest (#20) |

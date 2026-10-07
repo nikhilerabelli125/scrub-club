@@ -18,12 +18,12 @@ const critical = (count: number): SimCommand[] =>
 describe('patience', () => {
   it('a low-acuity patient leaves when patience runs out: 1 strike, -10 points', () => {
     const { ctx, world } = startED();
-    // The command runs before the pool spawns, so this bad cut (acuity 4, 75 s) is patient 1.
-    const log = run(world, ctx, secondsToTicks(80), (w) =>
+    // The command runs before the pool spawns, so this bad cut (acuity 4, 210 s) is patient 1.
+    const log = run(world, ctx, secondsToTicks(215), (w) =>
       w.tick === 0 ? commands({ type: 'spawn', condition: 'ed.bad-cut' }) : IDLE,
     );
     const left = eventsOf(log, 'patientLeft').find(({ event }) => event.patient === 1);
-    expect(left?.tick).toBe(1 + secondsToTicks(75));
+    expect(left?.tick).toBe(1 + secondsToTicks(210));
     expect(eventsOf(log, 'scored')).toContainEqual({
       tick: left?.tick,
       event: { type: 'scored', points: -10, reason: 'left', patient: 1 },
@@ -45,7 +45,7 @@ describe('getting worse', () => {
   it('an untreated chest pain shows a sign, then a badge, then goes to another team', () => {
     // ED-A caps escalation at a rescue transfer (levels 1 to 9 come before codes).
     const { ctx, world } = startED();
-    const log = run(world, ctx, secondsToTicks(90), (w) =>
+    const log = run(world, ctx, secondsToTicks(140), (w) =>
       w.tick === 0 ? commands({ type: 'spawn', condition: 'ed.chest-pain' }) : IDLE,
     );
     const stages = eventsOf(log, 'patientEscalated').filter(({ event }) => event.patient === 1);
@@ -54,12 +54,12 @@ describe('getting worse', () => {
       [2, 'Heart attack'],
       [3, null],
     ]);
-    // 30 s ±8, then 15 s, then 15 s (data/conditions/ed.json).
+    // 60 s ±12, then 30 s, then 30 s (data/conditions/ed.json).
     const [first, second, third] = stages.map(({ tick }) => tick);
-    expect(first).toBeGreaterThanOrEqual(1 + secondsToTicks(22));
-    expect(first).toBeLessThanOrEqual(1 + secondsToTicks(38));
-    expect((second ?? 0) - (first ?? 0)).toBe(secondsToTicks(15));
-    expect((third ?? 0) - (second ?? 0)).toBe(secondsToTicks(15));
+    expect(first).toBeGreaterThanOrEqual(1 + secondsToTicks(48));
+    expect(first).toBeLessThanOrEqual(1 + secondsToTicks(72));
+    expect((second ?? 0) - (first ?? 0)).toBe(secondsToTicks(30));
+    expect((third ?? 0) - (second ?? 0)).toBe(secondsToTicks(30));
     expect(eventsOf(log, 'patientTransferred')).toEqual([
       {
         tick: third,
@@ -87,7 +87,8 @@ describe('getting worse', () => {
       ctx,
       commands(...done.map((task): SimCommand => ({ type: 'completeTask', patient: 1, task }))),
     );
-    const log = run(world, ctx, secondsToTicks(55));
+    // Untreated, the first sign would show by 92 s (80 s ±12).
+    const log = run(world, ctx, secondsToTicks(100));
     expect(eventsOf(log, 'patientEscalated').some(({ event }) => event.patient === 1)).toBe(false);
   });
 
@@ -97,7 +98,7 @@ describe('getting worse', () => {
     const patient = world.patients.find((p) => p.id === 1);
     if (!patient) throw new Error('no patient');
     patient.patienceTicks = secondsToTicks(600); // so they don't walk out first
-    for (let i = 0; i < secondsToTicks(90) && patient.escalation.stage < 2; i++) {
+    for (let i = 0; i < secondsToTicks(180) && patient.escalation.stage < 2; i++) {
       stepWorld(world, ctx, IDLE);
     }
     expect(world.events).toContainEqual({

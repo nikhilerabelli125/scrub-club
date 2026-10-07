@@ -1,7 +1,7 @@
 import type { TaskDef } from '../../data';
 import { keepsProgress, locksPlayer } from '../../minigames';
 import { secondsToTicks } from '../clock';
-import { distanceToBox, stationBox, type Point } from '../geometry';
+import { canReach, distanceToBox, lineBlocked, stationBox, type Point } from '../geometry';
 import { patientArea } from '../places';
 import type {
   ItemInstance,
@@ -124,11 +124,9 @@ function findTask(world: World, ctx: SimContext, player: Player): TaskChoice | n
 
   const nearby = world.patients
     .filter((patient) => patient.location.kind !== 'escorted')
-    .map((patient) => ({
-      patient,
-      distance: distanceToBox(patientArea(world, ctx, patient), player.pos),
-    }))
-    .filter(({ distance }) => distance <= reach)
+    .map((patient) => ({ patient, area: patientArea(world, ctx, patient) }))
+    .filter(({ area }) => canReach(ctx.walls, player.pos, area, reach))
+    .map(({ patient, area }) => ({ patient, distance: distanceToBox(area, player.pos) }))
     .sort((a, b) => a.distance - b.distance || a.patient.id - b.patient.id);
   for (const { patient } of nearby) {
     const choice = pickTask(world, ctx, player, patient, carried, null);
@@ -244,7 +242,12 @@ function pickUpOrPutDown(world: World, ctx: SimContext, player: Player): void {
           ]
         : [],
     )
-    .filter(({ distance }) => distance <= reach)
+    .filter(
+      ({ item, distance }) =>
+        distance <= reach &&
+        item.place.kind === 'floor' &&
+        !lineBlocked(player.pos, item.place.pos, ctx.walls),
+    )
     .sort((a, b) => a.distance - b.distance || a.item.id - b.item.id)[0];
   // A small item within reach wins over equipment: carts are big and easy to reach from
   // another side, while a dropped stethoscope is easy to miss.
@@ -370,8 +373,8 @@ export function carriedItem(world: World, player: Player): ItemInstance | undefi
 
 function stationsInReach(ctx: SimContext, pos: Point, reach: number) {
   return ctx.map.stations
+    .filter((station) => canReach(ctx.walls, pos, stationBox(station), reach))
     .map((station) => ({ station, distance: distanceToBox(stationBox(station), pos) }))
-    .filter(({ distance }) => distance <= reach)
     .sort((a, b) => a.distance - b.distance)
     .map(({ station }) => station);
 }

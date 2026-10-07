@@ -88,6 +88,40 @@ export function freeSpotNear(
   return pushed;
 }
 
+// The point of a box closest to `from`.
+export function nearestPointOf(box: Box, [x, z]: Point): [number, number] {
+  return [clamp(x, box.x0, box.x1), clamp(z, box.z0, box.z1)];
+}
+
+// Whether the straight line from a to b passes through any of the boxes. Grazing an edge
+// or a corner doesn't count.
+export function lineBlocked(a: Point, b: Point, boxes: readonly Box[]): boolean {
+  const d: Point = [b[0] - a[0], b[1] - a[1]];
+  return boxes.some((box) => {
+    let enter = 0;
+    let exit = 1;
+    for (const [o, delta, lo, hi] of [
+      [a[0], d[0], box.x0, box.x1],
+      [a[1], d[1], box.z0, box.z1],
+    ] as const) {
+      if (Math.abs(delta) < 1e-12) {
+        if (o <= lo || o >= hi) return false;
+        continue;
+      }
+      const t1 = (lo - o) / delta;
+      const t2 = (hi - o) / delta;
+      enter = Math.max(enter, Math.min(t1, t2));
+      exit = Math.min(exit, Math.max(t1, t2));
+    }
+    return enter < exit - 1e-9;
+  });
+}
+
+// Close enough to reach a box, with no wall in between: players can't reach through walls.
+export function canReach(walls: readonly Box[], from: Point, box: Box, reach: number): boolean {
+  return distanceToBox(box, from) <= reach && !lineBlocked(from, nearestPointOf(box, from), walls);
+}
+
 // How far a ray from `origin` along the unit vector `dir` travels before entering one of
 // the boxes, up to `max`. Boxes the ray starts inside don't count.
 export function rayDistance(origin: Point, dir: Point, max: number, boxes: readonly Box[]): number {

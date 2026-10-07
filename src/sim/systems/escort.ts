@@ -2,7 +2,7 @@
 // (the dark room, the observation chairs) and they get up and follow you. Bring them
 // within reach of the destination and they go in: the task is done (or, in the
 // observation chairs, its wait starts), and their bed is free for the next patient.
-import { distanceToBox, stationBox } from '../geometry';
+import { canReach, stationBox } from '../geometry';
 import { patientArea } from '../places';
 import type { Patient, Player, SimContext, World } from '../types';
 import { finishSteps } from './orders';
@@ -54,7 +54,7 @@ export function escortSystem(world: World, ctx: SimContext): void {
 
     const destination = ctx.content.tasks.get(location.task)?.station;
     const station = ctx.map.stations.find(
-      (s) => s.type === destination && distanceToBox(stationBox(s), player.pos) <= reach,
+      (s) => s.type === destination && canReach(ctx.walls, player.pos, stationBox(s), reach),
     );
     if (!station) continue;
     for (const bed of world.beds) if (bed.patient === patient.id) bed.patient = null;

@@ -21,19 +21,19 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 30,
+          "afterSeconds": 60,
           "cues": ["heartAttack"],
-          "jitterSeconds": 8,
+          "jitterSeconds": 12,
           "slowedBy": ["task.aspirin"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["heartAttack"],
           "badge": "Heart attack",
           "slowedBy": ["task.aspirin"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["zigzag"],
           "outcome": "code-zigzag"
         }
@@ -111,13 +111,13 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 40,
+          "afterSeconds": 80,
           "cues": ["lowOxygen"],
-          "jitterSeconds": 8,
+          "jitterSeconds": 12,
           "slowedBy": ["task.oxygen"]
         },
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "slowedBy": ["task.oxygen"],
@@ -128,7 +128,7 @@
           ]
         },
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["lowOxygen"],
           "outcome": "rescue"
         }
@@ -162,13 +162,13 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["allergy"],
           "badge": "Allergic reaction",
           "slowedBy": ["task.allergy-shot"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "addTasks": [
@@ -178,7 +178,7 @@
           ]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["lowOxygen"],
           "outcome": "rescue"
         }
@@ -207,17 +207,17 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 30,
+          "afterSeconds": 60,
           "cues": ["stroke"],
-          "jitterSeconds": 8
+          "jitterSeconds": 12
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["stroke"],
           "badge": "Stroke"
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["stroke"],
           "outcome": "rescue"
         }
@@ -248,17 +248,17 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 45,
+          "afterSeconds": 90,
           "cues": ["pain"],
-          "jitterSeconds": 10
+          "jitterSeconds": 15
         },
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["pale"],
           "badge": "Getting worse"
         },
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["pale"],
           "outcome": "rescue"
         }
@@ -291,19 +291,19 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 30,
+          "afterSeconds": 60,
           "cues": ["pale"],
-          "jitterSeconds": 8,
+          "jitterSeconds": 12,
           "slowedBy": ["task.iv-fluids"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["pale"],
           "badge": "Getting worse",
           "slowedBy": ["task.iv-fluids"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["pale"],
           "outcome": "rescue"
         }
@@ -366,19 +366,19 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 35,
+          "afterSeconds": 70,
           "cues": ["pale"],
-          "jitterSeconds": 8,
+          "jitterSeconds": 12,
           "slowedBy": ["task.transfusion"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["pale"],
           "badge": "Losing blood",
           "slowedBy": ["task.transfusion"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["flatLine"],
           "outcome": "code-flat"
         }
@@ -408,12 +408,12 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 25,
+          "afterSeconds": 50,
           "cues": ["seizure"],
           "slowedBy": ["task.seizure-med"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "addTasks": [
@@ -423,7 +423,7 @@
           ]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["lowOxygen"],
           "outcome": "rescue"
         }
@@ -457,18 +457,18 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["tooMuchMed"],
           "slowedBy": ["task.oxygen", "task.bag"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "slowedBy": ["task.bag"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["flatLine"],
           "outcome": "code-flat"
         }
@@ -507,13 +507,13 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 25,
+          "afterSeconds": 50,
           "cues": ["pale"],
           "badge": "Losing blood",
           "slowedBy": ["task.transfusion"]
         },
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["flatLine"],
           "outcome": "code-flat"
         }

@@ -22,20 +22,20 @@ describe('ending a level', () => {
 
   it('ends at once with no stars when the strike limit is hit', () => {
     const { ctx, world } = startED();
-    // Nine bad cuts (75 s of patience each) all walk out together: ED-A's limit is 9.
+    // Nine bad cuts (210 s of patience each) all walk out together: ED-A's limit is 9.
     const nine: SimCommand[] = Array.from({ length: 9 }, () => ({
       type: 'spawn',
       condition: 'ed.bad-cut',
     }));
     run(world, ctx, secondsToTicks(300), (w) => (w.tick === 0 ? commands(...nine) : IDLE));
-    expect(world.tick).toBe(1 + secondsToTicks(75));
-    expect(world.result).toEqual({
+    // The level ends the moment they leave. (An early pool patient may have cost strikes too.)
+    expect(world.tick).toBe(1 + secondsToTicks(210));
+    expect(world.result).toMatchObject({
       outcome: 'strikeOut',
-      score: -90,
-      strikes: 9,
       stars: 0,
-      seconds: (1 + secondsToTicks(75)) / 60,
+      seconds: (1 + secondsToTicks(210)) / 60,
     });
+    expect(world.strikes).toBeGreaterThanOrEqual(9);
   });
 
   it('ends an untimed level once all its patients are resolved', () => {
@@ -71,10 +71,10 @@ describe('stars', () => {
   const rules = content().rules;
 
   it('scale point thresholds by player count', () => {
-    const { ctx } = startED(); // 150 / 250 / 350 for one player
-    expect(starsFor(ctx.level, rules, 1, 349, 300)).toBe(2);
-    expect(starsFor(ctx.level, rules, 1, 350, 300)).toBe(3);
-    expect(starsFor(ctx.level, rules, 2, 350, 300)).toBe(2); // two players need 437.5
+    const { ctx } = startED(); // 150 / 300 / 420 for one player
+    expect(starsFor(ctx.level, rules, 1, 419, 300)).toBe(2);
+    expect(starsFor(ctx.level, rules, 1, 420, 300)).toBe(3);
+    expect(starsFor(ctx.level, rules, 2, 420, 300)).toBe(2); // two players need 525
     expect(starsFor(ctx.level, rules, 4, 149, 300)).toBe(0);
   });
 

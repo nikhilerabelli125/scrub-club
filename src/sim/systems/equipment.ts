@@ -2,7 +2,7 @@
 // go to park it. A task that needs a piece of equipment starts only when one is parked
 // beside the patient, and each piece serves one task at a time, so scarce equipment
 // (one EKG machine) makes players plan, and some (two vitals carts) just makes a trip.
-import { cartBox, distanceToBox, freeSpotNear, rayDistance, type Box } from '../geometry';
+import { canReach, cartBox, distanceToBox, freeSpotNear, rayDistance, type Box } from '../geometry';
 import type { EquipmentInstance, Player, SimContext, World } from '../types';
 
 // The cart's center sits this far ahead of the pusher's: their radius plus half its depth.
@@ -63,8 +63,8 @@ export function grabbableEquipment(
   const { reach } = ctx.content.rules.movement;
   return world.equipment
     .filter((cart) => cart.pushedBy === null && !inUse(world, cart))
+    .filter((cart) => canReach(ctx.walls, player.pos, cartBox(cart.pos, cart.facing), reach))
     .map((cart) => ({ cart, distance: distanceToBox(cartBox(cart.pos, cart.facing), player.pos) }))
-    .filter(({ distance }) => distance <= reach)
     .sort((a, b) => a.distance - b.distance || a.cart.id - b.cart.id);
 }
 

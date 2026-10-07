@@ -4,7 +4,7 @@
 // waits are when players go help someone else.
 import type { TaskDef } from '../../data';
 import { secondsToTicks } from '../clock';
-import { distanceToBox, stationBox } from '../geometry';
+import { canReach, stationBox } from '../geometry';
 import { pickOne } from '../rng';
 import type { ItemInstance, Patient, PatientTask, Player, SimContext, World } from '../types';
 import { launch } from './flight';
@@ -92,7 +92,7 @@ export function deliverSample(
   const { reach } = ctx.content.rules.movement;
   const resultAt = task.result.at;
   const station = ctx.map.stations.find(
-    (s) => s.type === resultAt && distanceToBox(stationBox(s), player.pos) <= reach,
+    (s) => s.type === resultAt && canReach(ctx.walls, player.pos, stationBox(s), reach),
   );
   if (!station) return false;
   discardItems(world, (i) => i.id === item.id);

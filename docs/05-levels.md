@@ -65,6 +65,7 @@ Times marked ± shift every run (seeded jitter) so replays feel different.
 - **New:** the ticket rail and acuity colors. Choosing who goes first from the waiting room.
 - **Patients:** `ed.chest-pain` (the orange one to prioritize), `ed.wheezing`, `ed.bad-cut`, `ed.headache`. `ed.broken-arm` waits until level 6, after the dosing meter is taught. Spawn every 22 to 30 s, max 4 waiting. A guaranteed `ed.chest-pain` arrives by ambulance at 1:00 ±15 s, so every run has an orange patient to prioritize.
 - **Hazard:** the waiting room crowd spills into the hallway.
+- **Stars:** 150 / 300 / 420 points for one player (above the tier default, since the longer timers of playtest #20 earn bigger speed bonuses).
 - **Map:** its own small ED, 18 × 12 m (`data/maps/ed-a.json`, M2 playtest #22): two bays in a cramped alcove behind a narrow door, a third bay beside the supply closet (another narrow door), a fourth by the bottom wall, and resus in a trauma room with the EKG machine and the ambulance door. The nurses' station island in the middle holds the computer and both stethoscopes, and three tube stations sit around the edges. The guaranteed chest pain rolls straight into resus.
 - **Briefing:** "Colors show who's sickest. Red and orange first; green and blue can wait a bit."
 

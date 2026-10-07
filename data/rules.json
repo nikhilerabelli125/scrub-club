@@ -1,10 +1,10 @@
 {
   "acuity": [
-    { "acuity": 1, "patienceSeconds": 30, "points": 80 },
-    { "acuity": 2, "patienceSeconds": 45, "points": 60 },
-    { "acuity": 3, "patienceSeconds": 60, "points": 40 },
-    { "acuity": 4, "patienceSeconds": 75, "points": 30 },
-    { "acuity": 5, "patienceSeconds": 90, "points": 20 }
+    { "acuity": 1, "patienceSeconds": 60, "points": 80 },
+    { "acuity": 2, "patienceSeconds": 90, "points": 60 },
+    { "acuity": 3, "patienceSeconds": 150, "points": 40 },
+    { "acuity": 4, "patienceSeconds": 210, "points": 30 },
+    { "acuity": 5, "patienceSeconds": 270, "points": 20 }
   ],
   "speedBonusMax": 0.5,
   "outcomes": {
