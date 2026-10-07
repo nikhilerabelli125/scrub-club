@@ -19,7 +19,7 @@ import {
   type TickInput,
   type World,
 } from '../../src/sim';
-import { buildColliders, wallBox } from '../../src/sim/geometry';
+import { buildColliders, canReach, wallBox } from '../../src/sim/geometry';
 import { loadDataDir } from '../../tools/load-data';
 
 let cached: Content | undefined;
@@ -125,6 +125,11 @@ export function press(slot: PlayerSlot, controls: Partial<Omit<PlayerInput, 'slo
   return { ...idleControls(slot), ...controls };
 }
 
+// One player's controls for a tick: nothing pressed.
+export function idle(slot: PlayerSlot): PlayerInput {
+  return idleControls(slot);
+}
+
 export function players(...inputs: PlayerInput[]): TickInput {
   return { players: inputs };
 }
@@ -135,33 +140,58 @@ export function playerIn(world: World, slot: PlayerSlot): Player {
   return player;
 }
 
-// Puts a player on free floor within reach of a bed or station, facing it, as a stand-in
-// for walking there (movement has its own tests).
-export function standNextTo(world: World, ctx: SimContext, slot: PlayerSlot, box: Box): void {
+// Free floor within reach of a bed, station, or item where a player could stand: straight
+// out from each side first (below, right, left, above), then the diagonals, closest rings
+// first. The farthest ring keeps a margin inside reach, for bots that stop a little short.
+export function spotsNextTo(ctx: SimContext, box: Box): [number, number][] {
   const { radius, reach } = ctx.content.rules.movement;
-  const midX = (box.x0 + box.x1) / 2;
-  const midZ = (box.z0 + box.z1) / 2;
+  const cx = (box.x0 + box.x1) / 2;
+  const cz = (box.z0 + box.z1) / 2;
   const [width, depth] = ctx.map.size;
-  // Close in first, then farther out, for seats tucked inside a station.
-  const candidates = [radius + 0.05, radius + 0.3, reach].flatMap((gap): [number, number][] => [
-    [midX, box.z1 + gap],
-    [box.x1 + gap, midZ],
-    [box.x0 - gap, midZ],
-    [midX, box.z0 - gap],
-  ]);
-  const spot = candidates.find(
+  const directions: [number, number][] = [
+    [0, 1],
+    [1, 0],
+    [-1, 0],
+    [0, -1],
+    ...[1, 3, 5, 7, 9, 11, 13, 15].map((k): [number, number] => {
+      const angle = (k * Math.PI) / 8;
+      return [Math.sin(angle), Math.cos(angle)];
+    }),
+    ...[1, 3, 5, 7].map((k): [number, number] => {
+      const angle = (k * Math.PI) / 4;
+      return [Math.sin(angle), Math.cos(angle)];
+    }),
+  ];
+  const gaps = [radius + 0.05, radius + 0.2, radius + 0.35, reach - 0.07];
+  const candidates = gaps.flatMap((gap) =>
+    directions.map(([dx, dz]): [number, number] => {
+      // Out of the box along this direction, then `gap` farther.
+      const exitX = dx === 0 ? Infinity : Math.abs((dx > 0 ? box.x1 : box.x0) - cx) / Math.abs(dx);
+      const exitZ = dz === 0 ? Infinity : Math.abs((dz > 0 ? box.z1 : box.z0) - cz) / Math.abs(dz);
+      const exit = Math.min(exitX, exitZ);
+      const out = (Number.isFinite(exit) ? exit : 0) + gap;
+      return [cx + dx * out, cz + dz * out];
+    }),
+  );
+  return candidates.filter(
     ([x, z]) =>
       x > radius &&
       x < width - radius &&
       z > radius &&
       z < depth - radius &&
-      ctx.colliders.every((collider) => distanceToBox(collider, [x, z]) >= radius) &&
-      distanceToBox(box, [x, z]) <= reach,
+      ctx.colliders.every((collider) => distanceToBox(collider, [x, z]) >= radius - 1e-9) &&
+      canReach(ctx.walls, [x, z], box, reach - 0.05),
   );
+}
+
+// Puts a player on free floor within reach of a bed or station, facing it, as a stand-in
+// for walking there (movement has its own tests).
+export function standNextTo(world: World, ctx: SimContext, slot: PlayerSlot, box: Box): void {
+  const spot = spotsNextTo(ctx, box)[0];
   if (!spot) throw new Error('no free floor next to that box');
   const player = playerIn(world, slot);
   player.pos = spot;
-  player.facing = Math.atan2(midX - spot[0], midZ - spot[1]);
+  player.facing = Math.atan2((box.x0 + box.x1) / 2 - spot[0], (box.z0 + box.z1) / 2 - spot[1]);
 }
 
 // Test setup: puts an item straight into a player's hands, as if fetched.

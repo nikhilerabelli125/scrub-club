@@ -173,13 +173,13 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 40,
+          "afterSeconds": 80,
           "cues": ["lowSugar"],
-          "jitterSeconds": 8,
+          "jitterSeconds": 12,
           "slowedBy": ["task.give-drink"]
         },
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["lowSugar"],
           "badge": "Sugar too low",
           "addTasks": [
@@ -224,19 +224,19 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 35,
+          "afterSeconds": 70,
           "cues": ["heartAttack"],
-          "jitterSeconds": 8,
+          "jitterSeconds": 12,
           "slowedBy": ["task.aspirin"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["heartAttack"],
           "badge": "Heart attack",
           "slowedBy": ["task.aspirin"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["zigzag"],
           "outcome": "code-zigzag"
         }
@@ -265,13 +265,13 @@
       ],
       "escalation": [
         {
-          "afterSeconds": 20,
+          "afterSeconds": 40,
           "cues": ["allergy"],
           "badge": "Allergic reaction",
           "slowedBy": ["task.allergy-shot"]
         },
         {
-          "afterSeconds": 15,
+          "afterSeconds": 30,
           "cues": ["lowOxygen"],
           "badge": "Not enough oxygen",
           "addTasks": [

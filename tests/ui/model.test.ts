@@ -84,10 +84,10 @@ describe('tickets', () => {
     );
     run(world, ctx, secondsToTicks(15));
     const timer = (id: number) => ticketModels(world, ctx).find((t) => t.patient === id)?.timer;
-    // Chest pain: about 60 s from arrival to another team (30 + 15 + 15); a bad cut walks
-    // out after 75 s of patience (data/rules.json).
-    expect(timer(1)).toBeCloseTo(1 - 15 / 60, 1);
-    expect(timer(2)).toBeCloseTo(1 - 15 / 75, 1);
+    // Chest pain: about 120 s from arrival to another team (60 + 30 + 30); a bad cut walks
+    // out after 210 s of patience (data/rules.json).
+    expect(timer(1)).toBeCloseTo(1 - 15 / 120, 1);
+    expect(timer(2)).toBeCloseTo(1 - 15 / 210, 1);
   });
 
   it('say when a patient came by ambulance', () => {

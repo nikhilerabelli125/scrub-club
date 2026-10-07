@@ -52,13 +52,13 @@ Acuity runs 1 (most critical) to 5 (least urgent). In game it is only a color an
 
 | Acuity | Color | Default patience (s) | Example |
 |---|---|---|---|
-| 1 | Red | 30 | Major bleeding, cardiac arrest |
-| 2 | Orange | 45 | Heart attack, stroke, anaphylaxis |
-| 3 | Yellow | 60 | Asthma attack, appendicitis |
-| 4 | Green | 75 | Broken arm, sprain |
-| 5 | Blue | 90 | Sore throat, blisters |
+| 1 | Red | 60 | Major bleeding, cardiac arrest |
+| 2 | Orange | 90 | Heart attack, stroke, anaphylaxis |
+| 3 | Yellow | 150 | Asthma attack, appendicitis |
+| 4 | Green | 210 | Broken arm, sprain |
+| 5 | Blue | 270 | Sore throat, blisters |
 
-Patience values are defaults; each condition can override them in data. All numbers in this spec are first-pass values to tune in playtests.
+Patience values are defaults; each condition can override them in data. Mild patients wait much longer than sick ones (M2 playtest #20). Acuity 1 to 2 never leave, so their patience only sets the speed bonus; their real deadline is their escalation path, about 2 minutes untreated for a chest pain. All numbers in this spec are first-pass values to tune in playtests.
 
 ### 4.3 Base tasks
 
@@ -185,6 +185,7 @@ Cues never rely on color alone: each has a shape or motion and a text badge.
 - **Scarcity.** Key equipment is shared and limited (one crash cart, one EKG machine, one C-arm, one dialysis machine) and has to be wheeled where it's needed and returned or recharged.
 - **Tools.** Some things are carried, not wheeled, and never used up, like Overcooked's pots: two stethoscopes per ED, lying on the counters at the start, for checking vitals (M2 playtest #21).
 - **Bumping.** Players can't walk through each other, so cramped spots slow a team down. Nobody can shove a player who is working.
+- **No reaching through walls.** Players can only use or grab what they could touch without a wall in the way.
 - **Throwing.** Use with nothing to use it on throws what you hold, about 5 m. Throws fly over counters and beds but stop at walls, and a teammate with free hands catches anything that flies close to them. Planned on top of that:
   - Blood tubes that land badly break: −5 points and a spill to clean.
   - Defib pads thrown onto a coding patient count as placing the pads.
